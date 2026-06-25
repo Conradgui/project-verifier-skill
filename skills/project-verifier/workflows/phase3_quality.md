@@ -1,0 +1,89 @@
+# Phase 3: Quality Test Suite (Mocks and Mapped Behavior)
+
+## Purpose
+Build a robust testing suite utilizing mocks, fixtures, and scripted providers. This ensures the codebase logic, input boundaries, exception propagation, and security limits are verified without incurring API costs or executing destructive side effects.
+
+---
+
+## Instructions & Steps
+
+### Step 1: Self-Audit (Perform Before Code Generation)
+Answer these questions internally or in your thinking process before writing any code:
+1.  Are these tests designed from the user's perspective (evaluating core results/behaviors), or are they just mirroring code implementation?
+2.  Do we have enough information about inputs/outputs to write effective assertions, or are we just checking if functions run without raising errors?
+3.  Is there a risk that mock objects are too broad (e.g. mocking out the entire module under test and validating nothing)?
+
+### Step 2: Test Planning
+Outline a test matrix categorized under five key test buckets:
+*   **A. Single Path Verification**: Happy path tests for all P0 entry points.
+*   **B. Junction Synchronization**: Verify shared files, caches, or state stores. Ensure changes written by Process A are correctly parsed by Process B, and that corrupt state is handled gracefully.
+*   **C. Safety & Boundaries**: Feed empty variables, excessively long inputs, SQL injections, path traversal strings (e.g. `../../etc/passwd`), or type mismatches. Ensure the system halts safely or throws clean user-facing errors rather than crashing.
+*   **D. Fault Injection & Propagation**: Force failures (e.g., HTTP 500, network timeouts, invalid JSON response) inside dependent API clients or external system calls. Ensure the error is propagated clearly up the call stack rather than failing silently.
+*   **E. Isolation Verification**: Validate that prior test state (e.g., files left in temporary directories) does not affect subsequent runs. Use fresh directories or fixture setups for each run.
+
+**Ask the user to review the test plan before writing the actual code.**
+
+### Step 3: Implement Code Quality Tests
+Upon user approval, write the test suite:
+1.  **Framework Choice**: Detect the project's framework and use the standard testing tools (`pytest` for Python, `jest`/`vitest` for JS/TS, etc.).
+2.  **Mocking & Fixtures**: Setup local mock providers, fixtures, and context managers. Never let tests run real web requests (use tools like `unittest.mock`, `pytest-mock`, or JS mock frameworks).
+3.  **VCR Network Recording (Recommended)**: For projects calling external APIs, use a cassette-recording library to record network traffic on the first run and replay it locally thereafter.
+    *   **Python**: Use `vcrpy`. Instruct the agent to decorate tests with `@vcr.use_cassette('tests/fixtures/cassettes/test_name.yaml')`.
+    *   **JS/TS**: Use `msw` or `vcr` style fetch-interceptors to record API outputs to local JSON fixtures.
+4.  **Directory Structure**:
+    *   `tests/unit/` - Core mock tests (happy path, safety checks, exception tracking).
+    *   `tests/integration/` - High-level flow tests (e.g., verifying multi-step script execution using local mock assets).
+5.  **Formatting**: Name test functions with reference IDs, e.g. `test_P0_001__handles_missing_config_gracefully`.
+6.  **Environment Guards**: Integration tests requiring external keys should be guarded so they are skipped if credentials are missing (e.g., `@pytest.mark.skipif(not os.getenv("API_KEY"), ...)`).
+7.  **CI/CD Pipeline Setup**: Automatically generate a GitHub Actions workflow file under `.github/workflows/verify_pipeline.yml` in the project root to run mock tests automatically on push:
+    ```yaml
+    name: CI Code Quality Pipeline
+    on:
+      push:
+        branches: [ main, master, dev ]
+      pull_request:
+        branches: [ main, master, dev ]
+    jobs:
+      test:
+        runs-on: ubuntu-latest
+        steps:
+          - uses: actions/checkout@v4
+          - name: Set up Environment
+            uses: actions/setup-python@v5 # Or actions/setup-node for JS/TS
+            with:
+              python-version: '3.11'
+          - name: Install dependencies
+            run: |
+              pip install -r requirements.txt || npm install || true
+              pip install pytest pytest-mock vcrpy || true
+          - name: Run Code Quality Tests
+            run: chmod +x ./run_tests.sh && ./run_tests.sh unit
+    ```
+
+### Step 4: Write Independent Test Runner
+Generate a shell runner `run_tests.sh` in the project root:
+*   Supports options:
+    *   `./run_tests.sh unit` (Run mock tests that require no keys).
+    *   `./run_tests.sh integration` (Run integration tests requiring environment configurations).
+    *   `./run_tests.sh all` (Run everything).
+*   Cleans up temporary state directories automatically upon completion.
+*   Ensure it runs cleanly and returns appropriate exit codes (0 for success, non-zero for failure).
+
+---
+
+## Output Requirements
+When completing Phase 3, present the results to the user using this template:
+```markdown
+---
+本阶段生成了 [X] 个测试用例（unit:[a]个 / integration:[b]个），
+覆盖 [Y] 个 P0 路径，[Z] 个交汇点，[n] 个安全边界场景。
+
+三个关键问题需要你确认：
+① 有没有你平时手动测试时会做但这里没覆盖到的场景？
+② 测试函数的命名是否清楚到你看名字就知道它在测什么？
+③ run_tests.sh unit 能在你的环境里直接跑通吗？
+   如果跑不通，把错误信息告诉我。
+
+如无异议，回复「继续」；如有修改，直接告诉我。
+---
+```

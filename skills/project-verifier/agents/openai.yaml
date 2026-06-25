@@ -1,0 +1,7 @@
+interface:
+  display_name: "Project Verifier"
+  short_description: "Verify projects and generate interview evidence"
+  default_prompt: "Use $project-verifier to audit this project, generate verification evidence, and prepare an interview evidence pack."
+
+policy:
+  allow_implicit_invocation: true
