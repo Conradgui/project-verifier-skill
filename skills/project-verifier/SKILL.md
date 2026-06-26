@@ -1,13 +1,13 @@
 ---
 name: project-verifier
 description: >-
-  A modular project verification and job interview evidence generation suite.
+  A modular, evidence-backed project verification and interview evidence suite.
   Audits codebase health, creates diagrams, generates mock quality tests, real API
-  usability tests, automated benchmarks, and customized interview evidence packages.
-  Use when the user asks to verify a software project, generate project quality
-  evidence, prepare interview proof points, build mock or live usability tests,
-  benchmark an AI app against a baseline LLM, or run phase-specific project
-  verification workflows with project-verifier.
+  usability tests, reproducible benchmarks, and traceable interview evidence
+  packages. Use when the user asks to verify a software project, generate
+  project quality evidence, prepare interview proof points, build mock or live
+  usability tests, benchmark an AI app against a baseline LLM, or run
+  phase-specific project verification workflows with project-verifier.
 ---
 
 # Project Verifier & Quality Suite
@@ -30,7 +30,22 @@ repository root as the skill directory.
 
 This skill supports two execution modes:
 1. **Full Suite Mode (Recommended)**: Runs Phase 1 through Phase 6 sequentially in the same conversation session.
-2. **Selective Phase Mode**: Runs a specific phase standalone. To do this, the agent loads the corresponding phase instructions from the `workflows/` directory. If any pre-requisite information or outputs from earlier phases are missing, the agent will prompt you or perform a quick, non-destructive exploration of the codebase to collect the required context.
+2. **Selective Phase Mode**: Runs a specific phase standalone. To do this, the agent loads the corresponding phase instructions from the `workflows/` directory. If any pre-requisite information or outputs from earlier phases are missing, the agent must first perform a quick, non-destructive exploration and write the missing context into `project_verification_workbench/` before continuing.
+
+## Evidence Workbench Contract
+
+Create or reuse a folder named `project_verification_workbench/` in the target project root. Each phase must write durable evidence there before moving on:
+
+| Phase | Required workbench artifact | Purpose |
+|---|---|---|
+| Phase 1 | `phase1_audit.md` | Read-only audit, risk table, entry points, and proceed/stop decision. |
+| Phase 2 | `phase2_flow_matrix.md` | P0/P1/P2 path matrix used by later tests and benchmarks. |
+| Phase 3 | `phase3_test_plan.md`, `phase3_test_results.md` | Mock test plan, generated files, and actual run results. |
+| Phase 4 | `phase4_usability_results.json` | Real usability path results, required env vars, exit codes, durations, logs, and failure stages. |
+| Phase 5 | `phase5_benchmark_results.json` | Benchmark runner outputs with assertions and measurement boundaries. |
+| Phase 6 | `phase6_interview_source_map.md` | Source map linking interview claims to workbench evidence and user Grill answers. |
+
+Do not claim a quality, safety, cost, latency, or interview advantage unless it is backed by one of these artifacts or explicitly marked as not measured.
 
 ## Directory Structure & Installation
 

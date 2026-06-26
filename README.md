@@ -1,10 +1,10 @@
-# 🤖 AI-Agent Project Verifier & Portfolio Builder
+# AI-Agent Project Verifier & Evidence Builder
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 [![Agent Compatibility](https://img.shields.io/badge/Agent_CLIs-Claude_Code_|_Codex_|_Gemini-purple.svg)](https://github.com/features/copilot)
 
-> **将你的 AI 代理项目从“简易 Wrapper”提升为“企业级工程产品”，为你的求职面试与技术出海建立不可伪造的质量证据链。**
+> **为你的 AI 代理项目生成可复核、可解释、有边界的质量验证材料与面试证据。**
 
 ---
 
@@ -15,7 +15,7 @@
 2. **非确定性系统的管理**：大模型（LLM）的输出是发散且不稳定的，传统的单元测试无法有效评估其边界、成本消耗与幻觉率。
 3. **缺乏可量化的价值证据**：无法用数据直观证明“使用你的 Agent 系统”比“直接调用 OpenAI/Gemini 裸模型接口”到底强在哪里。
 
-**AI-Agent Project Verifier** 就是你的**自动化 QA 架构师**与**技术面试顾问**。它通过**三层测试框架**与**定制化岗位 Grill 对齐机制**，自动为你的项目注入工业级测试护栏，并生成专属面试证据包。
+**AI-Agent Project Verifier** 是一个面向 AI 项目的验证 workflow skill。它通过**三层测试框架**与**定制化岗位 Grill 对齐机制**，帮助你沉淀审计、测试、Benchmark 和面试表达材料。它不会自动证明项目“足够好”，而是要求每个质量主张都能追溯到具体测试、日志或 workbench 证据。
 
 ---
 
@@ -67,13 +67,15 @@ flowchart TD
 
 ## 🛠️ 三层测试框架 (3-Tier Testing Architecture)
 
-本套件严格遵循现代 AI 系统的分层测试最佳实践：
+本套件采用分层测试思路，但每一层能证明的范围不同：
 
 | 层级 | 测试类型 | 是否使用真实 API | 证明什么 (Proves What) |
 | :---: | :--- | :---: | :--- |
-| **L1** | **Mock 质量测试** | ❌ 使用 mock/VCR | **代码逻辑正确性与安全边界**。无 API 成本，极速运行，拦截 SQL 注入与路径穿越漏洞。 |
-| **L2** | **真实可用性测试** | ✅ 使用真实 API | **端到端（E2E）主流程畅通**。使用真实网络验证模型 API 解析与文件写入行为。 |
-| **L3** | **自动化 Benchmark 评测** | ✅ 使用真实 API | **系统的存在价值**。定量证明你的系统在“完整度、可审计性、安全性、Token效率”上显著优于裸模型。 |
+| **L1** | **Mock 质量测试** | ❌ 使用 mock/VCR | **代码逻辑与边界行为**。适合低成本验证输入边界、异常传播和本地副作用。 |
+| **L2** | **真实可用性测试** | ✅ 使用真实 API | **端到端（E2E）主流程是否跑通**。适合验证真实网络、模型 API 解析和文件写入行为。 |
+| **L3** | **自动化 Benchmark 评测** | ✅ 使用真实 API | **特定任务上的相对表现**。只有被 runner JSON、断言、日志或 evaluator 证据覆盖的维度，才能作为优势主张。 |
+
+所有阶段都会把关键证据写入目标项目的 `project_verification_workbench/`，后续阶段必须引用这些产物，而不是只依赖对话上下文。
 
 ---
 
@@ -162,17 +164,36 @@ chmod +x bootstrap.sh
 
 ---
 
+## ✅ 开发者验证
+
+提交 PR 或修改模板后，建议至少运行以下检查，确保核心模板行为没有回退：
+
+```bash
+PYTHONPYCACHEPREFIX=/tmp/project-verifier-pycache \
+  python3 project_verifier_iteration_workbench/20260626_skill_hardening/template_behavior_tests.py
+
+bash -n bootstrap.sh
+bash -n skills/project-verifier/templates/run_usability_template.sh
+
+PYTHONPYCACHEPREFIX=/tmp/project-verifier-pycache \
+  python3 -m py_compile \
+    skills/project-verifier/templates/benchmark_evaluator_template.py \
+    project_verifier_iteration_workbench/20260626_skill_hardening/template_behavior_tests.py
+```
+
+这些检查覆盖两类关键行为：Benchmark evaluator 不会在缺少证据时默认给高分；usability runner 会按 `.py`、`.sh`、`.ts` 脚本类型分发，并在缺少 TypeScript runtime 时给出清晰失败信息。
+
+---
+
 ## 📊 成果展现：Benchmark 雷达图看板
 
-在阶段 5 运行结束后，系统除了生成 Markdown 对比报告，还会在项目内自动输出静态可视化面板 `interview_evidence_pack/benchmark_radar.html`。双击即可在任何浏览器中打开：
-
-![Dashboard Preview](https://raw.githubusercontent.com/chartjs/Chart.js/master/assets/logo.svg) *(使用 Chart.js 渲染的动态雷达图效果展示)*
+在阶段 5 运行结束后，系统除了生成 Markdown 对比报告，还会在项目内输出静态可视化面板 `interview_evidence_pack/benchmark_radar.html`。双击即可在任何浏览器中打开。
 
 ### 生成的面试官证据包 (`interview_evidence_pack/`)
-在最后一阶段，Agent 会基于你的目标岗位招聘需求（JD）以及与你的 Grill 对齐内容，输出以下文档：
+在最后一阶段，Agent 会基于你的目标岗位招聘需求（JD）、Grill 对齐内容和 `project_verification_workbench/` 证据，输出以下文档：
 *   **`narrative_scripts.md`**：30秒、2分钟、5分钟的自我介绍与项目陈述话术。
 *   **`product_decisions.md`**：系统架构的关键技术折衷选择（Trade-offs）与裁剪范围记录。
-*   **`verification_evidence.md`**：可复现的自动化测试覆盖率数据与 Benchmark 量化优势指标。
+*   **`verification_evidence.md`**：可复核的自动化测试结果、Benchmark 量化指标，以及尚未被证明的边界。
 *   **`architectural_evolution.md`**：项目演进路径、现有技术债与重构路线图。
 
 ---

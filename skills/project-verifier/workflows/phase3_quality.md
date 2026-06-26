@@ -7,6 +7,9 @@ Build a robust testing suite utilizing mocks, fixtures, and scripted providers. 
 
 ## Instructions & Steps
 
+### Step 0: Load Flow Matrix
+Read `project_verification_workbench/phase2_flow_matrix.md` before planning tests. If it is missing, do not invent P0 paths from memory; perform a quick non-destructive recovery pass and write the recovered matrix before continuing.
+
 ### Step 1: Self-Audit (Perform Before Code Generation)
 Answer these questions internally or in your thinking process before writing any code:
 1.  Are these tests designed from the user's perspective (evaluating core results/behaviors), or are they just mirroring code implementation?
@@ -23,6 +26,8 @@ Outline a test matrix categorized under five key test buckets:
 
 **Ask the user to review the test plan before writing the actual code.**
 
+Write the approved plan to `project_verification_workbench/phase3_test_plan.md`. Include the P0 path IDs being tested, planned assertions, mock boundaries, and which tests are explicitly out of scope.
+
 ### Step 3: Implement Code Quality Tests
 Upon user approval, write the test suite:
 1.  **Framework Choice**: Detect the project's framework and use the standard testing tools (`pytest` for Python, `jest`/`vitest` for JS/TS, etc.).
@@ -35,7 +40,8 @@ Upon user approval, write the test suite:
     *   `tests/integration/` - High-level flow tests (e.g., verifying multi-step script execution using local mock assets).
 5.  **Formatting**: Name test functions with reference IDs, e.g. `test_P0_001__handles_missing_config_gracefully`.
 6.  **Environment Guards**: Integration tests requiring external keys should be guarded so they are skipped if credentials are missing (e.g., `@pytest.mark.skipif(not os.getenv("API_KEY"), ...)`).
-7.  **CI/CD Pipeline Setup**: Automatically generate a GitHub Actions workflow file under `.github/workflows/verify_pipeline.yml` in the project root to run mock tests automatically on push:
+7.  **CI/CD Pipeline Setup**: Generate a minimal GitHub Actions workflow file under `.github/workflows/verify_pipeline.yml` for the detected project stack. Do not use `|| true` to hide install or test failures. If the project has both Python and Node, choose the stack that owns the generated tests and mention the other as out of scope.
+    *   Python example:
     ```yaml
     name: CI Code Quality Pipeline
     on:
@@ -48,14 +54,38 @@ Upon user approval, write the test suite:
         runs-on: ubuntu-latest
         steps:
           - uses: actions/checkout@v4
-          - name: Set up Environment
-            uses: actions/setup-python@v5 # Or actions/setup-node for JS/TS
+          - name: Set up Python
+            uses: actions/setup-python@v5
             with:
               python-version: '3.11'
           - name: Install dependencies
             run: |
-              pip install -r requirements.txt || npm install || true
-              pip install pytest pytest-mock vcrpy || true
+              python -m pip install --upgrade pip
+              if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+              pip install pytest pytest-mock vcrpy
+          - name: Run Code Quality Tests
+            run: chmod +x ./run_tests.sh && ./run_tests.sh unit
+    ```
+    *   Node example:
+    ```yaml
+    name: CI Code Quality Pipeline
+    on:
+      push:
+        branches: [ main, master, dev ]
+      pull_request:
+        branches: [ main, master, dev ]
+    jobs:
+      test:
+        runs-on: ubuntu-latest
+        steps:
+          - uses: actions/checkout@v4
+          - name: Set up Node
+            uses: actions/setup-node@v4
+            with:
+              node-version: '20'
+              cache: npm
+          - name: Install dependencies
+            run: npm ci
           - name: Run Code Quality Tests
             run: chmod +x ./run_tests.sh && ./run_tests.sh unit
     ```
@@ -68,6 +98,7 @@ Generate a shell runner `run_tests.sh` in the project root:
     *   `./run_tests.sh all` (Run everything).
 *   Cleans up temporary state directories automatically upon completion.
 *   Ensure it runs cleanly and returns appropriate exit codes (0 for success, non-zero for failure).
+*   After running, write `project_verification_workbench/phase3_test_results.md` with generated test files, command output summary, pass/fail counts, and any skipped tests.
 
 ---
 

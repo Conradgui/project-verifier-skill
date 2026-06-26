@@ -7,6 +7,7 @@ Analyze the target codebase to understand its language, structure, entry points,
 *   **STRICTLY READ-ONLY**: Do not modify any files or write any code during this phase.
 *   **NO GUESSING**: Mark any unknown or ambiguous information with a red question mark `❓`. Do not hallucinate or assume.
 *   **IF SECURITY RISKS ARE FOUND**: Prioritize displaying them immediately.
+*   **WORKBENCH REQUIRED**: Create `project_verification_workbench/phase1_audit.md` and write the audit evidence there. This is the only file-writing exception to the read-only rule.
 
 ---
 
@@ -66,6 +67,15 @@ Evaluate and mark with 🔴 / ⚠️ / ✅ / ❓:
 ---
 
 ## Output Requirements
+
+Before presenting the response, write `project_verification_workbench/phase1_audit.md` with:
+*   Project overview.
+*   Security audit table with file paths and approximate line numbers.
+*   Code/API quality issues.
+*   Entry points and flow matrix.
+*   Sequential and component dependencies.
+*   Core value proposition candidates.
+*   Overall health rating and whether Phase 2 is allowed to proceed.
 
 Present the audit report using the following structure:
 1.  **Project Overview**

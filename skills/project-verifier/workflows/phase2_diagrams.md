@@ -7,6 +7,9 @@ Translate codebase logic and paths into visual workflows (Mermaid format), compi
 
 ## Instructions & Steps
 
+### Step 0: Load Phase 1 Evidence
+Read `project_verification_workbench/phase1_audit.md` first. If it is missing, perform a quick non-destructive exploration to recover entry points and risk areas, then write the recovered context to that file before continuing.
+
 ### Step 1: User Flow Mapping (User Perspective)
 Map out how users interact with the system. Focus entirely on user-facing actions and business terms (e.g., "User starts tool", "System runs query", "User reviews diff"), avoiding technical class/function names.
 
@@ -51,6 +54,7 @@ Create a Markdown table documenting testing targets for subsequent phases:
 |---------|-----------|----------|-------------|------------|------------------|---------------|-------------------|-------------------|---------------------|
 
 *   Mark **Benchmark Candidate** as Yes/No with a short justification.
+*   Write the complete matrix and diagram source snippets to `project_verification_workbench/phase2_flow_matrix.md`. Later phases must treat this file as the source of truth for P0/P1/P2 paths.
 
 ### Step 4: Documentation Integration (Safety Copy)
 1.  **Do not modify the original `README.md` file.**

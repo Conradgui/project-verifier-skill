@@ -11,12 +11,22 @@ Synthesize all verification data, code audits, and architectural details into hi
 
 ## Instructions & Steps
 
+### Step 0: Load Verification Evidence
+Read the workbench evidence before asking for role/JD:
+*   `project_verification_workbench/phase1_audit.md`
+*   `project_verification_workbench/phase2_flow_matrix.md`
+*   `project_verification_workbench/phase3_test_results.md`
+*   `project_verification_workbench/phase4_usability_results.json`
+*   `project_verification_workbench/phase5_benchmark_results.json`
+
+If any artifact is missing, list it as missing evidence. Missing evidence cannot be converted into an interview claim.
+
 ### Step 1: Request Target Role & JD
 Ask the user for their target role (e.g. AI PM, Full-stack Developer, Agent Engineer) and paste the Job Description (JD).
 *   **Fallback logic**: If the user responds with "继续" (Continue) or does not provide a JD, display the following warning:
     > [!WARNING]
     > **注意：由于未提供具体的岗位 JD，系统将默认采用通用 [全栈工程师 / AI 产品经理] 画像生成证据包。通用生成的内容对于特定岗位的针对性和竞争力可能会显著降低。**
-*   **Search alignment**: If a JD or role is provided, use the `search_web` tool to search for key industry expectations for this specific title. Extract 3-5 core competencies.
+*   **Search alignment**: If a JD or role is provided, use the current platform's available web/search tool to search for key industry expectations for this specific title. Extract 3-5 core competencies and include source/date notes. If web access is unavailable, state that alignment is based only on the provided JD.
 
 ### Step 2: Interactive "Grill" Session
 Before generating any files, present the user with 3 or 4 targeted questions to align on the core project narrative. The questions must force the user to unpack their specific decision logic and hands-on work:
@@ -47,11 +57,20 @@ Format as a detailed markdown table representing engineering decisions. Focus on
 Compile a summary of:
 *   Mock testing coverage results.
 *   Usability E2E success metrics.
-*   Automated Benchmark outcomes. Frame the metrics in a value-oriented way (e.g., "Through our modular testing pipeline, the application's stability score increased from 2/10 to 10/10 by implementing standard input sandboxes, saving an estimated X% in potential API billing loops").
+*   Automated Benchmark outcomes. Frame only measured metrics as value claims. For missing or not-measured dimensions, explicitly say they are not yet proven.
+*   Include a "Source Map" table linking each claim to the exact workbench artifact and line/section when available.
 
 #### 4. `architectural_evolution.md` (System Design & Tech Debt)
 *   Describe how the codebase evolved from a loose script to a robust modular application.
 *   Document existing technical debt and outline a roadmap of what would be refactored next if given more time.
+
+#### 5. Workbench Source Map
+Write `project_verification_workbench/phase6_interview_source_map.md` with:
+*   User-provided role/JD summary.
+*   User Grill answers.
+*   Claims used in the evidence pack.
+*   The workbench artifact backing each claim.
+*   Claims deliberately excluded because evidence was missing or weak.
 
 ---
 

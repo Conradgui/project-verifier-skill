@@ -7,6 +7,9 @@ Validate that the application works seamlessly under real-world conditions by ex
 
 ## Instructions & Steps
 
+### Step 0: Load Prior Evidence
+Read `project_verification_workbench/phase2_flow_matrix.md` and `project_verification_workbench/phase3_test_results.md` before planning real usability tests. If Phase 3 results are missing, state that mock-test maturity is unknown before running live paths.
+
 ### Step 1: Real Usability Test Planning
 Design real-world usage scenarios for the P0 paths documented in Phase 2.
 1.  **Define Inputs**: Choose realistic, domain-specific parameters. Do not use generic placeholders like "test", "foo", or "bar".
@@ -15,6 +18,7 @@ Design real-world usage scenarios for the P0 paths documented in Phase 2.
     *   Do not test the exact wording of natural language model outputs (as these can vary); instead, test structure, schema, file writes, and response headers.
 3.  **Specify Timeouts**: Set maximum wait times (e.g., 30s to 120s depending on call complexity) to prevent infinite loops or hanging connections.
 4.  **Identify Diagnostic Steps**: Note what parts of the script are most likely to fail due to rate limits or network issues, and how the runner can detect these errors.
+5.  **Declare Required Environment Variables**: List only the variables each real path truly requires. Do not hardcode generic API key assumptions. If variables are required by all scripts, write them to `tests/usability/required_env.txt` or instruct the runner via `USABILITY_REQUIRED_ENV`.
 
 **Ask the user to review the Usability Test Plan before writing scripts.**
 
@@ -32,9 +36,22 @@ Upon approval, create the test files:
 ### Step 3: Write Usability Test Runner
 Generate a shell runner `run_usability.sh` in the project root:
 *   Runs all E2E usability scripts sequentially.
-*   Enforces environment check: halts immediately and prompts the user if necessary API Keys (e.g. `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`) are missing from the environment.
+*   Enforces environment checks from `USABILITY_REQUIRED_ENV` or `tests/usability/required_env.txt`; do not assume provider-specific keys unless the project actually needs them.
 *   Provides a clean summary at the end showing pass rates: `X/Y usability paths passed.`
 *   Cleans up test state files.
+*   Writes `project_verification_workbench/phase4_usability_results.json` with one object per path:
+    ```json
+    {
+      "path_id": "P0_001",
+      "path_name": "Core path",
+      "required_env": ["MODEL_API_KEY"],
+      "exit_code": 0,
+      "duration_seconds": 12.4,
+      "log_path": "tests/usability/reports/usability_P0_001.log",
+      "failure_stage": null,
+      "errors": []
+    }
+    ```
 
 ---
 
