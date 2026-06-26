@@ -1,7 +1,7 @@
 interface:
   display_name: "Project Verifier"
-  short_description: "Verify projects with traceable evidence"
-  default_prompt: "Use $project-verifier to audit this project, write verification evidence to project_verification_workbench, and prepare an interview evidence pack only from measured evidence."
+  short_description: "Understand and verify projects with traceable evidence"
+  default_prompt: "Use $project-verifier to understand, map, audit, and verify this project with durable project_verification_workbench artifacts."
 
 policy:
   allow_implicit_invocation: true

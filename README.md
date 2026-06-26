@@ -1,36 +1,36 @@
-# AI-Agent Project Verifier & Evidence Builder
+# AI-Agent Project Understanding & Verification Skill
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 [![Agent Compatibility](https://img.shields.io/badge/Agent_CLIs-Claude_Code_|_Codex_|_Gemini-purple.svg)](https://github.com/features/copilot)
 
-> **为你的 AI 代理项目生成可复核、可解释、有边界的质量验证材料与面试证据。**
+> **帮助你理解项目结构、梳理架构与用户流程、看清安全/质量风险，并沉淀可复核的验证证据。**
 
 ---
 
 ## 🌟 核心痛点：为什么你需要它？
 
-在 AI-First 时代，构建一个基于大模型的 App 变得非常简单。但这给开发者带来了新的挑战：
-1. **面试官的质疑**：“你这个项目是不是套壳？系统稳定性怎么保证？你真的懂架构设计吗？”
-2. **非确定性系统的管理**：大模型（LLM）的输出是发散且不稳定的，传统的单元测试无法有效评估其边界、成本消耗与幻觉率。
-3. **缺乏可量化的价值证据**：无法用数据直观证明“使用你的 Agent 系统”比“直接调用 OpenAI/Gemini 裸模型接口”到底强在哪里。
+在 AI-First 时代，构建一个基于大模型的 App 变得非常简单，但理解、审计和解释一个项目仍然很难：
+1. **新接手项目时看不懂结构**：入口、模块关系、外部依赖、用户路径和风险节点散落在代码里。
+2. **需要系统化审计却缺少路径**：安全边界、异常处理、状态流转、API 成本风险很容易靠感觉判断。
+3. **需要用图表和证据解释项目价值**：仅靠 README 或口头描述，很难让别人快速理解项目是如何工作的、哪里已经验证过、哪里还没有被证明。
 
-**AI-Agent Project Verifier** 是一个面向 AI 项目的验证 workflow skill。它通过**三层测试框架**与**定制化岗位 Grill 对齐机制**，帮助你沉淀审计、测试、Benchmark 和面试表达材料。它不会自动证明项目“足够好”，而是要求每个质量主张都能追溯到具体测试、日志或 workbench 证据。
+**AI-Agent Project Verifier** 是一个面向 AI 项目的理解与验证 workflow skill。它帮助 Agent 读取代码、生成项目理解报告、架构图、用户流程图、流程矩阵、安全/质量审计、测试与 Benchmark 证据。它不是完整 SaaS 平台，也不能替代真实测试和人工判断；它的价值是把“项目如何工作、风险在哪里、哪些结论有证据”固定成可阅读、可复核的文档。
 
 ---
 
-## 🧭 6阶段项目质量与价值验证流
+## 🧭 6阶段项目理解与验证流
 
 ```mermaid
 flowchart TD
     %% Node Definitions
     START([1. 全仓库探索与安全审计])
-    DIAGRAMS[2. 流程/架构图与README更新]
+    DIAGRAMS[2. 项目理解文档包与README更新]
     MOCK_TESTS[3. Mock 单元测试与 GHA CI]
     REAL_E2E[4. 真实 API 可用性测试]
     BENCHMARK[5. 自动化 Benchmark 对比评估]
     INTERVIEW[6. 目标岗位 Grill 与面试证据包]
-    END([生成完整项目证据包])
+    END([生成项目理解与验证证据包])
 
     %% Connection Links
     START -->|安全绿灯| DIAGRAMS
@@ -41,6 +41,12 @@ flowchart TD
     INTERVIEW --> END
 
     %% Subgraphs
+    subgraph STAGE_UNDERSTAND["项目理解与架构梳理"]
+        direction TB
+        START
+        DIAGRAMS
+    end
+
     subgraph STAGE_QA["自动化质量护栏 (QA Shield)"]
         direction TB
         MOCK_TESTS
@@ -76,6 +82,42 @@ flowchart TD
 | **L3** | **自动化 Benchmark 评测** | ✅ 使用真实 API | **特定任务上的相对表现**。只有被 runner JSON、断言、日志或 evaluator 证据覆盖的维度，才能作为优势主张。 |
 
 所有阶段都会把关键证据写入目标项目的 `project_verification_workbench/`，后续阶段必须引用这些产物，而不是只依赖对话上下文。
+
+---
+
+## 📦 它会生成什么？
+
+这个 skill 会生成四类互相独立、但可以互相引用的产物：
+
+| 产物 | 默认位置 | 用途 |
+|---|---|---|
+| **项目理解文档包** | `project_verification_workbench/project_understanding/` | 面向人阅读，帮助用户理解项目是什么、入口在哪里、模块如何协作、用户如何使用、风险节点在哪里。 |
+| **验证 workbench** | `project_verification_workbench/phase*_*.md/json` | 面向后续阶段引用，保存审计、流程矩阵、测试计划、真实可用性结果、Benchmark 结果和面试证据来源。 |
+| **README 优化副本** | `README_updated_[Date]_[RandomID].md` | 基于理解结果生成目标项目 README 的改写副本；它不是项目理解文档包本身。 |
+| **面试/展示证据包** | `interview_evidence_pack/` | 面向面试、答辩和作品集讲解，基于 workbench 证据和用户 Grill 回答生成岗位化叙事材料。 |
+
+四类产物的关系是：`project_verification_workbench/` 是证据源，`project_understanding/` 是项目理解层，`README_updated_*` 是公开表达层，`interview_evidence_pack/` 是岗位/展示叙事层。面试证据包必须引用 workbench，不能凭空生成成果主张。
+
+项目理解文档包固定包含：
+
+```text
+project_verification_workbench/project_understanding/
+├── project_understanding_report.md
+├── architecture_diagrams.md
+├── user_flows.md
+└── flow_matrix.md
+```
+
+面试/展示证据包固定包含：
+
+```text
+interview_evidence_pack/
+├── narrative_scripts.md
+├── product_decisions.md
+├── verification_evidence.md
+├── architectural_evolution.md
+└── benchmark_radar.html
+```
 
 ---
 
@@ -127,10 +169,11 @@ chmod +x bootstrap.sh
 
 ```text
 # 一站式顺序运行 1-6 阶段
-使用 $project-verifier 对当前项目运行 phase1-phase6 全流程验证与面试证据生成。
+使用 $project-verifier 对当前项目运行 phase1-phase6 全流程项目理解、审计、验证与证据生成。
 
 # 选择性运行某一阶段
 使用 $project-verifier 对当前项目运行 phase1 只读探索和安全审计。
+使用 $project-verifier 的 phase2 为当前项目生成项目理解报告、架构图、用户流程图和流程矩阵。
 使用 $project-verifier 的 phase3 为当前项目生成 mock 测试和 GitHub Actions 配置。
 ```
 
@@ -149,7 +192,7 @@ chmod +x bootstrap.sh
 │           │     └── openai.yaml # Codex UI 元数据与默认调用提示
 │           ├── workflows/     # 每个验证阶段的独立 Workflow 配置文件
 │           │     ├── phase1_explore.md  # 阶段 1：只读源码探索与安全审计
-│           │     ├── phase2_diagrams.md # 阶段 2： Mermaid 图生成与 README 备份更新
+│           │     ├── phase2_diagrams.md # 阶段 2：项目理解文档包、Mermaid 图与 README 备份更新
 │           │     ├── phase3_quality.md  # 阶段 3：VCR 录制、单元测试与 GitHub Actions
 │           │     ├── phase4_usability.md# 阶段 4：真实 API 可用性测试
 │           │     ├── phase5_benchmark.md# 阶段 5：LLM-as-a-Judge 与 HTML 看板评测
@@ -190,7 +233,7 @@ PYTHONPYCACHEPREFIX=/tmp/project-verifier-pycache \
 在阶段 5 运行结束后，系统除了生成 Markdown 对比报告，还会在项目内输出静态可视化面板 `interview_evidence_pack/benchmark_radar.html`。双击即可在任何浏览器中打开。
 
 ### 生成的面试官证据包 (`interview_evidence_pack/`)
-在最后一阶段，Agent 会基于你的目标岗位招聘需求（JD）、Grill 对齐内容和 `project_verification_workbench/` 证据，输出以下文档：
+在最后一阶段，Agent 可以基于你的目标岗位招聘需求（JD）、Grill 对齐内容和 `project_verification_workbench/` 证据，输出以下派生材料：
 *   **`narrative_scripts.md`**：30秒、2分钟、5分钟的自我介绍与项目陈述话术。
 *   **`product_decisions.md`**：系统架构的关键技术折衷选择（Trade-offs）与裁剪范围记录。
 *   **`verification_evidence.md`**：可复核的自动化测试结果、Benchmark 量化指标，以及尚未被证明的边界。

@@ -1,7 +1,7 @@
-# Phase 2: User Flows, Architecture Diagrams, & Documentation Integration
+# Phase 2: Project Understanding, Diagrams, & Documentation Integration
 
 ## Purpose
-Translate codebase logic and paths into visual workflows (Mermaid format), compile a testing matrix, and integrate these assets into a copy of the project's main documentation.
+Translate codebase logic and paths into a fixed project understanding document package, visual workflows (Mermaid format), architecture/module diagrams, a testing matrix, and an optional README optimization copy.
 
 ---
 
@@ -54,9 +54,31 @@ Create a Markdown table documenting testing targets for subsequent phases:
 |---------|-----------|----------|-------------|------------|------------------|---------------|-------------------|-------------------|---------------------|
 
 *   Mark **Benchmark Candidate** as Yes/No with a short justification.
-*   Write the complete matrix and diagram source snippets to `project_verification_workbench/phase2_flow_matrix.md`. Later phases must treat this file as the source of truth for P0/P1/P2 paths.
+*   Write the complete matrix to both:
+    *   `project_verification_workbench/project_understanding/flow_matrix.md` for human reading.
+    *   `project_verification_workbench/phase2_flow_matrix.md` as the compatibility source of truth for Phase 3-5.
 
-### Step 4: Documentation Integration (Safety Copy)
+### Step 4: Generate Fixed Project Understanding Package
+Create `project_verification_workbench/project_understanding/` and write these four Markdown documents:
+
+1.  **`project_understanding_report.md`**
+    *   Explain what the project is in plain language.
+    *   List entry points, runtime commands, major modules, external integrations, state/storage locations, and top risks.
+    *   Include a short "How to read this project" section for a user who is new to the codebase.
+2.  **`architecture_diagrams.md`**
+    *   Include the top-level technical architecture Mermaid diagram.
+    *   Include module/data-flow diagrams when helpful.
+    *   Explain each diagram in 1-2 sentences and call out risk joints such as file writes, shell commands, database calls, and external APIs.
+3.  **`user_flows.md`**
+    *   Include P0/P1/P2 user flow Mermaid diagrams.
+    *   For each path, document user intent, inputs, outputs, success criteria, and failure/recovery behavior.
+4.  **`flow_matrix.md`**
+    *   Include the full path testing matrix from Step 3.
+    *   Keep path IDs stable because later phases use them as references.
+
+These documents are the primary human-facing project understanding package. They do not replace the README copy below and do not replace `phase2_flow_matrix.md`.
+
+### Step 5: Documentation Integration (README Safety Copy)
 1.  **Do not modify the original `README.md` file.**
 2.  Get the current system date in `YYYYMMDD` format and generate a 4-character random hexadecimal alphanumeric code (e.g., `a8f9`).
 3.  Copy the contents of the original `README.md` and write it to a new file named:
@@ -74,6 +96,12 @@ When completing Phase 2, provide the user with the following confirmation detail
 ---
 本阶段生成了用户流程图（[X] 条路径，P0:[a] / P1:[b] / P2:[c]）、
 架构图（[Y] 个模块）、流程矩阵（[Z] 条路径，其中 Benchmark 候选 [n] 条）。
+
+已成功创建项目理解文档包：
+[project_understanding_report.md](file:///absolute/path/to/project/project_verification_workbench/project_understanding/project_understanding_report.md)
+[architecture_diagrams.md](file:///absolute/path/to/project/project_verification_workbench/project_understanding/architecture_diagrams.md)
+[user_flows.md](file:///absolute/path/to/project/project_verification_workbench/project_understanding/user_flows.md)
+[flow_matrix.md](file:///absolute/path/to/project/project_verification_workbench/project_understanding/flow_matrix.md)
 
 已成功创建 README 副本文件并写入图表：
 [README_updated_[Date]_[RandomID].md](file:///absolute/path/to/copied/readme)

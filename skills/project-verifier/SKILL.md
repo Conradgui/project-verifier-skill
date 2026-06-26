@@ -1,19 +1,20 @@
 ---
 name: project-verifier
 description: >-
-  A modular, evidence-backed project verification and interview evidence suite.
-  Audits codebase health, creates diagrams, generates mock quality tests, real API
-  usability tests, reproducible benchmarks, and traceable interview evidence
-  packages. Use when the user asks to verify a software project, generate
-  project quality evidence, prepare interview proof points, build mock or live
-  usability tests, benchmark an AI app against a baseline LLM, or run
-  phase-specific project verification workflows with project-verifier.
+  A modular, evidence-backed project understanding and verification suite.
+  Reads codebases, maps architecture, documents user flows, audits security and
+  quality risks, generates mock and real usability tests, runs reproducible
+  benchmarks, and builds traceable evidence packages. Use when the user asks to
+  understand a software project, generate architecture or flow diagrams, audit a
+  project, verify project quality, prepare interview proof points, build mock or
+  live usability tests, benchmark an AI app against a baseline LLM, or run
+  phase-specific project-verifier workflows.
 ---
 
 # Project Verifier & Quality Suite
 
 ## Overview
-This skill provides a comprehensive, 6-phase project quality verification and job interview evidence generation framework. It is designed to work with AI Coding Agents (such as Claude Code, Codex, Cursor Agent, Gemini CLI, etc.) to establish robust software testing structures and produce high-quality evidence packages for career development and interviews.
+This skill provides a comprehensive, 6-phase project understanding and verification framework. It is designed to work with AI Coding Agents (such as Claude Code, Codex, Cursor Agent, Gemini CLI, etc.) to help users understand a codebase, map architecture and user flows, audit risks, establish testing structures, and produce traceable evidence packages. It is a workflow skill, not a guarantee of project quality; every quality or interview claim must be backed by durable evidence.
 
 ## Identity
 
@@ -39,13 +40,29 @@ Create or reuse a folder named `project_verification_workbench/` in the target p
 | Phase | Required workbench artifact | Purpose |
 |---|---|---|
 | Phase 1 | `phase1_audit.md` | Read-only audit, risk table, entry points, and proceed/stop decision. |
-| Phase 2 | `phase2_flow_matrix.md` | P0/P1/P2 path matrix used by later tests and benchmarks. |
+| Phase 2 | `project_understanding/project_understanding_report.md` | Human-readable project understanding report. |
+| Phase 2 | `project_understanding/architecture_diagrams.md` | Technical architecture, module, data-flow, dependency, and risk-joint diagrams. |
+| Phase 2 | `project_understanding/user_flows.md` | P0/P1/P2 user flows, inputs, outputs, and failure recovery paths. |
+| Phase 2 | `project_understanding/flow_matrix.md`, `phase2_flow_matrix.md` | Human-readable and compatibility copies of the path matrix used by later tests and benchmarks. |
 | Phase 3 | `phase3_test_plan.md`, `phase3_test_results.md` | Mock test plan, generated files, and actual run results. |
 | Phase 4 | `phase4_usability_results.json` | Real usability path results, required env vars, exit codes, durations, logs, and failure stages. |
 | Phase 5 | `phase5_benchmark_results.json` | Benchmark runner outputs with assertions and measurement boundaries. |
 | Phase 6 | `phase6_interview_source_map.md` | Source map linking interview claims to workbench evidence and user Grill answers. |
 
 Do not claim a quality, safety, cost, latency, or interview advantage unless it is backed by one of these artifacts or explicitly marked as not measured.
+
+## User-Facing Deliverables
+
+The full suite produces four independent but cross-referenceable deliverable families:
+
+| Deliverable | Default path | Audience and purpose |
+|---|---|---|
+| Project understanding package | `project_verification_workbench/project_understanding/` | Human-readable explanation of what the project is, where it starts, how modules cooperate, how users move through it, and where risks sit. |
+| Verification workbench | `project_verification_workbench/phase*_*.md/json` | Durable source of truth for later phases, including audits, flow matrix, test plans, usability results, benchmark results, and interview source maps. |
+| README update copy | `README_updated_[Date]_[RandomID].md` | Public-facing README rewrite based on the understanding artifacts. This is not a replacement for the project understanding package. |
+| Interview / presentation evidence pack | `interview_evidence_pack/` | Role-specific narratives, decision logs, verification summaries, architecture evolution notes, and benchmark visuals derived from workbench evidence and user Grill answers. |
+
+Treat `interview_evidence_pack/` as a presentation layer, not a new source of truth. Strong claims in that pack must cite `project_verification_workbench/phase6_interview_source_map.md` or an earlier phase artifact.
 
 ## Directory Structure & Installation
 
@@ -59,7 +76,7 @@ project-verifier/
   ├── SKILL.md                 # This file (Main Orchestrator)
   ├── workflows/               # Instruction workflows for each individual phase
   │     ├── phase1_explore.md  # Safe repo exploration & audit
-  │     ├── phase2_diagrams.md # Mermaid flowchart, architecture, & README update
+  │     ├── phase2_diagrams.md # Project understanding docs, Mermaid diagrams, & README update
   │     ├── phase3_quality.md  # Mock-based unit/integration tests & CI templates
   │     ├── phase4_usability.md# Real API usability verification
   │     ├── phase5_benchmark.md# Automated Tool vs. Baseline LLM evaluation & HTML charts
@@ -96,9 +113,9 @@ To run a specific phase, load and execute the corresponding instructions:
 *   **Purpose**: Read codebase, evaluate basic architectures, list entry points, and identify security vulnerabilities (🔴/⚠️/✅/❓).
 *   **Safety rule**: Strictly read-only. Do not edit files or write code in this phase.
 
-### Phase 2: Visuals & Documentation (`workflows/phase2_diagrams.md`)
-*   **Purpose**: Create user flow and technical architecture diagrams (Mermaid).
-*   **Safety rule**: Original `README.md` is preserved. A copy is created at `README_updated_[Date]_[RandomID].md` with embedded diagrams.
+### Phase 2: Project Understanding & Diagrams (`workflows/phase2_diagrams.md`)
+*   **Purpose**: Create a fixed project understanding document package, including project overview, technical architecture diagrams, module/data-flow diagrams, user flow diagrams, and a reusable flow matrix.
+*   **Safety rule**: Original `README.md` is preserved. A copy is created at `README_updated_[Date]_[RandomID].md` with embedded diagrams. The fixed understanding package is written separately under `project_verification_workbench/project_understanding/`.
 
 ### Phase 3: Quality Mock Tests (`workflows/phase3_quality.md`)
 *   **Purpose**: Generate unit and integration tests using mock / scripted providers. Output runner to `run_tests.sh`.

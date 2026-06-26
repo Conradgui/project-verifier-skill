@@ -21,6 +21,8 @@ Read the workbench evidence before asking for role/JD:
 
 If any artifact is missing, list it as missing evidence. Missing evidence cannot be converted into an interview claim.
 
+The interview evidence pack is a derived presentation layer, not a new source of truth. Every strong outcome, quality, safety, benchmark, or architecture claim must be traceable to `project_verification_workbench/phase6_interview_source_map.md` or one of the prior phase artifacts listed above.
+
 ### Step 1: Request Target Role & JD
 Ask the user for their target role (e.g. AI PM, Full-stack Developer, Agent Engineer) and paste the Job Description (JD).
 *   **Fallback logic**: If the user responds with "继续" (Continue) or does not provide a JD, display the following warning:
