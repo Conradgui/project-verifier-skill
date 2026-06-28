@@ -1,7 +1,7 @@
 interface:
   display_name: "Project Verifier"
   short_description: "Understand and verify projects with traceable evidence"
-  default_prompt: "Use $project-verifier to understand, map, audit, and verify this project with durable project_verification_workbench artifacts."
+  default_prompt: "Use $project-verifier to understand, map, audit, and verify this project with durable artifacts, guided user gates, conditional live tests, and an optional interview evidence pack."
 
 policy:
   allow_implicit_invocation: true

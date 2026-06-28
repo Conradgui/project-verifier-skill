@@ -15,29 +15,40 @@
 2. **需要系统化审计却缺少路径**：安全边界、异常处理、状态流转、API 成本风险很容易靠感觉判断。
 3. **需要用图表和证据解释项目价值**：仅靠 README 或口头描述，很难让别人快速理解项目是如何工作的、哪里已经验证过、哪里还没有被证明。
 
-**AI-Agent Project Verifier** 是一个面向 AI 项目的理解与验证 workflow skill。它帮助 Agent 读取代码、生成项目理解报告、架构图、用户流程图、流程矩阵、安全/质量审计、测试与 Benchmark 证据。它不是完整 SaaS 平台，也不能替代真实测试和人工判断；它的价值是把“项目如何工作、风险在哪里、哪些结论有证据”固定成可阅读、可复核的文档。
+**AI-Agent Project Verifier** 是一个面向软件项目的理解与验证 workflow skill。项目理解、审计和 L1/L2 适用于一般软件项目；L3 比较评测只适用于 AI / AI-assisted 功能。它不是完整 SaaS 平台，也不能替代真实测试和人工判断；它的价值是把“项目如何工作、风险在哪里、哪些结论有证据”固定成可阅读、可复核的文档。
 
 ---
 
-## 🧭 6阶段项目理解与验证流
+## 🧭 条件式 6 阶段项目理解与验证流
 
 ```mermaid
 flowchart TD
-    %% Node Definitions
     START([1. 全仓库探索与安全审计])
-    DIAGRAMS[2. 项目理解文档包与README更新]
-    MOCK_TESTS[3. Mock 单元测试与 GHA CI]
-    REAL_E2E[4. 真实 API 可用性测试]
-    BENCHMARK[5. 自动化 Benchmark 对比评估]
-    INTERVIEW[6. 目标岗位 Grill 与面试证据包]
-    END([生成项目理解与验证证据包])
+    DIAGRAMS[2. 项目理解文档包与可选 README 副本]
+    MOCK_TESTS[3. L1 离线 Mock Quality]
+    E2E_GATE{4. L2 环境与执行授权}
+    REAL_E2E[真实 E2E]
+    E2E_PLAN[仅保存可恢复计划]
+    EVAL_GATE{5. 是否为可评测 AI 功能}
+    BENCHMARK[引导式 AI Comparative Eval]
+    EVAL_PLAN[不适用或仅保存计划]
+    INTERVIEW_GATE{是否需要 Phase 6}
+    INTERVIEW[6. 面试或展示证据包]
+    END([保留当前理解与验证证据])
 
-    %% Connection Links
     START -->|安全绿灯| DIAGRAMS
     DIAGRAMS --> MOCK_TESTS
-    MOCK_TESTS -->|CI 测试通过| REAL_E2E
-    REAL_E2E --> BENCHMARK
-    BENCHMARK --> INTERVIEW
+    MOCK_TESTS --> E2E_GATE
+    E2E_GATE -->|环境就绪且用户授权| REAL_E2E
+    E2E_GATE -->|缺依赖或用户跳过| E2E_PLAN
+    REAL_E2E --> EVAL_GATE
+    E2E_PLAN --> EVAL_GATE
+    EVAL_GATE -->|AI 或 AI-assisted| BENCHMARK
+    EVAL_GATE -->|non-AI 或 plan-only| EVAL_PLAN
+    BENCHMARK --> INTERVIEW_GATE
+    EVAL_PLAN --> INTERVIEW_GATE
+    INTERVIEW_GATE -->|明确需要| INTERVIEW
+    INTERVIEW_GATE -->|不需要| END
     INTERVIEW --> END
 
     %% Subgraphs
@@ -47,27 +58,42 @@ flowchart TD
         DIAGRAMS
     end
 
-    subgraph STAGE_QA["自动化质量护栏 (QA Shield)"]
+    subgraph STAGE_QA["通用离线质量护栏"]
         direction TB
         MOCK_TESTS
-        REAL_E2E
     end
 
-    subgraph STAGE_EVAL["价值评估与面试套件"]
+    subgraph STAGE_LIVE["条件式真实验证"]
         direction TB
+        E2E_GATE
+        REAL_E2E
+        E2E_PLAN
+        EVAL_GATE
         BENCHMARK
+        EVAL_PLAN
+    end
+
+    subgraph STAGE_OPTIONAL["可选展示层"]
+        direction TB
+        INTERVIEW_GATE
         INTERVIEW
     end
 
     %% Class Defs & Styling
     classDef main fill:#dbeafe,stroke:#3b82f6,color:#111827,stroke-width:2px
     classDef harness fill:#ede9fe,stroke:#8b5cf6,color:#111827,stroke-width:2px
+    classDef decision fill:#fef9c3,stroke:#ca8a04,color:#111827,stroke-width:2px
+    classDef terminal fill:#f3f4f6,stroke:#6b7280,color:#111827,stroke-width:2px
     classDef success fill:#dcfce7,stroke:#22c55e,color:#111827,stroke-width:2px
-    
+
     class START,DIAGRAMS main
     class MOCK_TESTS,REAL_E2E,BENCHMARK harness
+    class E2E_GATE,EVAL_GATE,INTERVIEW_GATE decision
+    class E2E_PLAN,EVAL_PLAN terminal
     class INTERVIEW,END success
 ```
+
+Full Suite 默认完成 Phase 1–3。Phase 4 和 Phase 5 只有在适用、环境就绪且用户明确授权时才真实执行；Phase 6 永远是可选项。
 
 ---
 
@@ -75,13 +101,15 @@ flowchart TD
 
 本套件采用分层测试思路，但每一层能证明的范围不同：
 
-| 层级 | 测试类型 | 是否使用真实 API | 证明什么 (Proves What) |
-| :---: | :--- | :---: | :--- |
-| **L1** | **Mock 质量测试** | ❌ 使用 mock/VCR | **代码逻辑与边界行为**。适合低成本验证输入边界、异常传播和本地副作用。 |
-| **L2** | **真实可用性测试** | ✅ 使用真实 API | **端到端（E2E）主流程是否跑通**。适合验证真实网络、模型 API 解析和文件写入行为。 |
-| **L3** | **自动化 Benchmark 评测** | ✅ 使用真实 API | **特定任务上的相对表现**。只有被 runner JSON、断言、日志或 evaluator 证据覆盖的维度，才能作为优势主张。 |
+| 层级 | 定位 | 适用范围 | 环境要求 | 无环境或用户跳过时 | 能证明什么 |
+| :---: | :--- | :--- | :--- | :--- | :--- |
+| **L1 Mock Quality** | 离线代码质量测试 | 几乎所有代码项目 | 不需要真实 Key 或后端 | 正常执行 | 代码逻辑、输入边界、异常传播和本地副作用。 |
+| **L2 Live Usability/E2E** | 条件式真实用户链路 | 有可运行产品入口的项目，不限 AI | 仅在项目真实依赖时需要 Key、数据库或服务 | 生成 `plan-only` 可恢复计划，不调用真实服务 | 当前真实环境中的主流程是否跑通。 |
+| **L3 AI Comparative Eval** | AI 功能相对合理基线的比较评测 | 仅 AI / AI-assisted 且存在可比较主张的项目 | 可运行推理后端、批准的 rubric 和调用预算 | 生成场景与计划，不评分、不伪造优势 | 特定任务和批准指标上的相对表现。 |
 
-所有阶段都会把关键证据写入目标项目的 `project_verification_workbench/`，后续阶段必须引用这些产物，而不是只依赖对话上下文。
+L2/L3 的无调用 preflight 用来检查 runner、环境变量名称和输出 schema，不执行真实测试。真实 Smoke 只在高风险场景推荐，结果标记为 `pilot_only`，不能替代完整 Benchmark。
+
+所有阶段都会把关键证据和状态写入 `project_verification_workbench/`。`verification_manifest.md` 使用 `pending / in_progress / completed / blocked / skipped / not_applicable / failed` 跟踪阶段，并保存用户授权、阻塞项与恢复条件。
 
 ---
 
@@ -93,8 +121,8 @@ flowchart TD
 |---|---|---|
 | **项目理解文档包** | `project_verification_workbench/project_understanding/` | 面向人阅读，帮助用户理解项目是什么、入口在哪里、模块如何协作、用户如何使用、风险节点在哪里。 |
 | **验证 workbench** | `project_verification_workbench/phase*_*.md/json` | 面向后续阶段引用，保存审计、流程矩阵、测试计划、真实可用性结果、Benchmark 结果和面试证据来源。 |
-| **README 优化副本** | `README_updated_[Date]_[RandomID].md` | 基于理解结果生成目标项目 README 的改写副本；它不是项目理解文档包本身。 |
-| **面试/展示证据包** | `interview_evidence_pack/` | 面向面试、答辩和作品集讲解，基于 workbench 证据和用户 Grill 回答生成岗位化叙事材料。 |
+| **README 优化副本** | `README_updated_[Date]_[RandomID].md` | Phase 2 中由用户选择后生成；它不是项目理解文档包本身。 |
+| **面试/展示证据包** | `interview_evidence_pack/` | 仅在用户明确进入可选 Phase 6 后生成，基于 workbench 证据和用户 Grill 回答形成岗位化叙事材料。 |
 
 四类产物的关系是：`project_verification_workbench/` 是证据源，`project_understanding/` 是项目理解层，`README_updated_*` 是公开表达层，`interview_evidence_pack/` 是岗位/展示叙事层。面试证据包必须引用 workbench，不能凭空生成成果主张。
 
@@ -108,7 +136,7 @@ project_verification_workbench/project_understanding/
 └── flow_matrix.md
 ```
 
-面试/展示证据包固定包含：
+面试/展示证据包在用户明确选择 Phase 6 后包含：
 
 ```text
 interview_evidence_pack/
@@ -116,7 +144,7 @@ interview_evidence_pack/
 ├── product_decisions.md
 ├── verification_evidence.md
 ├── architectural_evolution.md
-└── benchmark_radar.html
+└── benchmark_radar.html  # 仅当 Phase 5 有至少三个可比、rubric-backed 数字维度
 ```
 
 ---
@@ -168,8 +196,8 @@ chmod +x bootstrap.sh
 部署完成后，在你的 AI 编程终端（如 **Codex** 或 **Claude Code**）中，对目标项目执行：
 
 ```text
-# 一站式顺序运行 1-6 阶段
-使用 $project-verifier 对当前项目运行 phase1-phase6 全流程项目理解、审计、验证与证据生成。
+# 条件式 Full Suite：1-3 为核心，4-5 按环境和授权执行，6 需明确选择
+使用 $project-verifier 对当前项目运行条件式全流程项目理解、审计与验证，并在每个真实调用或可选产物前向我确认。
 
 # 选择性运行某一阶段
 使用 $project-verifier 对当前项目运行 phase1 只读探索和安全审计。
@@ -193,13 +221,15 @@ chmod +x bootstrap.sh
 │           ├── workflows/     # 每个验证阶段的独立 Workflow 配置文件
 │           │     ├── phase1_explore.md  # 阶段 1：只读源码探索与安全审计
 │           │     ├── phase2_diagrams.md # 阶段 2：项目理解文档包、Mermaid 图与 README 备份更新
-│           │     ├── phase3_quality.md  # 阶段 3：VCR 录制、单元测试与 GitHub Actions
-│           │     ├── phase4_usability.md# 阶段 4：真实 API 可用性测试
-│           │     ├── phase5_benchmark.md# 阶段 5：LLM-as-a-Judge 与 HTML 看板评测
-│           │     └── phase6_interview.md# 阶段 6：目标岗位 Grill 与面试证据包
-│           └── templates/     # 评估器与测试运行器模板
-│                 ├── benchmark_evaluator_template.py # Radar 图 HTML 生成器
-│                 └── run_usability_template.sh       # 独立 E2E 测试脚本
+│           │     ├── phase3_quality.md  # 阶段 3：离线 Mock、单元测试与 GitHub Actions
+│           │     ├── phase4_usability.md# 阶段 4：条件式真实 E2E
+│           │     ├── phase5_benchmark.md# 阶段 5：引导式 AI 比较评测
+│           │     └── phase6_interview.md# 阶段 6：可选目标岗位与展示证据包
+│           ├── templates/     # 评估器与测试运行器模板
+│           │     ├── benchmark_evaluator_template.py # Radar 图 HTML 生成器
+│           │     └── run_usability_template.sh       # 独立 E2E 测试脚本
+│           └── evals/
+│                 └── evals.json # 六类条件流程行为评测提示
 ├── CONTRIBUTING.md            # 开源贡献指南
 ├── LICENSE                    # MIT 开源许可证
 └── README.md                  # 本文档
@@ -215,25 +245,29 @@ chmod +x bootstrap.sh
 PYTHONPYCACHEPREFIX=/tmp/project-verifier-pycache \
   python3 project_verifier_iteration_workbench/20260626_skill_hardening/template_behavior_tests.py
 
+PYTHONPYCACHEPREFIX=/tmp/project-verifier-pycache \
+  python3 project_verifier_iteration_workbench/20260628_conditional_eval_gates/workflow_contract_tests.py
+
 bash -n bootstrap.sh
 bash -n skills/project-verifier/templates/run_usability_template.sh
 
 PYTHONPYCACHEPREFIX=/tmp/project-verifier-pycache \
   python3 -m py_compile \
     skills/project-verifier/templates/benchmark_evaluator_template.py \
-    project_verifier_iteration_workbench/20260626_skill_hardening/template_behavior_tests.py
+    project_verifier_iteration_workbench/20260626_skill_hardening/template_behavior_tests.py \
+    project_verifier_iteration_workbench/20260628_conditional_eval_gates/workflow_contract_tests.py
 ```
 
-这些检查覆盖两类关键行为：Benchmark evaluator 不会在缺少证据时默认给高分；usability runner 会按 `.py`、`.sh`、`.ts` 脚本类型分发，并在缺少 TypeScript runtime 时给出清晰失败信息。
+这些检查覆盖条件阶段门、Phase 6 opt-in、rubric-backed 评分、pilot 边界、无调用 preflight，以及 `.py`、`.sh`、`.ts` runner 分发。
 
 ---
 
-## 📊 成果展现：Benchmark 雷达图看板
+## 📊 条件式 Benchmark 雷达图
 
-在阶段 5 运行结束后，系统除了生成 Markdown 对比报告，还会在项目内输出静态可视化面板 `interview_evidence_pack/benchmark_radar.html`。双击即可在任何浏览器中打开。
+Phase 5 完整执行且双方至少有三个可比、预先批准评分标准的数字维度时，系统才会生成 `benchmarks/results/benchmark_radar.html`。指标不足时只输出 Markdown 结果，不用空缺或推测分数凑图。
 
 ### 生成的面试官证据包 (`interview_evidence_pack/`)
-在最后一阶段，Agent 可以基于你的目标岗位招聘需求（JD）、Grill 对齐内容和 `project_verification_workbench/` 证据，输出以下派生材料：
+用户明确选择 Phase 6 后，Agent 才会基于目标岗位招聘需求（JD）、Grill 对齐内容和 `project_verification_workbench/` 证据输出以下派生材料：
 *   **`narrative_scripts.md`**：30秒、2分钟、5分钟的自我介绍与项目陈述话术。
 *   **`product_decisions.md`**：系统架构的关键技术折衷选择（Trade-offs）与裁剪范围记录。
 *   **`verification_evidence.md`**：可复核的自动化测试结果、Benchmark 量化指标，以及尚未被证明的边界。

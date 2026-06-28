@@ -8,7 +8,7 @@ Build a robust testing suite utilizing mocks, fixtures, and scripted providers. 
 ## Instructions & Steps
 
 ### Step 0: Load Flow Matrix
-Read `project_verification_workbench/phase2_flow_matrix.md` before planning tests. If it is missing, do not invent P0 paths from memory; perform a quick non-destructive recovery pass and write the recovered matrix before continuing.
+Read `project_verification_workbench/verification_manifest.md` and `project_verification_workbench/phase2_flow_matrix.md` before planning tests. If the matrix is missing, do not invent P0 paths from memory; recover and persist it first. Set Phase 3 to `in_progress`.
 
 ### Step 1: Self-Audit (Perform Before Code Generation)
 Answer these questions internally or in your thinking process before writing any code:
@@ -24,7 +24,7 @@ Outline a test matrix categorized under five key test buckets:
 *   **D. Fault Injection & Propagation**: Force failures (e.g., HTTP 500, network timeouts, invalid JSON response) inside dependent API clients or external system calls. Ensure the error is propagated clearly up the call stack rather than failing silently.
 *   **E. Isolation Verification**: Validate that prior test state (e.g., files left in temporary directories) does not affect subsequent runs. Use fresh directories or fixture setups for each run.
 
-**Ask the user to review the test plan before writing the actual code.**
+**Ask the user to review the test plan before writing the actual code.** Show the exact test files, runner files, CI files, and dependency commands that would be added or changed. Do not install a package or edit CI until the user approves that list.
 
 Write the approved plan to `project_verification_workbench/phase3_test_plan.md`. Include the P0 path IDs being tested, planned assertions, mock boundaries, and which tests are explicitly out of scope.
 
@@ -32,14 +32,12 @@ Write the approved plan to `project_verification_workbench/phase3_test_plan.md`.
 Upon user approval, write the test suite:
 1.  **Framework Choice**: Detect the project's framework and use the standard testing tools (`pytest` for Python, `jest`/`vitest` for JS/TS, etc.).
 2.  **Mocking & Fixtures**: Setup local mock providers, fixtures, and context managers. Never let tests run real web requests (use tools like `unittest.mock`, `pytest-mock`, or JS mock frameworks).
-3.  **VCR Network Recording (Recommended)**: For projects calling external APIs, use a cassette-recording library to record network traffic on the first run and replay it locally thereafter.
-    *   **Python**: Use `vcrpy`. Instruct the agent to decorate tests with `@vcr.use_cassette('tests/fixtures/cassettes/test_name.yaml')`.
-    *   **JS/TS**: Use `msw` or `vcr` style fetch-interceptors to record API outputs to local JSON fixtures.
+3.  **Offline Fixtures**: Use hand-authored fixtures, scripted providers, or user-provided sanitized recordings. Do not record live traffic in Phase 3. If a new recording is genuinely needed, move that activity to the Phase 4 live-call authorization gate.
 4.  **Directory Structure**:
     *   `tests/unit/` - Core mock tests (happy path, safety checks, exception tracking).
     *   `tests/integration/` - High-level flow tests (e.g., verifying multi-step script execution using local mock assets).
 5.  **Formatting**: Name test functions with reference IDs, e.g. `test_P0_001__handles_missing_config_gracefully`.
-6.  **Environment Guards**: Integration tests requiring external keys should be guarded so they are skipped if credentials are missing (e.g., `@pytest.mark.skipif(not os.getenv("API_KEY"), ...)`).
+6.  **No Live Credentials**: Phase 3 tests must not require external keys or real network access. Move any such path to Phase 4 and list it as out of scope here.
 7.  **CI/CD Pipeline Setup**: Generate a minimal GitHub Actions workflow file under `.github/workflows/verify_pipeline.yml` for the detected project stack. Do not use `|| true` to hide install or test failures. If the project has both Python and Node, choose the stack that owns the generated tests and mention the other as out of scope.
     *   Python example:
     ```yaml
@@ -62,7 +60,7 @@ Upon user approval, write the test suite:
             run: |
               python -m pip install --upgrade pip
               if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-              pip install pytest pytest-mock vcrpy
+              pip install pytest pytest-mock
           - name: Run Code Quality Tests
             run: chmod +x ./run_tests.sh && ./run_tests.sh unit
     ```
@@ -93,12 +91,12 @@ Upon user approval, write the test suite:
 ### Step 4: Write Independent Test Runner
 Generate a shell runner `run_tests.sh` in the project root:
 *   Supports options:
-    *   `./run_tests.sh unit` (Run mock tests that require no keys).
-    *   `./run_tests.sh integration` (Run integration tests requiring environment configurations).
+    *   `./run_tests.sh unit` (Run isolated unit tests with no keys).
+    *   `./run_tests.sh integration` (Run offline multi-module tests with local fixtures).
     *   `./run_tests.sh all` (Run everything).
 *   Cleans up temporary state directories automatically upon completion.
 *   Ensure it runs cleanly and returns appropriate exit codes (0 for success, non-zero for failure).
-*   After running, write `project_verification_workbench/phase3_test_results.md` with generated test files, command output summary, pass/fail counts, and any skipped tests.
+*   After running, write `project_verification_workbench/phase3_test_results.md` with generated test files, command output summary, pass/fail counts, and any skipped tests. Update the manifest with Phase 3 status and artifacts.
 
 ---
 
@@ -115,6 +113,6 @@ When completing Phase 3, present the results to the user using this template:
 ③ run_tests.sh unit 能在你的环境里直接跑通吗？
    如果跑不通，把错误信息告诉我。
 
-如无异议，回复「继续」；如有修改，直接告诉我。
+请选择：回复「继续」评估 Phase 4；回复「修改」调整测试；或回复「停止」并保留当前产物。
 ---
 ```

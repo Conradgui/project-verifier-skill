@@ -3,6 +3,8 @@
 ## Purpose
 Synthesize all verification data, code audits, and architectural details into high-value professional assets. This phase customizes pitches, trade-off logs, and evidence summaries to align with a specific job description and target role.
 
+This phase is optional. Do not create `interview_evidence_pack/` unless the user explicitly opted in at the Phase 5 gate or explicitly requested Phase 6 in Selective Phase Mode.
+
 > [!IMPORTANT]
 > **核心原则：去“AI味”黑话，建“工程证据链”**
 > 面试官极度反感空泛的大模型黑话堆砌（如盲目排列 `RAG`、`Agent`、`DAG`、`Embedding` 等词）。本阶段生成的所有材料必须**少写抽象名词，多写具体判断；少写流程参与，多写“为什么这么做”；突出具体 Bad Case 及其调试定位细节。**
@@ -11,7 +13,9 @@ Synthesize all verification data, code audits, and architectural details into hi
 
 ## Instructions & Steps
 
-### Step 0: Load Verification Evidence
+### Step 0: Confirm Opt-In and Load Verification Evidence
+Confirm that the user explicitly opted in. If they decline, set Phase 6 to `skipped` in `verification_manifest.md`, create no interview files, and end.
+
 Read the workbench evidence before asking for role/JD:
 *   `project_verification_workbench/phase1_audit.md`
 *   `project_verification_workbench/phase2_flow_matrix.md`
@@ -19,16 +23,14 @@ Read the workbench evidence before asking for role/JD:
 *   `project_verification_workbench/phase4_usability_results.json`
 *   `project_verification_workbench/phase5_benchmark_results.json`
 
-If any artifact is missing, list it as missing evidence. Missing evidence cannot be converted into an interview claim.
+If an artifact is missing, blocked, skipped, pilot-only, or not applicable, preserve that boundary. Missing evidence cannot be converted into an interview claim.
 
 The interview evidence pack is a derived presentation layer, not a new source of truth. Every strong outcome, quality, safety, benchmark, or architecture claim must be traceable to `project_verification_workbench/phase6_interview_source_map.md` or one of the prior phase artifacts listed above.
 
 ### Step 1: Request Target Role & JD
-Ask the user for their target role (e.g. AI PM, Full-stack Developer, Agent Engineer) and paste the Job Description (JD).
-*   **Fallback logic**: If the user responds with "继续" (Continue) or does not provide a JD, display the following warning:
-    > [!WARNING]
-    > **注意：由于未提供具体的岗位 JD，系统将默认采用通用 [全栈工程师 / AI 产品经理] 画像生成证据包。通用生成的内容对于特定岗位的针对性和竞争力可能会显著降低。**
-*   **Search alignment**: If a JD or role is provided, use the current platform's available web/search tool to search for key industry expectations for this specific title. Extract 3-5 core competencies and include source/date notes. If web access is unavailable, state that alignment is based only on the provided JD.
+Ask for the target use (interview, defense, or portfolio), target role, and optional Job Description (JD).
+
+Do not silently select a generic role. If no JD or role is provided, ask whether the user wants a clearly labeled general presentation mode or wants to stop. External role research also requires user consent; otherwise align only to the provided material.
 
 ### Step 2: Interactive "Grill" Session
 Before generating any files, present the user with 3 or 4 targeted questions to align on the core project narrative. The questions must force the user to unpack their specific decision logic and hands-on work:
@@ -46,7 +48,7 @@ Generate three versions of job narratives (30-second, 2-minute, and 5-minute pit
 *   **No Jargon Stacking**: Do not list tools or libraries. Every sentence must have high information density.
 *   **Replace Abstract with Concrete**:
     *   *Bad*: "我参与并使用 LangChain 建立了 Agentic 工作流进行多步骤编排测试。"
-    *   *Good*: "在评测第一轮 Bad Case 时，我发现大模型在多步执行中容易丢失上下文。因此，我通过增加状态回溯机制和显式超时限制，拦截了 80% 的执行死循环风险。"
+    *   *Good*: "在评测第一轮 Bad Case 时，我发现模型在多步执行中容易丢失上下文。因此，我增加了状态回溯和显式超时，并用回归日志记录修复前后的失败路径；只有实测数据存在时才填写改善比例。"
 *   **Decision-Oriented**: Write "I decided to do X because..." instead of "I participated in Y process."
 
 #### 2. `product_decisions.md` (Trade-off & Scope Log)
@@ -74,6 +76,8 @@ Write `project_verification_workbench/phase6_interview_source_map.md` with:
 *   The workbench artifact backing each claim.
 *   Claims deliberately excluded because evidence was missing or weak.
 
+If `benchmarks/results/benchmark_radar.html` exists and Phase 5 confirms at least three comparable rubric-backed metrics, copy or reference it as `interview_evidence_pack/benchmark_radar.html`. Otherwise state that no defensible radar chart is available and do not fabricate one.
+
 ---
 
 ## Output Requirements
@@ -92,6 +96,6 @@ Upon completion, output the confirmation to the user using this template:
 ② 决策与折中记录是否体现了你希望展现的核心决策能力？
 ③ 验证证据中的数据指标是否能有力支撑你的项目成果陈述？
 
-如无异议，回复「继续」；如有修改，直接告诉我。
+请选择：回复「完成」结束流程；回复「修改」调整面试包；或回复「停止」并保留当前产物。
 ---
 ```

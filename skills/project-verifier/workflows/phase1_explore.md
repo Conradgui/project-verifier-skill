@@ -7,11 +7,14 @@ Analyze the target codebase to understand its language, structure, entry points,
 *   **STRICTLY READ-ONLY**: Do not modify any files or write any code during this phase.
 *   **NO GUESSING**: Mark any unknown or ambiguous information with a red question mark `❓`. Do not hallucinate or assume.
 *   **IF SECURITY RISKS ARE FOUND**: Prioritize displaying them immediately.
-*   **WORKBENCH REQUIRED**: Create `project_verification_workbench/phase1_audit.md` and write the audit evidence there. This is the only file-writing exception to the read-only rule.
+*   **WORKBENCH REQUIRED**: The only file-writing exceptions are `project_verification_workbench/verification_manifest.md` and `project_verification_workbench/phase1_audit.md`.
 
 ---
 
 ## Instructions & Steps
+
+### Step 0: Establish Scope and Manifest
+Ask the user for the verification goal, Full Suite or Selective Phase mode, and allowed write scope. Do not ask for secret values. Create or update `project_verification_workbench/verification_manifest.md` with the selected scope and Phase 1 status.
 
 ### Step 1: Read Project Files
 Read the files in the codebase systematically.
@@ -19,7 +22,7 @@ Read the files in the codebase systematically.
 2. Identify and read entry points: `main.py`, `app.js`, `index.ts`, `server.py`, `cli.go`, etc.
 3. Check for existing tests: `tests/`, `test/`, `spec/`, etc.
 4. Read docs: `README.md`, `docs/`.
-5. Check environment example files: `.env.example`, `.env.sample`. Do NOT read actual `.env` files if they contain production keys; if you must read them to verify gitignore, check if they are ignored first.
+5. Check environment example files: `.env.example`, `.env.sample`. Never open an actual `.env`; verify ignore behavior with Git metadata such as `git check-ignore`, not by reading secret-bearing files.
 
 *Note for large repos (>80 files)*: Print the directory tree first, list your reading plan, and prioritize the core entrypoints, config files, and files that trigger side-effects (e.g. calling APIs, writing files, executing subprocesses).
 
@@ -32,6 +35,8 @@ Compile the following details:
 5. Existing test framework and current coverage (if known).
 6. External integrations: LLM APIs, Database, GitHub, File system, etc.
 7. Top risk areas where the application is most likely to break.
+8. Project classification: `AI`, `AI-assisted`, `non-AI`, or `unknown`, with file-based evidence and confidence.
+9. Environment variable names and backend dependencies needed by live paths. Record names only; never open or echo actual `.env` values.
 
 ### Step 3: Security Audit (🔴 Critical Priority)
 Check each area and mark with: 🔴 Danger / ⚠️ Warning / ✅ Secure / ❓ Unsure.
@@ -75,6 +80,8 @@ Before presenting the response, write `project_verification_workbench/phase1_aud
 *   Entry points and flow matrix.
 *   Sequential and component dependencies.
 *   Core value proposition candidates.
+*   Project classification and supporting evidence.
+*   Required environment variable names, backend dependencies, and documented configuration route.
 *   Overall health rating and whether Phase 2 is allowed to proceed.
 
 Present the audit report using the following structure:
@@ -85,6 +92,9 @@ Present the audit report using the following structure:
 5.  **Sequential & Component Dependencies**
 6.  **Core Value Proposition Candidates**
 7.  **Overall Health Rating** (🟢 Proceed / 🟡 Proceed with cautions / 🔴 STOP & Fix Blocker Risks)
+8.  **Project Classification & Live Environment Requirements**
+
+Update `verification_manifest.md` with the classification, blockers, artifact link, and final Phase 1 status.
 
 ### Phase Confirmation Request
 End the output with this exact template (replace bracketed values):
@@ -98,6 +108,6 @@ End the output with this exact template (replace bracketed values):
 ② 核心价值主张候选是否准确？有没有功能是你并不想作为核心展示的？
 ③ 是否存在 🔴 级别安全问题？如果有，建议新开会话先进行修复，修完告诉我。
 
-如无异议，回复「继续」；如有修改，直接告诉我。
+请选择：回复「继续」进入 Phase 2；回复「修改」补充本阶段；或回复「停止」并保留当前产物。
 ---
 ```

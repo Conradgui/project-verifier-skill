@@ -32,11 +32,14 @@ def test_evaluator_requires_evidence_for_high_scores():
         tmp_path = Path(tmp)
         tool_output = tmp_path / "tool.json"
         baseline_output = tmp_path / "baseline.json"
+        task_definition = tmp_path / "task.json"
         write_json(
             tool_output,
             {
                 "task_id": "BM_001",
                 "runner_type": "tool",
+                "status": "completed",
+                "execution_mode": "full",
                 "exit_code": 0,
                 "duration_seconds": 1.2,
                 "artifacts_created": [],
@@ -51,6 +54,8 @@ def test_evaluator_requires_evidence_for_high_scores():
             {
                 "task_id": "BM_001",
                 "runner_type": "baseline",
+                "status": "completed",
+                "execution_mode": "full",
                 "exit_code": 0,
                 "duration_seconds": 1.0,
                 "artifacts_created": [],
@@ -60,8 +65,9 @@ def test_evaluator_requires_evidence_for_high_scores():
                 "errors": [],
             },
         )
+        write_json(task_definition, {"task_id": "BM_001", "metrics": []})
 
-        evaluator = BenchmarkEvaluator(str(tool_output), str(baseline_output))
+        evaluator = BenchmarkEvaluator(str(tool_output), str(baseline_output), str(task_definition))
         evaluator.load_data()
         evaluator.evaluate()
 
@@ -80,11 +86,14 @@ def test_evaluator_scores_complete_evidence():
         tmp_path = Path(tmp)
         tool_output = tmp_path / "tool.json"
         baseline_output = tmp_path / "baseline.json"
+        task_definition = tmp_path / "task.json"
         write_json(
             tool_output,
             {
                 "task_id": "BM_002",
                 "runner_type": "tool",
+                "status": "completed",
+                "execution_mode": "full",
                 "exit_code": 0,
                 "duration_seconds": 1.0,
                 "artifacts_created": ["output/result.json"],
@@ -106,6 +115,8 @@ def test_evaluator_scores_complete_evidence():
             {
                 "task_id": "BM_002",
                 "runner_type": "baseline",
+                "status": "completed",
+                "execution_mode": "full",
                 "exit_code": 0,
                 "duration_seconds": 2.0,
                 "artifacts_created": ["baseline/response.txt"],
@@ -119,8 +130,69 @@ def test_evaluator_scores_complete_evidence():
                 "errors": [],
             },
         )
+        write_json(
+            task_definition,
+            {
+                "task_id": "BM_002",
+                "metrics": [
+                    {
+                        "id": "completeness",
+                        "measurement_method": "assertion_rate",
+                        "success_threshold": {"operator": ">=", "value": 1.0},
+                        "score_mapping": "pass_rate_x_10",
+                        "minimum_samples": 1,
+                        "evidence_fields": ["assertions"],
+                        "assertion_tags": ["completeness"],
+                    },
+                    {
+                        "id": "control",
+                        "measurement_method": "assertion_rate",
+                        "success_threshold": {"operator": ">=", "value": 1.0},
+                        "score_mapping": "pass_rate_x_10",
+                        "minimum_samples": 1,
+                        "evidence_fields": ["assertions"],
+                        "assertion_tags": ["safety"],
+                    },
+                    {
+                        "id": "cost_efficiency",
+                        "measurement_method": "numeric_ratio",
+                        "success_threshold": {"operator": "<=", "value": 1.0},
+                        "score_mapping": [
+                            {"max_ratio": 0.8, "score": 10},
+                            {"max_ratio": 1.2, "score": 8},
+                            {"score": 2},
+                        ],
+                        "minimum_samples": 1,
+                        "evidence_fields": ["token_count"],
+                        "source_field": "token_count",
+                    },
+                    {
+                        "id": "latency",
+                        "measurement_method": "numeric_ratio",
+                        "success_threshold": {"operator": "<=", "value": 1.0},
+                        "score_mapping": [
+                            {"max_ratio": 0.8, "score": 10},
+                            {"max_ratio": 1.2, "score": 8},
+                            {"score": 2},
+                        ],
+                        "minimum_samples": 1,
+                        "evidence_fields": ["duration_seconds"],
+                        "source_field": "duration_seconds",
+                    },
+                    {
+                        "id": "ux",
+                        "measurement_method": "assertion_rate",
+                        "success_threshold": {"operator": ">=", "value": 1.0},
+                        "score_mapping": "pass_rate_x_10",
+                        "minimum_samples": 1,
+                        "evidence_fields": ["assertions"],
+                        "assertion_tags": ["ux"],
+                    },
+                ],
+            },
+        )
 
-        evaluator = BenchmarkEvaluator(str(tool_output), str(baseline_output))
+        evaluator = BenchmarkEvaluator(str(tool_output), str(baseline_output), str(task_definition))
         evaluator.load_data()
         evaluator.evaluate()
 
@@ -138,11 +210,14 @@ def test_evaluator_records_runner_failure():
         tmp_path = Path(tmp)
         tool_output = tmp_path / "tool.json"
         baseline_output = tmp_path / "baseline.json"
+        task_definition = tmp_path / "task.json"
         write_json(
             tool_output,
             {
                 "task_id": "BM_003",
                 "runner_type": "tool",
+                "status": "failed",
+                "execution_mode": "full",
                 "exit_code": 1,
                 "duration_seconds": 0.4,
                 "artifacts_created": [],
@@ -157,6 +232,8 @@ def test_evaluator_records_runner_failure():
             {
                 "task_id": "BM_003",
                 "runner_type": "baseline",
+                "status": "completed",
+                "execution_mode": "full",
                 "exit_code": 0,
                 "duration_seconds": 0.5,
                 "artifacts_created": ["baseline/response.txt"],
@@ -166,14 +243,29 @@ def test_evaluator_records_runner_failure():
                 "errors": [],
             },
         )
+        write_json(
+            task_definition,
+            {
+                "task_id": "BM_003",
+                "metrics": [{
+                    "id": "completeness",
+                    "measurement_method": "assertion_rate",
+                    "success_threshold": {"operator": ">=", "value": 1.0},
+                    "score_mapping": "pass_rate_x_10",
+                    "minimum_samples": 1,
+                    "evidence_fields": ["assertions"],
+                    "assertion_tags": ["completeness"],
+                }],
+            },
+        )
 
-        evaluator = BenchmarkEvaluator(str(tool_output), str(baseline_output))
+        evaluator = BenchmarkEvaluator(str(tool_output), str(baseline_output), str(task_definition))
         evaluator.load_data()
         evaluator.evaluate()
 
-        assert evaluator.scores["tool"]["completeness"]["score"] == 2
-        assert evaluator.scores["tool"]["stability"]["score"] == 2
-        assert "Tool runner crashed" in " ".join(evaluator.scores["tool"]["stability"]["evidence"])
+        assert evaluator.scores["tool"]["completeness"]["score"] is None
+        assert evaluator.scores["tool"]["stability"]["score"] is None
+        assert "status is failed" in evaluator.scores["tool"]["completeness"]["not_measured_reason"]
 
 
 def test_usability_runner_dispatches_python_and_shell_scripts():
@@ -192,7 +284,17 @@ def test_usability_runner_dispatches_python_and_shell_scripts():
         script.chmod(0o755)
 
         result = subprocess.run(
-            [str(runner)],
+            [str(runner), "preflight"],
+            cwd=tmp_path,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            check=False,
+        )
+        assert result.returncode == 0, result.stdout
+
+        result = subprocess.run(
+            [str(runner), "run"],
             cwd=tmp_path,
             text=True,
             stdout=subprocess.PIPE,
@@ -222,7 +324,7 @@ def test_usability_runner_reports_missing_typescript_runtime():
         ts_script.write_text("console.log('typescript-dispatch-ok')\n", encoding="utf-8")
 
         result = subprocess.run(
-            [str(runner)],
+            [str(runner), "preflight"],
             cwd=tmp_path,
             env={**os.environ, "PATH": "/usr/bin:/bin"},
             text=True,
@@ -231,9 +333,8 @@ def test_usability_runner_reports_missing_typescript_runtime():
             check=False,
         )
 
-        log_text = (tests_dir / "reports/usability_P0_typescript.log").read_text(encoding="utf-8")
         assert result.returncode == 1, result.stdout
-        assert "Missing TypeScript runtime" in log_text
+        assert "Missing TypeScript runtime" in result.stdout
 
 
 def main():

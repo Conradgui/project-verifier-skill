@@ -1,0 +1,72 @@
+{
+  "skill_name": "project-verifier",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Use $project-verifier in Full Suite mode on this Python CLI. It reformats local CSV files, has no model calls or external services, and I do not need interview materials.",
+      "expected_output": "Classify the project as non-AI, complete the offline core, treat Phase 5 as not_applicable, and do not create Phase 6 artifacts.",
+      "files": [],
+      "expectations": [
+        "The manifest classifies the project as non-AI with repository evidence.",
+        "Phase 5 writes not_applicable artifacts without proposing an LLM comparison.",
+        "The agent explicitly asks about Phase 6 and does not create interview_evidence_pack when declined."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "I have a RAG application that needs OPENAI_API_KEY, but the key and vector database are not configured yet. Help me choose benchmark scenarios, but do not make any real calls.",
+      "expected_output": "Propose guided scenarios and a durable benchmark plan, identify blockers, offer repair versus plan-only, and generate no scores or live runners when plan-only is selected.",
+      "files": [],
+      "expectations": [
+        "The agent proposes 3-5 project-specific directions and recommends 1-2.",
+        "Missing environment names and backend dependencies are listed without reading secret values.",
+        "The result is skipped or blocked with recovery conditions and contains no fabricated scores."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "The AI backend is running and required environment variables are exported. Design the L2 and L3 tests, but ask me before any paid request and show the maximum calls, retries, and timeouts.",
+      "expected_output": "Create approved plans, run only no-call preflight automatically, and wait for explicit execution authorization before live E2E or full benchmark calls.",
+      "files": [],
+      "expectations": [
+        "Preflight checks environment names, files, commands, runtimes, and task wiring without live calls.",
+        "The agent presents bounded calls, retries, timeouts, and side effects.",
+        "No live runner is executed before explicit execution authorization."
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "The Phase 4 usability plan looks correct, but I want to skip all live execution for now and keep a plan I can resume later.",
+      "expected_output": "Record a skipped Phase 4 with an empty path result, blockers or user decision, recovery conditions, and no live scripts executed.",
+      "files": [],
+      "expectations": [
+        "phase4_usability_plan.md is retained.",
+        "phase4_usability_results.json uses status skipped and execution_authorization false.",
+        "The manifest records how to resume without claiming an E2E result."
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Run one low-cost benchmark pilot to check the new adapter, but do not run the complete benchmark and do not turn the pilot into a product-quality claim.",
+      "expected_output": "Treat the run as pilot_only, withhold full scores and radar claims, and preserve the full benchmark plan for later execution.",
+      "files": [],
+      "expectations": [
+        "Runner output records execution_mode pilot and result status pilot_only.",
+        "The evaluator refuses to score the pilot as a completed full run.",
+        "The manifest records Phase 5 as skipped with pilot_only as completed scope."
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "I approved the selected AI evaluation scenarios, task inputs, baselines, rubric, and a maximum of 12 calls. Preflight passed. Execute the complete benchmark and report negative or inconclusive results honestly.",
+      "expected_output": "Run matching full-mode tool and baseline tasks, score only approved evidence-backed metrics, preserve limitations, and ask separately whether Phase 6 is needed.",
+      "files": [],
+      "expectations": [
+        "Task definition, tool output, and baseline output use the same task_id and correct runner_type.",
+        "Only status completed plus execution_mode full is eligible for scoring.",
+        "Scores stay within 0-10 and unsupported or weak metrics remain not_measured.",
+        "Negative and inconclusive findings are retained, and Phase 6 requires explicit opt-in."
+      ]
+    }
+  ]
+}
