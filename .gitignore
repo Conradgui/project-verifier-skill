@@ -72,6 +72,7 @@ out/
 .DS_Store
 
 # Temporary results from tests
+.worktrees/
 tests/usability/reports/
 benchmarks/results/
 interview_evidence_pack/
