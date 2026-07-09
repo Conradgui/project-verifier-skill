@@ -1,0 +1,9 @@
+{
+  "id": "ai_assisted_mixed",
+  "classification": "AI-assisted",
+  "features": {
+    "local_normalization": "non-AI",
+    "optional_generation": "AI"
+  },
+  "expected_behavior": "Only the optional generation feature is eligible for L3 evaluation."
+}

@@ -1,0 +1,5 @@
+{
+  "id": "partial_e2e_failure",
+  "classification": "non-AI",
+  "expected_behavior": "A full local E2E run contains one passing and one failing path and must report a partial outcome."
+}

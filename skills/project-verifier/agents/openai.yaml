@@ -1,7 +1,7 @@
 interface:
   display_name: "Project Verifier"
-  short_description: "Understand and verify projects with traceable evidence"
-  default_prompt: "Use $project-verifier to understand, map, audit, and verify this project with durable artifacts, guided user gates, conditional live tests, and an optional interview evidence pack."
+  short_description: "Understand projects with revision-bound verification evidence"
+  default_prompt: "Use $project-verifier's five-phase workflow to understand and verify this project. Prefer existing scripts, keep raw evidence primary, bind high-risk actions to the current plan and source revision, and ask before code changes, live calls, costs, or optional public exports."
 
 policy:
   allow_implicit_invocation: true

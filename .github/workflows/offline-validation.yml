@@ -1,0 +1,89 @@
+name: Offline Validation
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  offline-validation:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.12"]
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Run offline behavior and contract tests
+        run: |
+          export PYTHONPYCACHEPREFIX=/tmp/project-verifier-pycache
+          python3 project_verifier_iteration_workbench/20260626_skill_hardening/template_behavior_tests.py
+          python3 project_verifier_iteration_workbench/20260628_conditional_eval_gates/workflow_contract_tests.py
+          python3 project_verifier_iteration_workbench/20260629_stage_gate_quality_v2/stage_gate_v2_tests.py
+          python3 project_verifier_iteration_workbench/20260630_lean_core_simplification/lean_core_contract_tests.py
+
+      - name: Check shell syntax
+        run: |
+          bash -n bootstrap.sh
+          bash -n skills/project-verifier/templates/run_usability_template.sh
+          bash -n skills/project-verifier/templates/run_benchmark_template.sh
+
+      - name: Compile Python files
+        run: |
+          export PYTHONPYCACHEPREFIX=/tmp/project-verifier-pycache
+          python3 -m py_compile \
+            skills/project-verifier/scripts/validate_gate.py \
+            skills/project-verifier/templates/benchmark_evaluator_template.py \
+            optional/codex-hook/pre_tool_guard.py \
+            project_verifier_iteration_workbench/20260626_skill_hardening/template_behavior_tests.py \
+            project_verifier_iteration_workbench/20260628_conditional_eval_gates/workflow_contract_tests.py \
+            project_verifier_iteration_workbench/20260629_stage_gate_quality_v2/stage_gate_v2_tests.py \
+            project_verifier_iteration_workbench/20260630_lean_core_simplification/lean_core_contract_tests.py
+
+      - name: Parse JSON files
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          for path in Path(".").rglob("*.json"):
+              if ".git" in path.parts:
+                  continue
+              json.loads(path.read_text(encoding="utf-8"))
+              print(f"ok {path}")
+          PY
+
+      - name: Validate skill metadata
+        run: |
+          python3 - <<'PY'
+          import pathlib
+          import sys
+
+          skill = pathlib.Path("skills/project-verifier/SKILL.md")
+          text = skill.read_text(encoding="utf-8")
+          if not text.startswith("---\n") or "name: project-verifier" not in text or "description:" not in text:
+              raise SystemExit("Invalid skill frontmatter")
+          print("Skill frontmatter looks valid.")
+          PY
+
+      - name: Check whitespace errors
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
+            base="${{ github.event.pull_request.base.sha }}"
+          elif [ "${{ github.event.before }}" != "0000000000000000000000000000000000000000" ]; then
+            base="${{ github.event.before }}"
+          else
+            base="$(git rev-list --max-parents=0 HEAD)"
+          fi
+          git diff --check "$base" HEAD

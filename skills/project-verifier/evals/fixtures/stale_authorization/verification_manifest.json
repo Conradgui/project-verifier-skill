@@ -1,0 +1,53 @@
+{
+  "schema_version": "2.0",
+  "source_revision": {
+    "revision": "fixture-rev",
+    "dirty": false,
+    "captured_at": "2026-06-29T11:00:00+08:00"
+  },
+  "user_intent": {
+    "goal": "verify stale authorization",
+    "target_users": ["fixture owner"],
+    "in_scope": ["P0"],
+    "out_of_scope": [],
+    "success_criteria": ["stale approval is rejected"],
+    "risk_tolerance": "low"
+  },
+  "permissions": {
+    "write_scope": ["tests/usability"],
+    "production_code_changes": false,
+    "dependency_install": false,
+    "live_calls": true,
+    "public_claims": false
+  },
+  "phases": {
+    "phase4": {
+      "phase_status": "in_progress",
+      "result_outcome": "not_run",
+      "execution_scope": "none",
+      "claim_eligibility": "none",
+      "gate_state": "approved",
+      "artifacts": [],
+      "blockers": [],
+      "recovery_conditions": []
+    }
+  },
+  "decisions": [
+    {
+      "decision_id": "DEC-STALE-001",
+      "phase": "phase4",
+      "decision_type": "live_execution",
+      "proposal_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "source_revision": "fixture-rev",
+      "user_choice": "approved",
+      "approved_limits": {
+        "max_paths": 1,
+        "max_calls_per_path": 2,
+        "max_retries": 1,
+        "timeout_seconds": 10
+      },
+      "approved_at": "2026-06-29T12:00:00+08:00",
+      "invalidated_at": null
+    }
+  ]
+}

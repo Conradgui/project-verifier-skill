@@ -2,6 +2,7 @@
 """Contract tests for conditional live testing and evidence-backed AI evals."""
 
 import importlib.util
+import hashlib
 import json
 import os
 import subprocess
@@ -14,6 +15,7 @@ SKILL_ROOT = REPO_ROOT / "skills/project-verifier"
 EVALUATOR_PATH = SKILL_ROOT / "templates/benchmark_evaluator_template.py"
 USABILITY_RUNNER = SKILL_ROOT / "templates/run_usability_template.sh"
 EVALS_PATH = SKILL_ROOT / "evals/evals.json"
+GATE_VALIDATOR = SKILL_ROOT / "scripts/validate_gate.py"
 
 
 def read(path):
@@ -22,6 +24,21 @@ def read(path):
 
 def write_json(path, payload):
     path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+def source_fixture(root):
+    source_root = root / "source_project"
+    source_root.mkdir()
+    run_command(["git", "init"], source_root)
+    run_command(["git", "config", "user.email", "fixture@example.com"], source_root)
+    run_command(["git", "config", "user.name", "Fixture"], source_root)
+    (source_root / "app.py").write_text("print('fixture')\n", encoding="utf-8")
+    run_command(["git", "add", "app.py"], source_root)
+    committed = run_command(["git", "commit", "-m", "fixture"], source_root)
+    assert committed.returncode == 0, committed.stdout
+    revision = run_command(["python3", str(GATE_VALIDATOR), "fingerprint", "--root", str(source_root)], root)
+    assert revision.returncode == 0, revision.stdout
+    return source_root, revision.stdout.strip()
 
 
 def load_evaluator():
@@ -34,52 +51,52 @@ def load_evaluator():
 def test_orchestrator_is_conditional_and_persists_manifest():
     skill = read(SKILL_ROOT / "SKILL.md")
     assert "description: >-\n  Use when" in skill
-    assert "verification_manifest.md" in skill
-    assert "pending / in_progress / completed / blocked / skipped / not_applicable / failed" in skill
-    assert "Phase 1 through Phase 3" in skill
-    assert "Phase 6" in skill and "optional" in skill.lower()
+    assert "verification_manifest.json" in skill
+    assert "five-phase" in skill
+    assert "Phase 1–3" in skill
+    assert "Optional Exports" in skill
 
 
 def test_phase_gates_and_optional_outputs():
     phase2 = read(SKILL_ROOT / "workflows/phase2_diagrams.md")
     phase3 = read(SKILL_ROOT / "workflows/phase3_quality.md")
     phase4 = read(SKILL_ROOT / "workflows/phase4_usability.md")
-    phase6 = read(SKILL_ROOT / "workflows/phase6_interview.md")
+    export = read(SKILL_ROOT / "workflows/optional_interview_export.md")
 
-    assert "before writing the document package" in phase2.lower()
-    assert "README update copy" in phase2 and "optional" in phase2.lower()
-    assert "Do not record live traffic" in phase3
+    assert "before writing" in phase2.lower()
+    assert "Optional README Copy" in phase2
+    assert "real first call is not Phase 3" in phase3
     assert "phase4_usability_plan.md" in phase4
-    assert "preflight" in phase4 and "execution authorization" in phase4.lower()
-    assert "explicitly opted in" in phase6
-    assert "Do not silently select a generic role" in phase6
-    assert "80%" not in phase6
+    assert "preflight" in phase4 and "Execution Gate" in phase4
+    assert "explicitly requests" in export
+    assert "general mode or stop" in export
+    assert "80%" not in export
     assert "vcrpy" not in phase3
 
 
 def test_phase5_is_guided_ai_eval_and_decoupled_from_interview_pack():
     phase5 = read(SKILL_ROOT / "workflows/phase5_benchmark.md")
     for required in (
-        "AI / AI-assisted / non-AI / unknown",
-        "ready_now / needs_setup / plan_only / rejected",
-        "Accept recommended set",
+        "AI or AI-assisted",
+        "ready_now`, `needs_setup`, `plan_only`, or `rejected",
+        "accept recommendations",
         "phase5_benchmark_plan.md",
-        "pilot_only",
-        "benchmarks/results/benchmark_radar.html",
-        "whether to enter Phase 6",
+        "execution_scope: pilot",
+        "sample_adequacy",
+        "optional README or interview/portfolio export",
     ):
-        assert required in phase5
-    assert "interview_evidence_pack/benchmark_radar.html" not in phase5
+        assert required.lower() in phase5.lower()
+    assert "interview_evidence_pack.md" not in phase5
     assert "resume evidence pitch" not in phase5.lower()
 
 
 def test_readme_documents_conditional_three_tier_flow():
     readme = read(REPO_ROOT / "README.md")
-    assert "L1 Mock Quality" in readme
-    assert "L2 Live Usability/E2E" in readme
+    assert "L1 Offline Behavior" in readme
+    assert "L2 Live E2E" in readme
     assert "L3 AI Comparative Eval" in readme
-    assert "Phase 6" in readme and "可选" in readme
-    assert "plan-only" in readme
+    assert "interview_evidence_pack.md" in readme and "可选" in readme
+    assert "plan_only" in readme
 
 
 def test_eval_suite_covers_six_conditional_scenarios():
@@ -89,11 +106,11 @@ def test_eval_suite_covers_six_conditional_scenarios():
     combined = json.dumps(payload, ensure_ascii=False)
     for required in (
         "non-AI",
-        "OPENAI_API_KEY",
-        "explicit execution authorization",
-        "status skipped",
-        "pilot_only",
-        "execution_mode full",
+        "MODEL_API_KEY",
+        "revision-bound execution authorization",
+        "proposal_sha256",
+        "result_outcome partial",
+        "feature-level classifications",
     ):
         assert required in combined
     for item in payload["evals"]:
@@ -124,7 +141,7 @@ def test_evaluator_requires_preapproved_rubric():
         evaluator = Evaluator(str(tool), str(baseline), str(task))
         evaluator.load_data()
         evaluator.evaluate()
-        assert all(result["score"] is None for result in evaluator.scores["tool"].values())
+        assert evaluator.results["tool"] == {}
 
 
 def test_evaluator_refuses_stability_from_single_run():
@@ -140,6 +157,7 @@ def test_evaluator_refuses_stability_from_single_run():
             task,
             {
                 "task_id": "BM_002",
+                "rubric_approved": True,
                 "metrics": [{
                     "id": "stability",
                     "measurement_method": "repeated_success_rate",
@@ -154,8 +172,8 @@ def test_evaluator_refuses_stability_from_single_run():
         evaluator = Evaluator(str(tool), str(baseline), str(task))
         evaluator.load_data()
         evaluator.evaluate()
-        result = evaluator.scores["tool"]["stability"]
-        assert result["score"] is None
+        result = evaluator.results["tool"]["stability"]
+        assert "score" not in result
         assert "minimum_samples=3" in result["not_measured_reason"]
 
 
@@ -176,7 +194,7 @@ def test_evaluator_never_scores_pilot_only_output():
         }
         write_json(tool, {**payload, "runner_type": "tool"})
         write_json(baseline, {**payload, "runner_type": "baseline"})
-        write_json(task, {"task_id": "BM_PILOT", "metrics": [{
+        write_json(task, {"task_id": "BM_PILOT", "rubric_approved": True, "metrics": [{
             "id": "completeness",
             "measurement_method": "assertion_rate",
             "success_threshold": {"operator": ">=", "value": 1.0},
@@ -189,8 +207,8 @@ def test_evaluator_never_scores_pilot_only_output():
         evaluator = Evaluator(str(tool), str(baseline), str(task))
         evaluator.load_data()
         evaluator.evaluate()
-        result = evaluator.scores["tool"]["completeness"]
-        assert result["score"] is None
+        result = evaluator.results["tool"]["completeness"]
+        assert "score" not in result
         assert "pilot_only" in result["not_measured_reason"]
 
 
@@ -204,7 +222,7 @@ def test_evaluator_rejects_mismatched_task_identity():
         assertion = [{"text": "A", "passed": True, "evidence": "a", "tags": ["completeness"]}]
         write_json(tool, {"task_id": "BM_TOOL", "runner_type": "tool", "status": "completed", "execution_mode": "full", "exit_code": 0, "assertions": assertion})
         write_json(baseline, {"task_id": "BM_BASE", "runner_type": "baseline", "status": "completed", "execution_mode": "full", "exit_code": 0, "assertions": assertion})
-        write_json(task, {"task_id": "BM_PLAN", "metrics": [{
+        write_json(task, {"task_id": "BM_PLAN", "rubric_approved": True, "metrics": [{
             "id": "completeness",
             "measurement_method": "assertion_rate",
             "success_threshold": {"operator": ">=", "value": 1.0},
@@ -217,8 +235,8 @@ def test_evaluator_rejects_mismatched_task_identity():
         evaluator = Evaluator(str(tool), str(baseline), str(task))
         evaluator.load_data()
         evaluator.evaluate()
-        result = evaluator.scores["tool"]["completeness"]
-        assert result["score"] is None
+        result = evaluator.results["tool"]["completeness"]
+        assert "score" not in result
         assert "task_id" in result["not_measured_reason"]
 
 
@@ -233,7 +251,7 @@ def test_evaluator_requires_full_execution_mode():
         payload = {"task_id": "BM_MODE", "status": "completed", "execution_mode": "pilot", "exit_code": 0, "assertions": assertion}
         write_json(tool, {**payload, "runner_type": "tool"})
         write_json(baseline, {**payload, "runner_type": "baseline"})
-        write_json(task, {"task_id": "BM_MODE", "metrics": [{
+        write_json(task, {"task_id": "BM_MODE", "rubric_approved": True, "metrics": [{
             "id": "completeness",
             "measurement_method": "assertion_rate",
             "success_threshold": {"operator": ">=", "value": 1.0},
@@ -246,8 +264,8 @@ def test_evaluator_requires_full_execution_mode():
         evaluator = Evaluator(str(tool), str(baseline), str(task))
         evaluator.load_data()
         evaluator.evaluate()
-        result = evaluator.scores["tool"]["completeness"]
-        assert result["score"] is None
+        result = evaluator.results["tool"]["completeness"]
+        assert "score" not in result
         assert "execution_mode" in result["not_measured_reason"]
 
 
@@ -261,7 +279,7 @@ def test_evaluator_rejects_nonzero_exit_for_completed_run():
         assertion = [{"text": "A", "passed": True, "evidence": "a", "tags": ["completeness"]}]
         write_json(tool, {"task_id": "BM_EXIT", "runner_type": "tool", "status": "completed", "execution_mode": "full", "exit_code": 1, "assertions": assertion})
         write_json(baseline, {"task_id": "BM_EXIT", "runner_type": "baseline", "status": "completed", "execution_mode": "full", "exit_code": 0, "assertions": assertion})
-        write_json(task, {"task_id": "BM_EXIT", "metrics": [{
+        write_json(task, {"task_id": "BM_EXIT", "rubric_approved": True, "metrics": [{
             "id": "completeness",
             "measurement_method": "assertion_rate",
             "success_threshold": {"operator": ">=", "value": 1.0},
@@ -274,26 +292,26 @@ def test_evaluator_rejects_nonzero_exit_for_completed_run():
         evaluator = Evaluator(str(tool), str(baseline), str(task))
         evaluator.load_data()
         evaluator.evaluate()
-        result = evaluator.scores["tool"]["completeness"]
-        assert result["score"] is None
+        result = evaluator.results["tool"]["completeness"]
+        assert "score" not in result
         assert "exit_code" in result["not_measured_reason"]
 
 
-def test_evaluator_rejects_out_of_range_score_mapping():
+def test_evaluator_ignores_deprecated_score_mapping_and_keeps_raw_result():
     Evaluator = load_evaluator()
     with tempfile.TemporaryDirectory() as tmp:
         root = Path(tmp)
         tool = root / "tool.json"
         baseline = root / "baseline.json"
         task = root / "task.json"
-        payload = {"task_id": "BM_RANGE", "status": "completed", "execution_mode": "full", "exit_code": 0, "token_count": 10}
+        payload = {"task_id": "BM_RANGE", "status": "completed", "execution_mode": "full", "exit_code": 0, "token_count": 10, "sample_count": 1}
         write_json(tool, {**payload, "runner_type": "tool"})
         write_json(baseline, {**payload, "runner_type": "baseline"})
-        write_json(task, {"task_id": "BM_RANGE", "metrics": [{
+        write_json(task, {"task_id": "BM_RANGE", "rubric_approved": True, "auxiliary_views": {"normalized_scores": {"approved": True}}, "metrics": [{
             "id": "cost_efficiency",
             "measurement_method": "numeric_ratio",
             "success_threshold": {"operator": "<=", "value": 1.0},
-            "score_mapping": [{"max_ratio": 1.0, "score": 999}],
+            "score_mapping": [{"max_value": 1.0, "score": 5}, {"score": 999}],
             "minimum_samples": 1,
             "evidence_fields": ["token_count"],
             "source_field": "token_count",
@@ -302,9 +320,9 @@ def test_evaluator_rejects_out_of_range_score_mapping():
         evaluator = Evaluator(str(tool), str(baseline), str(task))
         evaluator.load_data()
         evaluator.evaluate()
-        result = evaluator.scores["tool"]["cost_efficiency"]
-        assert result["score"] is None
-        assert "0 and 10" in result["not_measured_reason"]
+        result = evaluator.results["tool"]["cost_efficiency"]
+        assert "score" not in result
+        assert result["raw_value"] == 1.0
 
 
 def test_evaluator_handles_invalid_sample_count_without_crash():
@@ -317,11 +335,11 @@ def test_evaluator_handles_invalid_sample_count_without_crash():
         payload = {"task_id": "BM_SAMPLE", "status": "completed", "execution_mode": "full", "exit_code": 0, "token_count": 10, "sample_count": "invalid"}
         write_json(tool, {**payload, "runner_type": "tool"})
         write_json(baseline, {**payload, "runner_type": "baseline"})
-        write_json(task, {"task_id": "BM_SAMPLE", "metrics": [{
+        write_json(task, {"task_id": "BM_SAMPLE", "rubric_approved": True, "metrics": [{
             "id": "cost_efficiency",
             "measurement_method": "numeric_ratio",
             "success_threshold": {"operator": "<=", "value": 1.0},
-            "score_mapping": [{"max_ratio": 1.0, "score": 5}, {"score": 2}],
+            "score_mapping": [{"max_value": 1.0, "score": 5}, {"score": 2}],
             "minimum_samples": 1,
             "evidence_fields": ["token_count"],
             "source_field": "token_count",
@@ -330,12 +348,12 @@ def test_evaluator_handles_invalid_sample_count_without_crash():
         evaluator = Evaluator(str(tool), str(baseline), str(task))
         evaluator.load_data()
         evaluator.evaluate()
-        result = evaluator.scores["tool"]["cost_efficiency"]
-        assert result["score"] is None
+        result = evaluator.results["tool"]["cost_efficiency"]
+        assert "score" not in result
         assert "sample_count" in result["not_measured_reason"]
 
 
-def test_evaluator_supports_traceable_llm_judge_results():
+def test_evaluator_supports_traceable_blinded_llm_judge_results():
     Evaluator = load_evaluator()
     with tempfile.TemporaryDirectory() as tmp:
         root = Path(tmp)
@@ -348,16 +366,18 @@ def test_evaluator_supports_traceable_llm_judge_results():
             "evidence": "judge-output.json",
             "judge_prompt": "Score against the approved rubric.",
             "model": "judge-model",
-            "confidence": "medium",
+            "model_version": "2026-06",
+            "blinded": True,
+            "randomized_order": True,
         }]
         payload = {"task_id": "BM_JUDGE", "status": "completed", "execution_mode": "full", "exit_code": 0, "judge_results": judge_result}
         write_json(tool, {**payload, "runner_type": "tool"})
         write_json(baseline, {**payload, "runner_type": "baseline"})
-        write_json(task, {"task_id": "BM_JUDGE", "metrics": [{
+        write_json(task, {"task_id": "BM_JUDGE", "rubric_approved": True, "auxiliary_views": {"normalized_scores": {"approved": True}}, "metrics": [{
             "id": "completeness",
             "measurement_method": "llm_judge_score",
             "success_threshold": {"operator": ">=", "value": 7.0},
-            "score_mapping": "judge_score_0_to_10",
+            "score_mapping": [{"min_value": 8, "score": 8}, {"score": 2}],
             "minimum_samples": 1,
             "evidence_fields": ["judge_results"],
         }]})
@@ -365,13 +385,14 @@ def test_evaluator_supports_traceable_llm_judge_results():
         evaluator = Evaluator(str(tool), str(baseline), str(task))
         evaluator.load_data()
         evaluator.evaluate()
-        result = evaluator.scores["tool"]["completeness"]
-        assert result["score"] == 8
+        result = evaluator.results["tool"]["completeness"]
+        assert "score" not in result
+        assert result["raw_value"] == 8
         assert result["threshold_met"] is True
         assert "judge-model" in " ".join(result["evidence"])
 
 
-def test_evaluator_rejects_unknown_judge_confidence():
+def test_evaluator_rejects_unblinded_judge_results():
     Evaluator = load_evaluator()
     with tempfile.TemporaryDirectory() as tmp:
         root = Path(tmp)
@@ -384,16 +405,17 @@ def test_evaluator_rejects_unknown_judge_confidence():
             "evidence": "judge-output.json",
             "judge_prompt": "Score against the approved rubric.",
             "model": "judge-model",
-            "confidence": "certain",
+            "model_version": "2026-06",
+            "blinded": False,
+            "randomized_order": True,
         }]
         payload = {"task_id": "BM_JUDGE_BAD", "status": "completed", "execution_mode": "full", "exit_code": 0, "judge_results": judge_result}
         write_json(tool, {**payload, "runner_type": "tool"})
         write_json(baseline, {**payload, "runner_type": "baseline"})
-        write_json(task, {"task_id": "BM_JUDGE_BAD", "metrics": [{
+        write_json(task, {"task_id": "BM_JUDGE_BAD", "rubric_approved": True, "metrics": [{
             "id": "completeness",
             "measurement_method": "llm_judge_score",
             "success_threshold": {"operator": ">=", "value": 7.0},
-            "score_mapping": "judge_score_0_to_10",
             "minimum_samples": 1,
             "evidence_fields": ["judge_results"],
         }]})
@@ -401,12 +423,12 @@ def test_evaluator_rejects_unknown_judge_confidence():
         evaluator = Evaluator(str(tool), str(baseline), str(task))
         evaluator.load_data()
         evaluator.evaluate()
-        result = evaluator.scores["tool"]["completeness"]
-        assert result["score"] is None
-        assert "traceable judge result" in result["not_measured_reason"]
+        result = evaluator.results["tool"]["completeness"]
+        assert "score" not in result
+        assert "blinded judge results" in result["not_measured_reason"]
 
 
-def test_evaluator_scores_only_approved_assertion_rubric():
+def test_evaluator_reports_raw_assertion_rate_against_threshold():
     Evaluator = load_evaluator()
     with tempfile.TemporaryDirectory() as tmp:
         root = Path(tmp)
@@ -447,11 +469,13 @@ def test_evaluator_scores_only_approved_assertion_rubric():
             task,
             {
                 "task_id": "BM_003",
+                "rubric_approved": True,
+                "auxiliary_views": {"normalized_scores": {"approved": True}},
                 "metrics": [{
                     "id": "completeness",
                     "measurement_method": "assertion_rate",
                     "success_threshold": {"operator": ">=", "value": 1.0},
-                    "score_mapping": "pass_rate_x_10",
+                    "score_mapping": [{"min_value": 1.0, "score": 10}, {"min_value": 0.5, "score": 5}, {"score": 0}],
                     "minimum_samples": 2,
                     "evidence_fields": ["assertions"],
                     "assertion_tags": ["completeness"],
@@ -462,13 +486,13 @@ def test_evaluator_scores_only_approved_assertion_rubric():
         evaluator = Evaluator(str(tool), str(baseline), str(task))
         evaluator.load_data()
         evaluator.evaluate()
-        assert evaluator.scores["tool"]["completeness"]["score"] == 5
-        assert evaluator.scores["baseline"]["completeness"]["score"] == 10
-        assert evaluator.scores["tool"]["completeness"]["threshold_met"] is False
-        assert evaluator.scores["baseline"]["completeness"]["threshold_met"] is True
+        assert evaluator.results["tool"]["completeness"]["raw_value"] == 0.5
+        assert evaluator.results["baseline"]["completeness"]["raw_value"] == 1.0
+        assert evaluator.results["tool"]["completeness"]["threshold_met"] is False
+        assert evaluator.results["baseline"]["completeness"]["threshold_met"] is True
 
 
-def test_evaluator_report_separates_score_from_threshold_result():
+def test_evaluator_report_separates_raw_value_from_threshold_result():
     Evaluator = load_evaluator()
     with tempfile.TemporaryDirectory() as tmp:
         root = Path(tmp)
@@ -487,7 +511,7 @@ def test_evaluator_report_separates_score_from_threshold_result():
         common = {"task_id": "BM_REPORT", "status": "completed", "execution_mode": "full", "exit_code": 0}
         write_json(tool, {**common, "runner_type": "tool", "assertions": tool_assertions})
         write_json(baseline, {**common, "runner_type": "baseline", "assertions": baseline_assertions})
-        write_json(task, {"task_id": "BM_REPORT", "metrics": [{
+        write_json(task, {"task_id": "BM_REPORT", "rubric_approved": True, "metrics": [{
             "id": "completeness",
             "measurement_method": "assertion_rate",
             "success_threshold": {"operator": ">=", "value": 1.0},
@@ -501,18 +525,17 @@ def test_evaluator_report_separates_score_from_threshold_result():
         evaluator.evaluate()
         evaluator.generate_report(str(report))
         report_text = report.read_text(encoding="utf-8")
-        assert "| **Completeness** | 0.500 | 1.000 | 5 | 10 | No | Yes |" in report_text
-        assert "## Not Yet Proven" in report_text
+        assert "| Completeness | 0.5 | 1 | No | Yes | 2 | 2 |" in report_text
+        assert "## Measurement Coverage" in report_text
 
 
-def test_evaluator_does_not_create_radar_for_too_few_metrics():
+def test_evaluator_exposes_no_html_dashboard_for_one_metric():
     Evaluator = load_evaluator()
     with tempfile.TemporaryDirectory() as tmp:
         root = Path(tmp)
         tool = root / "tool.json"
         baseline = root / "baseline.json"
         task = root / "task.json"
-        html = root / "radar.html"
         payload = {
             "task_id": "BM_004",
             "status": "completed",
@@ -523,7 +546,7 @@ def test_evaluator_does_not_create_radar_for_too_few_metrics():
         }
         write_json(tool, {**payload, "runner_type": "tool"})
         write_json(baseline, {**payload, "runner_type": "baseline"})
-        write_json(task, {"task_id": "BM_004", "metrics": [{
+        write_json(task, {"task_id": "BM_004", "rubric_approved": True, "metrics": [{
             "id": "completeness",
             "measurement_method": "assertion_rate",
             "success_threshold": {"operator": ">=", "value": 1.0},
@@ -536,18 +559,17 @@ def test_evaluator_does_not_create_radar_for_too_few_metrics():
         evaluator = Evaluator(str(tool), str(baseline), str(task))
         evaluator.load_data()
         evaluator.evaluate()
-        assert evaluator.generate_html_dashboard(str(html)) is False
-        assert not html.exists()
+        assert not hasattr(evaluator, "generate_html_dashboard")
 
 
-def test_evaluator_creates_radar_for_three_approved_metrics():
+def test_evaluator_reports_three_raw_metrics_without_visual_normalization():
     Evaluator = load_evaluator()
     with tempfile.TemporaryDirectory() as tmp:
         root = Path(tmp)
         tool = root / "tool.json"
         baseline = root / "baseline.json"
         task = root / "task.json"
-        html = root / "radar.html"
+        report = root / "report.md"
         assertions = [
             {"text": "Complete", "passed": True, "evidence": "a", "tags": ["completeness"]},
             {"text": "Controlled", "passed": True, "evidence": "b", "tags": ["control"]},
@@ -561,13 +583,13 @@ def test_evaluator_creates_radar_for_three_approved_metrics():
                 "id": metric,
                 "measurement_method": "assertion_rate",
                 "success_threshold": {"operator": ">=", "value": 1.0},
-                "score_mapping": "pass_rate_x_10",
                 "minimum_samples": 1,
                 "evidence_fields": ["assertions"],
                 "assertion_tags": [metric],
             })
         write_json(task, {
             "task_id": "BM_RADAR",
+            "rubric_approved": True,
             "tool_label": "Project App",
             "baseline": {"type": "raw_llm", "label": "Approved Raw Model"},
             "metrics": metrics,
@@ -576,10 +598,13 @@ def test_evaluator_creates_radar_for_three_approved_metrics():
         evaluator = Evaluator(str(tool), str(baseline), str(task))
         evaluator.load_data()
         evaluator.evaluate()
-        assert evaluator.generate_html_dashboard(str(html)) is True
-        html_text = html.read_text(encoding="utf-8")
-        assert "Project App" in html_text
-        assert "Approved Raw Model" in html_text
+        evaluator.generate_report(str(report))
+        report_text = report.read_text(encoding="utf-8")
+        assert "Project App" in report_text
+        assert "Approved Raw Model" in report_text
+        assert all(result["raw_value"] == 1.0 for result in evaluator.results["tool"].values())
+        assert "Auxiliary Score" not in report_text
+        assert "0-10" not in report_text
 
 
 def test_evaluator_ignores_malformed_evidence_entries():
@@ -606,6 +631,7 @@ def test_evaluator_ignores_malformed_evidence_entries():
         write_json(baseline, {**common, "runner_type": "baseline"})
         write_json(task, {
             "task_id": "BM_MALFORMED",
+            "rubric_approved": True,
             "metrics": [
                 {
                     "id": "completeness",
@@ -630,8 +656,8 @@ def test_evaluator_ignores_malformed_evidence_entries():
         evaluator = Evaluator(str(tool), str(baseline), str(task))
         evaluator.load_data()
         evaluator.evaluate()
-        assert evaluator.scores["tool"]["completeness"]["score"] == 10
-        assert evaluator.scores["tool"]["stability"]["score"] == 10
+        assert evaluator.results["tool"]["completeness"]["raw_value"] == 1.0
+        assert evaluator.results["tool"]["stability"]["raw_value"] == 1.0
 
 
 def test_evaluator_rejects_nonfinite_or_boolean_numeric_evidence():
@@ -652,6 +678,7 @@ def test_evaluator_rejects_nonfinite_or_boolean_numeric_evidence():
         write_json(baseline, {**common, "runner_type": "baseline", "duration_seconds": 1.0})
         write_json(task, {
             "task_id": "BM_NUMERIC_TYPE",
+            "rubric_approved": True,
             "metrics": [{
                 "id": "latency",
                 "measurement_method": "numeric_ratio",
@@ -666,9 +693,9 @@ def test_evaluator_rejects_nonfinite_or_boolean_numeric_evidence():
         evaluator = Evaluator(str(tool), str(baseline), str(task))
         evaluator.load_data()
         evaluator.evaluate()
-        result = evaluator.scores["tool"]["latency"]
-        assert result["score"] is None
-        assert "finite numeric" in result["not_measured_reason"]
+        result = evaluator.results["tool"]["latency"]
+        assert "score" not in result
+        assert "finite" in result["not_measured_reason"]
 
 
 def test_evaluator_rejects_non_string_evidence_field_names():
@@ -689,6 +716,7 @@ def test_evaluator_rejects_non_string_evidence_field_names():
         write_json(baseline, {**common, "runner_type": "baseline"})
         write_json(task, {
             "task_id": "BM_BAD_FIELDS",
+            "rubric_approved": True,
             "metrics": [{
                 "id": "completeness",
                 "measurement_method": "assertion_rate",
@@ -703,8 +731,8 @@ def test_evaluator_rejects_non_string_evidence_field_names():
         evaluator = Evaluator(str(tool), str(baseline), str(task))
         evaluator.load_data()
         evaluator.evaluate()
-        result = evaluator.scores["tool"]["completeness"]
-        assert result["score"] is None
+        result = evaluator.results["tool"]["completeness"]
+        assert "score" not in result
         assert "field names" in result["not_measured_reason"]
 
 
@@ -726,6 +754,7 @@ def test_evaluator_handles_malformed_evidence_containers_without_crash():
         write_json(baseline, {**common, "runner_type": "baseline"})
         write_json(task, {
             "task_id": "BM_BAD_CONTAINERS",
+            "rubric_approved": True,
             "metrics": [{
                 "id": "completeness",
                 "measurement_method": "assertion_rate",
@@ -740,8 +769,8 @@ def test_evaluator_handles_malformed_evidence_containers_without_crash():
         evaluator = Evaluator(str(tool), str(baseline), str(task))
         evaluator.load_data()
         evaluator.evaluate()
-        result = evaluator.scores["tool"]["completeness"]
-        assert result["score"] is None
+        result = evaluator.results["tool"]["completeness"]
+        assert "score" not in result
         assert "list" in result["not_measured_reason"]
 
 
@@ -753,9 +782,57 @@ def make_usability_fixture(root):
     tests.mkdir(parents=True)
     marker = root / "executed.txt"
     script = tests / "usability_P0_guard.sh"
-    script.write_text(f"#!/bin/sh\nprintf executed > '{marker}'\n", encoding="utf-8")
+    telemetry = tests / "reports/usability_P0_guard.telemetry.json"
+    script.write_text(
+        f"#!/bin/sh\nprintf executed > '{marker}'\nmkdir -p '{telemetry.parent}'\nprintf '%s' '{{\"external_calls_actual\":0,\"retries_actual\":0,\"side_effects\":[]}}' > '{telemetry}'\n",
+        encoding="utf-8",
+    )
     script.chmod(0o755)
     return runner, marker
+
+
+def authorized_usability_env(root, results, max_paths=1):
+    source_root, source_revision = source_fixture(root)
+    plan = root / "phase4_usability_plan.md"
+    plan.write_text("approved usability plan\n", encoding="utf-8")
+    digest = hashlib.sha256(plan.read_bytes()).hexdigest()
+    decision = {
+        "decision_id": "DEC-TEST-P4",
+        "phase": "phase4",
+        "decision_type": "live_execution",
+        "proposal_sha256": digest,
+        "source_revision": source_revision,
+        "user_choice": "approved",
+        "approved_limits": {"max_paths": max_paths, "max_calls_per_path": 1, "max_retries": 0, "timeout_seconds": 10},
+        "approved_at": "2026-06-29T12:00:00+08:00",
+        "invalidated_at": None,
+    }
+    manifest = {
+        "schema_version": "2.0",
+        "source_revision": {"revision": source_revision, "dirty": False, "captured_at": "2026-06-29T11:00:00+08:00"},
+        "user_intent": {"goal": "runner regression", "target_users": ["owner"], "in_scope": ["P0"], "out_of_scope": [], "success_criteria": ["runner completes"], "risk_tolerance": "low"},
+        "permissions": {"write_scope": ["tests/usability"], "production_code_changes": False, "dependency_install": False, "live_calls": True, "public_claims": False},
+        "phases": {"phase4": {"phase_status": "in_progress", "result_outcome": "not_run", "execution_scope": "none", "claim_eligibility": "none", "gate_state": "approved"}},
+        "decisions": [decision],
+    }
+    manifest_path = root / "verification_manifest.json"
+    receipt_path = root / "phase4_live_execution.json"
+    write_json(manifest_path, manifest)
+    write_json(receipt_path, decision)
+    return {
+        **os.environ,
+        "PROJECT_VERIFIER_GATE_VALIDATOR": str(GATE_VALIDATOR),
+        "USABILITY_MANIFEST_FILE": str(manifest_path),
+        "USABILITY_AUTHORIZATION_FILE": str(receipt_path),
+        "USABILITY_PLAN_FILE": str(plan),
+        "USABILITY_SOURCE_REVISION": source_revision,
+        "PROJECT_VERIFIER_PROJECT_ROOT": str(source_root),
+        "USABILITY_MAX_PATHS": str(max_paths),
+        "USABILITY_MAX_CALLS_PER_PATH": "1",
+        "USABILITY_MAX_RETRIES": "0",
+        "USABILITY_TIMEOUT_SECONDS": "10",
+        "USABILITY_RESULTS_JSON": str(results),
+    }
 
 
 def run_command(command, cwd, env=None):
@@ -834,12 +911,12 @@ def test_usability_run_writes_machine_readable_results():
         root = Path(tmp)
         runner, marker = make_usability_fixture(root)
         results = root / "workbench/phase4_usability_results.json"
-        env = {**os.environ, "USABILITY_RESULTS_JSON": str(results)}
+        env = authorized_usability_env(root, results)
         result = run_command([str(runner), "run"], root, env=env)
         assert result.returncode == 0, result.stdout
         payload = json.loads(results.read_text(encoding="utf-8"))
         assert payload["status"] == "completed"
-        assert payload["execution_authorization"] is True
+        assert payload["execution_authorization"]["decision_id"] == "DEC-TEST-P4"
         assert payload["paths"][0]["path_id"] == "P0_guard"
         assert payload["paths"][0]["exit_code"] == 0
         assert marker.exists()
@@ -887,14 +964,19 @@ def test_usability_results_preserve_script_exit_code():
         tests = root / "tests/usability"
         tests.mkdir(parents=True)
         script = tests / "usability_P0_failure.sh"
-        script.write_text("#!/bin/sh\nexit 42\n", encoding="utf-8")
+        telemetry = tests / "reports/usability_P0_failure.telemetry.json"
+        script.write_text(
+            f"#!/bin/sh\nmkdir -p '{telemetry.parent}'\nprintf '%s' '{{\"external_calls_actual\":0,\"retries_actual\":0,\"side_effects\":[]}}' > '{telemetry}'\nexit 42\n",
+            encoding="utf-8",
+        )
         script.chmod(0o755)
         results = root / "workbench/phase4_usability_results.json"
-        env = {**os.environ, "USABILITY_RESULTS_JSON": str(results)}
+        env = authorized_usability_env(root, results)
         result = run_command([str(runner), "run"], root, env=env)
         assert result.returncode == 1
         payload = json.loads(results.read_text(encoding="utf-8"))
-        assert payload["status"] == "failed"
+        assert payload["phase_status"] == "completed"
+        assert payload["result_outcome"] == "fail"
         assert payload["paths"][0]["exit_code"] == 42
         assert payload["paths"][0]["failure_stage"] == "script_execution"
 

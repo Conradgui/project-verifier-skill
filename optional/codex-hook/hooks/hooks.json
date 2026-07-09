@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash|Edit|Write|MultiEdit|apply_patch",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CODEX_PLUGIN_ROOT}/pre_tool_guard.py\"",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}

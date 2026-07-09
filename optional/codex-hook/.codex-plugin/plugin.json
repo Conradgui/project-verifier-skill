@@ -1,0 +1,5 @@
+{
+  "name": "project-verifier-guard",
+  "version": "0.1.0",
+  "description": "Optional Codex-only guard for project-verifier high-risk actions"
+}

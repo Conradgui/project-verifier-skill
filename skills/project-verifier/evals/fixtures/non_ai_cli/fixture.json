@@ -1,0 +1,5 @@
+{
+  "id": "non_ai_cli",
+  "classification": "non-AI",
+  "expected_behavior": "CSV values are incremented locally with no external dependency."
+}

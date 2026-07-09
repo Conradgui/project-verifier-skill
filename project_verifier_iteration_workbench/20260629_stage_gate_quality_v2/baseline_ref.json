@@ -1,0 +1,9 @@
+{
+  "skill_name": "project-verifier",
+  "baseline_commit": "b0fa305cbc57b2ebf96a41cebddbddac302740b0",
+  "baseline_skill_path": "skills/project-verifier",
+  "candidate_branch": "codex/stage-gate-quality-v2",
+  "candidate_skill_path": "skills/project-verifier",
+  "materialization_status": "not_materialized",
+  "reason": "The immutable Git commit is the source of truth until model-call authorization is granted."
+}

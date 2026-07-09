@@ -1,0 +1,5 @@
+{
+  "id": "ai_local_backend",
+  "classification": "AI",
+  "expected_behavior": "A deterministic local inference adapter supports no-network usability and benchmark planning."
+}

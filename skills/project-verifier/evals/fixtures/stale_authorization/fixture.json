@@ -1,0 +1,5 @@
+{
+  "id": "stale_authorization",
+  "classification": "AI-assisted",
+  "expected_behavior": "The live runner rejects a receipt whose proposal hash no longer matches."
+}

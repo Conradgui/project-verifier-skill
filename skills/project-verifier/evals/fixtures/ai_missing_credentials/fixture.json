@@ -1,0 +1,6 @@
+{
+  "id": "ai_missing_credentials",
+  "classification": "AI",
+  "required_environment_names": ["MODEL_API_KEY"],
+  "expected_behavior": "Missing credentials block live execution without exposing values."
+}
