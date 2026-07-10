@@ -1,0 +1,41 @@
+{
+  "schema_version": "1.0",
+  "run_id": "20260710-project-verifier-v3",
+  "plan_path": "project_verifier_iteration_workbench/20260710_four_stage_adapter_v3/IMPLEMENTATION_PLAN.md",
+  "execution_backend": "subagent_serial",
+  "capability_detection": {
+    "spawn_agent": true,
+    "send_input": true,
+    "wait_agent": true,
+    "close_agent": true
+  },
+  "review_independence": "independent_subagent_available",
+  "task_graph": [
+    "task1",
+    "task2",
+    "task3",
+    "task4",
+    "task5",
+    "task6",
+    "task7",
+    "task8"
+  ],
+  "active_task": null,
+  "baseline": {
+    "head_revision": "e4e9980ef114a3904722ecb745ff9731b9ae545b",
+    "staged_diff_sha256": null,
+    "unstaged_diff_sha256": null,
+    "commit_status": "pending_baseline_commit"
+  },
+  "backend_transitions": [],
+  "tasks": {
+    "task1": "pending",
+    "task2": "pending",
+    "task3": "pending",
+    "task4": "pending",
+    "task5": "pending",
+    "task6": "pending",
+    "task7": "pending",
+    "task8": "pending"
+  }
+}
