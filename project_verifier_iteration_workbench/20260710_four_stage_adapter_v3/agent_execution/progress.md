@@ -11,3 +11,4 @@
 - Approved design and corrected plan are ready for an isolated baseline commit before final Task 0 re-review.
 - Baseline committed as `b024201`; Git index and worktree were clean.
 - Final Task 0 independent re-review returned `APPROVED`. Task 1 may start.
+- Task 1 started with backend `subagent_serial`; owned files and report contract are recorded in `task-01-brief.md`.
