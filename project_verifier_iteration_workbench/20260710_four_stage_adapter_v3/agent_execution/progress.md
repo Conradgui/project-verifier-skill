@@ -9,3 +9,5 @@
 - First correction pass adopted V2/V3 side-by-side migration through Task 6, full source-scope comparison, machine-checked test migration, `bash` runner invocation, and staged-evidence review ordering.
 - Re-review found remaining canonical-promotion consumers, stale-manifest naming, and retirement-allowlist gaps. These were corrected; the retirement allowlist is now empty.
 - Approved design and corrected plan are ready for an isolated baseline commit before final Task 0 re-review.
+- Baseline committed as `b024201`; Git index and worktree were clean.
+- Final Task 0 independent re-review returned `APPROVED`. Task 1 may start.

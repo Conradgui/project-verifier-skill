@@ -34,3 +34,13 @@
 ## Source
 
 Independent read-only explorer `019f4bd7-f388-7720-a2da-98b3e5a0bb78`.
+
+## Final Re-Review
+
+- `spec_compliance: approved`
+- `code_quality: approved`
+- Baseline commit: `b024201`
+- Git index/worktree at review: clean
+- Task 1 may start: yes
+
+The final review confirmed that Task 7 owns every transitional `_v3` consumer, `verification_manifest_v3.json` has an explicit promotion path, and the empty retirement allowlist prevents historical test retirement.

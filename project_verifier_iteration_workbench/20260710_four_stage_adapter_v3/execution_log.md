@@ -19,4 +19,6 @@
 - Integrated subagent-first capability detection, serial scheduling, inline fallback, structured handoffs, review independence, and resume semantics into `DESIGN.md` and `IMPLEMENTATION_PLAN.md`.
 - Task 0 independent pre-execution review found staged-boundary, CI migration, source-scope, consumer-promotion, fixture-naming, and test-retirement risks.
 - Corrected the plan to keep V2 consumers live through Task 6, build V3 files beside them, atomically promote canonical files in Task 7, compare the full Git state from the approved base, use an empty test-retirement allowlist, and verify staged file ownership before every commit.
-- Next gate: commit the corrected design/plan baseline, obtain clean Task 0 re-review, then begin Task 1. No Skill implementation file has been changed yet.
+- Committed the corrected design/plan baseline as `b024201`.
+- Final Task 0 independent re-review returned `APPROVED` with a clean Git state and no remaining blocker.
+- Next: begin Task 1 using `subagent_serial`. No Skill implementation file has been changed yet.

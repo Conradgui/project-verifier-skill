@@ -22,10 +22,10 @@
   ],
   "active_task": null,
   "baseline": {
-    "head_revision": "e4e9980ef114a3904722ecb745ff9731b9ae545b",
+    "head_revision": "b024201",
     "staged_diff_sha256": null,
     "unstaged_diff_sha256": null,
-    "commit_status": "pending_baseline_commit"
+    "commit_status": "committed_and_reviewed"
   },
   "backend_transitions": [],
   "tasks": {
