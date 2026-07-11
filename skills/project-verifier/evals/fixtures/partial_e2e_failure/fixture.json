@@ -1,5 +1,48 @@
 {
   "id": "partial_e2e_failure",
   "classification": "non-AI",
-  "expected_behavior": "A full local E2E run contains one passing and one failing path and must report a partial outcome."
+  "expected_behavior": "A full local E2E run contains one passing and one failing path and must report a partial outcome.",
+  "feature_classification": [
+    {
+      "feature_id": "local_e2e_path_execution",
+      "classification": "non-AI",
+      "evidence": ["fixture.json:3-4", "tests/usability/usability_P0_success.sh:1-2", "tests/usability/usability_P0_failure.sh:1-2"]
+    }
+  ],
+  "entry_points": [
+    {
+      "id": "p0_success_script",
+      "kind": "shell script",
+      "evidence": ["tests/usability/usability_P0_success.sh:1-2"]
+    },
+    {
+      "id": "p0_failure_script",
+      "kind": "shell script",
+      "evidence": ["tests/usability/usability_P0_failure.sh:1-2"]
+    }
+  ],
+  "path_ids": [
+    {
+      "id": "P0_success",
+      "priority": "P0",
+      "evidence": ["tests/usability/usability_P0_success.sh:1-2"]
+    },
+    {
+      "id": "P0_failure",
+      "priority": "P0",
+      "evidence": ["tests/usability/usability_P0_failure.sh:1-2"]
+    }
+  ],
+  "trust_boundaries": [
+    {
+      "id": "shell_exit_status",
+      "evidence": ["tests/usability/usability_P0_success.sh:2", "tests/usability/usability_P0_failure.sh:2"]
+    }
+  ],
+  "expected_capabilities": [
+    {
+      "id": "expose_distinct_success_and_failure_paths",
+      "evidence": ["tests/usability/usability_P0_success.sh:2", "tests/usability/usability_P0_failure.sh:2"]
+    }
+  ]
 }

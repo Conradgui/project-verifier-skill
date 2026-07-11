@@ -1,5 +1,6 @@
 import ast
 import json
+import re
 import tempfile
 import unittest
 from collections import Counter
@@ -23,6 +24,17 @@ MATRIX_PATH = (
     / "project_verifier_iteration_workbench/20260710_four_stage_adapter_v3/test_migration_matrix.json"
 )
 V3_TEST_ROOT = REPO_ROOT / "skills/project-verifier/tests"
+STAGE1_WORKFLOW = REPO_ROOT / "skills/project-verifier/workflows/stage1_understanding.md"
+FIXTURE_ROOT = REPO_ROOT / "skills/project-verifier/evals/fixtures"
+FIXTURE_IDS = {
+    "ai_assisted_mixed",
+    "ai_local_backend",
+    "ai_missing_credentials",
+    "non_ai_cli",
+    "partial_e2e_failure",
+    "stale_authorization",
+}
+EVIDENCE_REFERENCE = re.compile(r"^(?P<path>[^:]+):(?P<start>\d+)(?:-(?P<end>\d+))?$")
 ALLOWED_STATUSES = {"pending", "ported", "covered_by", "retired_contract"}
 
 
@@ -76,3 +88,99 @@ class MigrationMatrixTests(unittest.TestCase):
                     self.assertIn(v3_test, v3_test_ids)
                 if status == "retired_contract":
                     self.assertIn(legacy_id, retired_allowlist)
+
+
+class Stage1UnderstandingContractTests(unittest.TestCase):
+    def setUp(self):
+        self.workflow = read(STAGE1_WORKFLOW)
+
+    def test_stage1_defines_source_backed_artifacts_and_coverage_limits(self):
+        for phrase in (
+            "project_verification_workbench/project_report.md",
+            "project_verification_workbench/flow_matrix.md",
+            "project_verification_workbench/project_profile.json",
+            "reviewed files",
+            "excluded directories",
+            "unreviewed areas",
+            "coverage limitations",
+            "repository-wide inventory",
+            "risk-based deep reading",
+            "must not claim line-by-line-complete coverage",
+        ):
+            with self.subTest(phrase=phrase):
+                self.assertIn(phrase, self.workflow)
+
+    def test_stage1_binds_paths_to_evidence_and_embeds_four_mermaid_views(self):
+        for phrase in (
+            "Every P0, P1, and P2 path must include source evidence",
+            "| Path ID | Priority |",
+            "Architecture",
+            "Module/data flow",
+            "User flow",
+            "Failure recovery",
+        ):
+            with self.subTest(phrase=phrase):
+                self.assertIn(phrase, self.workflow)
+        self.assertGreaterEqual(self.workflow.count("```mermaid"), 4)
+
+    def test_stage1_profile_and_single_confirmation_preserve_epistemic_boundaries(self):
+        for phrase in (
+            "facts",
+            "inferences",
+            "unknowns",
+            "feature-level AI classification",
+            "exactly one concise user confirmation",
+            "goal",
+            "P0 paths",
+            "factual corrections",
+            "interpretation-changing unknowns",
+            "README rewriting is a separate optional output",
+            "approved_fields_sha256",
+        ):
+            with self.subTest(phrase=phrase):
+                self.assertIn(phrase, self.workflow)
+
+    def test_stage1_prohibits_unsafe_or_out_of_scope_actions(self):
+        for phrase in (
+            "Do not read secret values",
+            "Do not install dependencies",
+            "Do not access networks",
+            "Do not write production source",
+        ):
+            with self.subTest(phrase=phrase):
+                self.assertIn(phrase, self.workflow)
+
+    def test_fixture_descriptors_hold_only_evidence_backed_stage1_fields(self):
+        descriptors = {
+            path.parent.name: json.loads(read(path))
+            for path in sorted(FIXTURE_ROOT.glob("*/fixture.json"))
+        }
+        self.assertEqual(FIXTURE_IDS, set(descriptors))
+
+        for fixture_id, descriptor in descriptors.items():
+            with self.subTest(fixture_id=fixture_id):
+                self.assertEqual(fixture_id, descriptor["id"])
+                for field in (
+                    "feature_classification",
+                    "entry_points",
+                    "path_ids",
+                    "trust_boundaries",
+                    "expected_capabilities",
+                ):
+                    self.assertIn(field, descriptor)
+                    self.assertIsInstance(descriptor[field], list)
+                    for item in descriptor[field]:
+                        self.assertIn("evidence", item)
+                        self.assertTrue(item["evidence"])
+                        for reference in item["evidence"]:
+                            match = EVIDENCE_REFERENCE.fullmatch(reference)
+                            self.assertIsNotNone(match, reference)
+                            evidence_path = FIXTURE_ROOT / fixture_id / match["path"]
+                            self.assertTrue(evidence_path.is_file(), evidence_path)
+                            last_line = int(match["end"] or match["start"])
+                            self.assertGreaterEqual(int(match["start"]), 1)
+                            self.assertLessEqual(
+                                last_line,
+                                len(read(evidence_path).splitlines()),
+                                reference,
+                            )

@@ -5,5 +5,52 @@
     "local_normalization": "non-AI",
     "optional_generation": "AI"
   },
-  "expected_behavior": "Only the optional generation feature is eligible for L3 evaluation."
+  "expected_behavior": "Only the optional generation feature is eligible for L3 evaluation.",
+  "feature_classification": [
+    {
+      "feature_id": "local_normalization",
+      "classification": "non-AI",
+      "evidence": ["fixture.json:4-5", "app.py:8-10"]
+    },
+    {
+      "feature_id": "optional_generation",
+      "classification": "AI-assisted",
+      "evidence": ["fixture.json:4-5", "app.py:11-15"]
+    }
+  ],
+  "entry_points": [
+    {
+      "id": "cli_main",
+      "kind": "CLI",
+      "evidence": ["app.py:6-21"]
+    }
+  ],
+  "path_ids": [
+    {
+      "id": "P0_local_normalization",
+      "priority": "P0",
+      "evidence": ["app.py:7-10"]
+    },
+    {
+      "id": "P1_optional_ai_generation",
+      "priority": "P1",
+      "evidence": ["app.py:11-15"]
+    }
+  ],
+  "trust_boundaries": [
+    {
+      "id": "model_api_key_presence",
+      "evidence": ["app.py:12-14"]
+    }
+  ],
+  "expected_capabilities": [
+    {
+      "id": "normalize_local_input",
+      "evidence": ["app.py:8-10"]
+    },
+    {
+      "id": "block_optional_generation_without_credential",
+      "evidence": ["app.py:11-14"]
+    }
+  ]
 }

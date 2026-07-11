@@ -2,5 +2,38 @@
   "id": "ai_missing_credentials",
   "classification": "AI",
   "required_environment_names": ["MODEL_API_KEY"],
-  "expected_behavior": "Missing credentials block live execution without exposing values."
+  "expected_behavior": "Missing credentials block live execution without exposing values.",
+  "feature_classification": [
+    {
+      "feature_id": "credential_gated_ai_backend",
+      "classification": "AI",
+      "evidence": ["fixture.json:3-5", "app.py:7-10"]
+    }
+  ],
+  "entry_points": [
+    {
+      "id": "cli_main",
+      "kind": "CLI",
+      "evidence": ["app.py:6-14"]
+    }
+  ],
+  "path_ids": [
+    {
+      "id": "P0_missing_credential_block",
+      "priority": "P0",
+      "evidence": ["app.py:7-10"]
+    }
+  ],
+  "trust_boundaries": [
+    {
+      "id": "model_api_key_presence",
+      "evidence": ["app.py:7-9"]
+    }
+  ],
+  "expected_capabilities": [
+    {
+      "id": "report_missing_credential_name",
+      "evidence": ["app.py:7-9"]
+    }
+  ]
 }

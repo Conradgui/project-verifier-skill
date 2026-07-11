@@ -1,5 +1,38 @@
 {
   "id": "ai_local_backend",
   "classification": "AI",
-  "expected_behavior": "A deterministic local inference adapter supports no-network usability and benchmark planning."
+  "expected_behavior": "A deterministic local inference adapter supports no-network usability and benchmark planning.",
+  "feature_classification": [
+    {
+      "feature_id": "local_inference_adapter",
+      "classification": "AI",
+      "evidence": ["fixture.json:3-4", "app.py:6-8"]
+    }
+  ],
+  "entry_points": [
+    {
+      "id": "cli_main",
+      "kind": "CLI",
+      "evidence": ["app.py:6-11"]
+    }
+  ],
+  "path_ids": [
+    {
+      "id": "P0_local_inference_response",
+      "priority": "P0",
+      "evidence": ["app.py:7-8"]
+    }
+  ],
+  "trust_boundaries": [
+    {
+      "id": "cli_prompt_input",
+      "evidence": ["app.py:7-8"]
+    }
+  ],
+  "expected_capabilities": [
+    {
+      "id": "emit_local_json_response",
+      "evidence": ["app.py:7-8"]
+    }
+  ]
 }

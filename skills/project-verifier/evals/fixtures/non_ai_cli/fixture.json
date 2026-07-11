@@ -1,5 +1,38 @@
 {
   "id": "non_ai_cli",
   "classification": "non-AI",
-  "expected_behavior": "CSV values are incremented locally with no external dependency."
+  "expected_behavior": "CSV values are incremented locally with no external dependency.",
+  "feature_classification": [
+    {
+      "feature_id": "csv_value_increment",
+      "classification": "non-AI",
+      "evidence": ["app.py:6-15"]
+    }
+  ],
+  "entry_points": [
+    {
+      "id": "cli_main",
+      "kind": "CLI",
+      "evidence": ["app.py:6-18"]
+    }
+  ],
+  "path_ids": [
+    {
+      "id": "P0_csv_increment",
+      "priority": "P0",
+      "evidence": ["app.py:7-15"]
+    }
+  ],
+  "trust_boundaries": [
+    {
+      "id": "local_file_paths",
+      "evidence": ["app.py:7-10"]
+    }
+  ],
+  "expected_capabilities": [
+    {
+      "id": "increment_csv_values",
+      "evidence": ["app.py:8-15"]
+    }
+  ]
 }

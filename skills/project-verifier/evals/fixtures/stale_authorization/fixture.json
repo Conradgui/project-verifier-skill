@@ -1,5 +1,38 @@
 {
   "id": "stale_authorization",
   "classification": "AI-assisted",
-  "expected_behavior": "The live runner rejects a receipt whose proposal hash no longer matches."
+  "expected_behavior": "The live runner rejects a receipt whose proposal hash no longer matches.",
+  "feature_classification": [
+    {
+      "feature_id": "live_execution_authorization",
+      "classification": "AI-assisted",
+      "evidence": ["fixture.json:3-4", "phase4_live_execution.json:1-16"]
+    }
+  ],
+  "entry_points": [
+    {
+      "id": "live_execution_receipt",
+      "kind": "authorization receipt",
+      "evidence": ["phase4_live_execution.json:1-16"]
+    }
+  ],
+  "path_ids": [
+    {
+      "id": "P0_stale_receipt_rejection",
+      "priority": "P0",
+      "evidence": ["fixture.json:4", "phase4_live_execution.json:4-5"]
+    }
+  ],
+  "trust_boundaries": [
+    {
+      "id": "approval_receipt_hash",
+      "evidence": ["phase4_live_execution.json:4-7", "verification_manifest.json:38-51"]
+    }
+  ],
+  "expected_capabilities": [
+    {
+      "id": "identify_stale_authorization_input",
+      "evidence": ["fixture.json:4", "phase4_live_execution.json:4-5"]
+    }
+  ]
 }
