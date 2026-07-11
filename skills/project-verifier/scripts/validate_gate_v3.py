@@ -59,6 +59,23 @@ PROFILE_ARTIFACTS = {
     "project_verification_workbench/flow_matrix.md",
     "project_verification_workbench/project_profile.json",
 }
+PROFILE_FIELDS = {
+    "schema_version",
+    "source_identity",
+    "reviewed_scope",
+    "runtimes",
+    "entry_points",
+    "priority_paths",
+    "modules",
+    "state_changes",
+    "trust_boundaries",
+    "sensitive_data_categories",
+    "feature_ai_classification",
+    "existing_capabilities",
+    "evidence_references",
+    "inferences",
+    "unknowns",
+}
 COMMIT_REVISION = re.compile(r"^git:([0-9a-f]{40})$")
 SHA256 = re.compile(r"^[0-9a-f]{64}$")
 
@@ -98,6 +115,8 @@ def load_object(path, label):
 
 
 def require_exact_fields(payload, expected, label):
+    if not isinstance(payload, dict):
+        raise GateValidationError(f"{label} must be an object")
     actual = set(payload)
     if actual != expected:
         missing = sorted(expected - actual)
@@ -469,6 +488,10 @@ def validate_profile_handoff(manifest, profile, profile_path, project_root):
         raise GateValidationError("Stage 1 must be completed before its Profile can be consumed")
     if not PROFILE_ARTIFACTS <= set(stage1["artifacts"]):
         raise GateValidationError("Stage 1 artifacts are incomplete for Profile handoff")
+    for artifact in PROFILE_ARTIFACTS:
+        artifact_path = (Path(project_root).resolve() / normalize_relative_path(artifact)).resolve()
+        if not artifact_path.is_file() or artifact_path.is_symlink():
+            raise GateValidationError(f"Stage 1 artifact is missing or not a regular file: {artifact}")
 
     profile_ref = manifest["project_profile"]
     if profile_ref["status"] != "confirmed":
@@ -476,10 +499,37 @@ def validate_profile_handoff(manifest, profile, profile_path, project_root):
     expected_path = (Path(project_root).resolve() / normalize_relative_path(profile_ref["path"])).resolve()
     if Path(profile_path).resolve() != expected_path:
         raise GateValidationError("Project Profile path does not match the manifest reference")
-    if not isinstance(profile, dict) or profile.get("schema_version") != "3.0":
+    if not isinstance(profile, dict):
+        raise GateValidationError("Project Profile must be an object")
+    require_exact_fields(profile, PROFILE_FIELDS, "Project Profile")
+    if profile["schema_version"] != "3.0":
         raise GateValidationError("Project Profile schema_version must be 3.0")
     source_identity = profile.get("source_identity")
-    if not isinstance(source_identity, dict) or source_identity.get("revision") != current_revision:
+    require_exact_fields(
+        source_identity,
+        {"revision", "captured_at", "repository_type"},
+        "Project Profile source_identity",
+    )
+    if not all(isinstance(source_identity[field], str) and source_identity[field] for field in source_identity):
+        raise GateValidationError("Project Profile source_identity is incomplete")
+    reviewed_scope = profile["reviewed_scope"]
+    require_exact_fields(
+        reviewed_scope,
+        {"in_scope", "out_of_scope", "reviewed_paths"},
+        "Project Profile reviewed_scope",
+    )
+    for field in ("in_scope", "out_of_scope", "reviewed_paths"):
+        require_string_list(reviewed_scope[field], f"Project Profile reviewed_scope {field}")
+    priority_paths = profile["priority_paths"]
+    if not isinstance(priority_paths, dict) or set(priority_paths) != {"P0", "P1", "P2"}:
+        raise GateValidationError("Project Profile priority_paths is incomplete")
+    for field in priority_paths:
+        if not isinstance(priority_paths[field], list):
+            raise GateValidationError("Project Profile priority_paths entries must be lists")
+    for field in PROFILE_FIELDS - {"schema_version", "source_identity", "reviewed_scope", "priority_paths"}:
+        if not isinstance(profile[field], list):
+            raise GateValidationError(f"Project Profile {field} must be a list")
+    if source_identity["revision"] != current_revision:
         raise GateValidationError("Project Profile source revision does not match the current source revision")
     approved_hash = profile_ref["approved_fields_sha256"]
     if not approved_hash:

@@ -260,6 +260,10 @@ class ControlPlaneCliTests(unittest.TestCase):
             profile = profile_fixture(revision)
             profile_path = source / "project_verification_workbench/project_profile.json"
             profile_path.parent.mkdir()
+            report_path = source / "project_verification_workbench/project_report.md"
+            matrix_path = source / "project_verification_workbench/flow_matrix.md"
+            report_path.write_text("# Report\n", encoding="utf-8")
+            matrix_path.write_text("# Matrix\n", encoding="utf-8")
             write_json(profile_path, profile)
             manifest_payload["project_profile"] = {
                 "path": "project_verification_workbench/project_profile.json",
@@ -275,6 +279,12 @@ class ControlPlaneCliTests(unittest.TestCase):
             accepted = run(command, root)
             self.assertEqual(0, accepted.returncode, accepted.stdout)
 
+            report_path.unlink()
+            missing_artifact = run(command, root)
+            self.assertNotEqual(0, missing_artifact.returncode)
+            self.assertIn("artifact", missing_artifact.stdout.lower())
+            report_path.write_text("# Report\n", encoding="utf-8")
+
             manifest_payload["project_profile"]["status"] = "pending"
             write_json(manifest_path, manifest_payload)
             pending = run(command, root)
@@ -289,6 +299,15 @@ class ControlPlaneCliTests(unittest.TestCase):
             stale = run(command, root)
             self.assertNotEqual(0, stale.returncode)
             self.assertIn("source revision", stale.stdout.lower())
+
+            profile = profile_fixture(revision)
+            profile.pop("unknowns")
+            write_json(profile_path, profile)
+            manifest_payload["project_profile"]["approved_fields_sha256"] = canonical_object_hash(profile)
+            write_json(manifest_path, manifest_payload)
+            incomplete = run(command, root)
+            self.assertNotEqual(0, incomplete.returncode)
+            self.assertIn("profile fields", incomplete.stdout.lower())
 
     def test_check_requires_project_root_for_live_fingerprint(self):
         with tempfile.TemporaryDirectory() as tmp:
