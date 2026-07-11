@@ -40,3 +40,6 @@
 - Task 2 independent re-review returned `APPROVED_WITH_LIMITATION` after the
   controller added regressions for required project roots, hidden staged changes,
   and complete approved-limit submission. No P0/P1 authorization bypass remains.
+- Started Task 3 using restored serial subagent execution. This is the first
+  user-facing V3 delivery: source-backed project understanding, diagrams,
+  flow matrix, and stable Profile contract.

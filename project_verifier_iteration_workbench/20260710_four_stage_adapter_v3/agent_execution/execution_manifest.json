@@ -20,7 +20,7 @@
     "task7",
     "task8"
   ],
-  "active_task": null,
+  "active_task": "task3",
   "baseline": {
     "head_revision": "b024201",
     "staged_diff_sha256": null,
@@ -33,12 +33,18 @@
       "to": "inline_serial",
       "task": "task2",
       "reason": "implementer usage limit exhausted before report; controller resumed from uncommitted owned files"
+    },
+    {
+      "from": "inline_serial",
+      "to": "subagent_serial",
+      "task": "task3",
+      "reason": "new task begins after Task 2 closure; subagent execution capability is available"
     }
   ],
   "tasks": {
     "task1": "completed",
     "task2": "completed",
-    "task3": "pending",
+    "task3": "in_progress",
     "task4": "pending",
     "task5": "pending",
     "task6": "pending",

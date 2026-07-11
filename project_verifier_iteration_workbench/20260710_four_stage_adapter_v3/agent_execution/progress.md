@@ -26,3 +26,6 @@
 - Task 2 re-review returned `APPROVED_WITH_LIMITATION`: project-root,
   hidden-index, and omitted-limit bypasses are closed; the missing original RED
   transcript remains a non-blocking P2 process limitation. Task 3 may start.
+- Task 3 started with the restored `subagent_serial` backend. It owns the
+  user-visible Stage 1 understanding workflow, source-bound diagrams, Profile,
+  and fixture descriptors; it does not modify production code or V2 consumers.
