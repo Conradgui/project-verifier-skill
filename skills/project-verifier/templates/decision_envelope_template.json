@@ -1,0 +1,28 @@
+{
+  "schema_version": "1.0",
+  "stage": "stage2",
+  "decision_type": "live_e2e",
+  "source_policy": {
+    "mode": "exact",
+    "base_revision": "unknown",
+    "allowed_fix_paths": []
+  },
+  "scope": {
+    "path_ids": [],
+    "targets": [],
+    "write_scope": [
+      "project_verification_workbench"
+    ],
+    "network": false,
+    "credential_names": [],
+    "sensitive_data": false,
+    "side_effects": []
+  },
+  "interpretation": {
+    "claim": null,
+    "baseline": null,
+    "dataset_id": null,
+    "metric_ids": []
+  },
+  "limits": {}
+}

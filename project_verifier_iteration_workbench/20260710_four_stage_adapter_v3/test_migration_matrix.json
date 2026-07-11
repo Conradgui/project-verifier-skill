@@ -250,15 +250,15 @@
     },
     {
       "legacy_id": "project_verifier_iteration_workbench/20260629_stage_gate_quality_v2/stage_gate_v2_tests.py::test_gate_validator_accepts_exact_current_approval",
-      "status": "pending",
-      "v3_test": null,
-      "reason": "Scheduled for V3 control-plane or stage coverage in Tasks 2-6."
+      "status": "ported",
+      "v3_test": "skills/project-verifier/tests/test_control_plane.py::test_check_accepts_exact_source_and_lower_requested_limits",
+      "reason": "Task 2 ports exact-source approval with decision-envelope identity and lower-limit containment."
     },
     {
       "legacy_id": "project_verifier_iteration_workbench/20260629_stage_gate_quality_v2/stage_gate_v2_tests.py::test_gate_validator_rejects_changed_plan_revision_and_invalidation",
-      "status": "pending",
-      "v3_test": null,
-      "reason": "Scheduled for V3 control-plane or stage coverage in Tasks 2-6."
+      "status": "ported",
+      "v3_test": "skills/project-verifier/tests/test_control_plane.py::test_check_rejects_invalidated_receipt_or_changed_envelope",
+      "reason": "Task 2 replaces plan hashing with a decision-envelope hash and retains invalidation failure."
     },
     {
       "legacy_id": "project_verifier_iteration_workbench/20260629_stage_gate_quality_v2/stage_gate_v2_tests.py::test_gate_validator_rejects_missing_permissions_and_unfingerprinted_dirty_source",
@@ -268,9 +268,9 @@
     },
     {
       "legacy_id": "project_verifier_iteration_workbench/20260629_stage_gate_quality_v2/stage_gate_v2_tests.py::test_manifest_template_separates_state_dimensions",
-      "status": "pending",
-      "v3_test": null,
-      "reason": "Scheduled for V3 control-plane or stage coverage in Tasks 2-6."
+      "status": "ported",
+      "v3_test": "skills/project-verifier/tests/test_control_plane.py::test_v3_manifest_uses_only_four_stages_and_state_dimensions",
+      "reason": "Task 2 defines the four-stage V3 manifest and independent state dimensions."
     },
     {
       "legacy_id": "project_verifier_iteration_workbench/20260629_stage_gate_quality_v2/stage_gate_v2_tests.py::test_non_ai_and_ai_fixture_entrypoints_behave_as_declared",
@@ -298,9 +298,9 @@
     },
     {
       "legacy_id": "project_verifier_iteration_workbench/20260629_stage_gate_quality_v2/stage_gate_v2_tests.py::test_source_fingerprint_changes_with_tracked_or_untracked_state_without_exposing_content",
-      "status": "pending",
-      "v3_test": null,
-      "reason": "Scheduled for V3 control-plane or stage coverage in Tasks 2-6."
+      "status": "ported",
+      "v3_test": "skills/project-verifier/tests/test_control_plane.py::test_fingerprint_is_secret_safe_and_ignores_workbench_artifacts",
+      "reason": "Task 2 retains secret-safe dirty fingerprints for source changes."
     },
     {
       "legacy_id": "project_verifier_iteration_workbench/20260629_stage_gate_quality_v2/stage_gate_v2_tests.py::test_stale_authorization_and_partial_e2e_fixtures_expose_expected_failure",
@@ -328,9 +328,9 @@
     },
     {
       "legacy_id": "project_verifier_iteration_workbench/20260629_stage_gate_quality_v2/stage_gate_v2_tests.py::test_write_scope_validator_rejects_unapproved_production_paths",
-      "status": "pending",
-      "v3_test": null,
-      "reason": "Scheduled for V3 control-plane or stage coverage in Tasks 2-6."
+      "status": "ported",
+      "v3_test": "skills/project-verifier/tests/test_control_plane.py::test_paths_enforces_write_scope_and_rejects_unsafe_paths",
+      "reason": "Task 2 ports fail-closed V3 write-scope validation and unsafe-path rejection."
     },
     {
       "legacy_id": "project_verifier_iteration_workbench/20260630_lean_core_simplification/lean_core_contract_tests.py::test_compact_human_artifacts_keep_flow_matrix_compatibility",
@@ -388,9 +388,9 @@
     },
     {
       "legacy_id": "project_verifier_iteration_workbench/20260630_lean_core_simplification/lean_core_contract_tests.py::test_gate_check_recomputes_current_source_revision",
-      "status": "pending",
-      "v3_test": null,
-      "reason": "Scheduled for V3 contract and credibility coverage in Tasks 2-7."
+      "status": "ported",
+      "v3_test": "skills/project-verifier/tests/test_control_plane.py::test_exact_source_policy_rejects_changed_source",
+      "reason": "Task 2 recomputes the project fingerprint before enforcing exact source authorization."
     },
     {
       "legacy_id": "project_verifier_iteration_workbench/20260630_lean_core_simplification/lean_core_contract_tests.py::test_optional_codex_hook_accepts_exact_authorization_and_rejects_stale_source",
@@ -406,9 +406,9 @@
     },
     {
       "legacy_id": "project_verifier_iteration_workbench/20260630_lean_core_simplification/lean_core_contract_tests.py::test_source_fingerprint_ignores_workbench_but_tracks_source_changes",
-      "status": "pending",
-      "v3_test": null,
-      "reason": "Scheduled for V3 contract and credibility coverage in Tasks 2-7."
+      "status": "ported",
+      "v3_test": "skills/project-verifier/tests/test_control_plane.py::test_fingerprint_is_secret_safe_and_ignores_workbench_artifacts",
+      "reason": "Task 2 retains the workbench exclusion while keeping source fingerprints secret-safe."
     },
     {
       "legacy_id": "project_verifier_iteration_workbench/20260630_lean_core_simplification/lean_core_contract_tests.py::test_usability_runner_marks_script_telemetry_as_self_reported",

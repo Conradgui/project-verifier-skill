@@ -1,0 +1,74 @@
+{
+  "schema_version": "3.0",
+  "source_revision": {
+    "revision": "unknown",
+    "dirty": false,
+    "captured_at": "unknown"
+  },
+  "user_intent": {
+    "goal": "unknown",
+    "target_users": [],
+    "in_scope": [],
+    "out_of_scope": [],
+    "success_criteria": [],
+    "risk_tolerance": "unknown"
+  },
+  "permissions": {
+    "write_scope": [
+      "project_verification_workbench"
+    ],
+    "production_code_changes": false,
+    "dependency_install": false,
+    "live_calls": false,
+    "public_claims": false
+  },
+  "stages": {
+    "stage1": {
+      "phase_status": "pending",
+      "result_outcome": "not_run",
+      "execution_scope": "none",
+      "claim_eligibility": "none",
+      "gate_state": "not_required",
+      "artifacts": [],
+      "blockers": [],
+      "recovery_conditions": []
+    },
+    "stage2": {
+      "phase_status": "pending",
+      "result_outcome": "not_run",
+      "execution_scope": "none",
+      "claim_eligibility": "none",
+      "gate_state": "pending",
+      "artifacts": [],
+      "blockers": [],
+      "recovery_conditions": []
+    },
+    "stage3": {
+      "phase_status": "pending",
+      "result_outcome": "not_run",
+      "execution_scope": "none",
+      "claim_eligibility": "none",
+      "gate_state": "pending",
+      "artifacts": [],
+      "blockers": [],
+      "recovery_conditions": []
+    },
+    "stage4": {
+      "phase_status": "pending",
+      "result_outcome": "not_run",
+      "execution_scope": "none",
+      "claim_eligibility": "none",
+      "gate_state": "pending",
+      "artifacts": [],
+      "blockers": [],
+      "recovery_conditions": []
+    }
+  },
+  "source_history": [],
+  "project_profile": {
+    "path": "project_verification_workbench/project_profile.json",
+    "status": "pending",
+    "approved_fields_sha256": null
+  },
+  "decisions": []
+}

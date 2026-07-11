@@ -1,0 +1,29 @@
+{
+  "schema_version": "3.0",
+  "source_identity": {
+    "revision": "unknown",
+    "captured_at": "unknown",
+    "repository_type": "unknown"
+  },
+  "reviewed_scope": {
+    "in_scope": [],
+    "out_of_scope": [],
+    "reviewed_paths": []
+  },
+  "runtimes": [],
+  "entry_points": [],
+  "priority_paths": {
+    "P0": [],
+    "P1": [],
+    "P2": []
+  },
+  "modules": [],
+  "state_changes": [],
+  "trust_boundaries": [],
+  "sensitive_data_categories": [],
+  "feature_ai_classification": [],
+  "existing_capabilities": [],
+  "evidence_references": [],
+  "inferences": [],
+  "unknowns": []
+}
