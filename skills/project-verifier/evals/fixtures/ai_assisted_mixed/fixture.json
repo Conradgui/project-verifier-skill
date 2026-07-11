@@ -14,7 +14,7 @@
     },
     {
       "feature_id": "optional_generation",
-      "classification": "AI-assisted",
+      "classification": "AI",
       "evidence": ["fixture.json:4-5", "app.py:11-15"]
     }
   ],

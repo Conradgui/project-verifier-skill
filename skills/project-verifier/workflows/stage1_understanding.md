@@ -71,6 +71,26 @@ unless the user separately requests it after Stage 1.
    that hash to the current source revision, and mark Stage 1 complete. A source
    or approved-field change makes the Profile draft stale until reviewed again.
 
+## Completion And Handoff Contract
+
+On completion, update the manifest in the same source snapshot:
+
+- `stage1.artifacts` lists `project_report.md`, `flow_matrix.md`, and
+  `project_profile.json` under `project_verification_workbench/`.
+- `stage1.phase_status` is `completed`; the remaining state dimensions state
+  only the evidence actually gathered.
+- `project_profile.status` is `confirmed` and its
+  `approved_fields_sha256` equals the hash stored with the finalized Profile.
+- `project_profile.source_identity.revision` equals the manifest source revision
+  used for the confirmation.
+
+Stage 2, Stage 3, and Stage 4 must refuse to consume the Profile when
+`stage1.phase_status` is not `completed`, `project_profile.status` is not
+`confirmed`, `approved_fields_sha256` is missing, or the Profile source revision
+does not equal the current manifest source revision. Mark the dependent stage
+`blocked` or `not_applicable` with a recovery condition; do not infer missing
+Stage 1 facts from a stale draft.
+
 ## `project_report.md` Draft
 
 Write a human-readable report containing:
@@ -88,6 +108,12 @@ Write a human-readable report containing:
 
 Embed Mermaid source in the report. These diagrams are source-backed drafts;
 use `unknown` nodes or annotations where evidence does not establish a link.
+Immediately after each diagram, include a **Mermaid evidence legend** with the
+node or edge identifier, source reference, and epistemic status. Every non-`unknown` relationship
+must cite a source reference in that legend. An
+inferred relationship must be marked `inference` with its rationale; an
+unproven relationship must remain `unknown` rather than appearing as a factual
+edge.
 
 ### Architecture
 

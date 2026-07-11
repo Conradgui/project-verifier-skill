@@ -122,6 +122,21 @@ class Stage1UnderstandingContractTests(unittest.TestCase):
             with self.subTest(phrase=phrase):
                 self.assertIn(phrase, self.workflow)
         self.assertGreaterEqual(self.workflow.count("```mermaid"), 4)
+        self.assertIn("Mermaid evidence legend", self.workflow)
+        self.assertIn("Every non-`unknown` relationship", self.workflow)
+
+    def test_stage1_completion_contract_blocks_unconfirmed_or_stale_handoffs(self):
+        for phrase in (
+            "stage1.artifacts",
+            "project_profile.status",
+            "confirmed",
+            "source_identity.revision",
+            "Stage 2, Stage 3, and Stage 4 must refuse to consume the Profile",
+            "`stage1.phase_status` is not `completed`",
+            "`approved_fields_sha256` is missing",
+        ):
+            with self.subTest(phrase=phrase):
+                self.assertIn(phrase, self.workflow)
 
     def test_stage1_profile_and_single_confirmation_preserve_epistemic_boundaries(self):
         for phrase in (
@@ -184,3 +199,9 @@ class Stage1UnderstandingContractTests(unittest.TestCase):
                                 len(read(evidence_path).splitlines()),
                                 reference,
                             )
+                if "features" in descriptor:
+                    classifications = {
+                        item["feature_id"]: item["classification"]
+                        for item in descriptor["feature_classification"]
+                    }
+                    self.assertEqual(descriptor["features"], classifications)
