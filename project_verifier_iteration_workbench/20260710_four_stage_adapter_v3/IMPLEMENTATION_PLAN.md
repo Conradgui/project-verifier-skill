@@ -87,7 +87,7 @@
 - `skills/project-verifier/workflows/phase5_benchmark.md`
 - `LICENSE`
 
-Historical iteration workbenches remain unchanged. They are evidence of prior versions, not current executable contracts. Transitional `*_v3*` files exist only to keep current V2 CI green during Tasks 1-6 and are promoted to canonical names in Task 7 after the complete V3 suite passes.
+Historical iteration reports remain unchanged. Executable historical test fixtures remain unchanged except for the Task 1 baseline-repair entry below: it adds the already-required `rubric_approved: true` field to `BM_002`, restoring the current evaluator/test contract without weakening any Gate. Transitional `*_v3*` files exist only to keep current V2 CI green during Tasks 1-6 and are promoted to canonical names in Task 7 after the complete V3 suite passes.
 
 ### Runtime Orchestration Artifacts
 
@@ -130,6 +130,7 @@ project_verification_workbench/agent_execution/
 - Create: `skills/project-verifier/tests/helpers.py`
 - Create: `skills/project-verifier/tests/test_contract.py`
 - Create: `project_verifier_iteration_workbench/20260710_four_stage_adapter_v3/test_migration_matrix.json`
+- Modify: `project_verifier_iteration_workbench/20260626_skill_hardening/template_behavior_tests.py` only to add `rubric_approved: true` to the existing `BM_002` task definition
 
 **Interfaces:**
 - Produces: `run(command: list[str], cwd: Path, env: dict | None = None) -> subprocess.CompletedProcess`
@@ -265,6 +266,8 @@ python3 -m unittest discover -s skills/project-verifier/tests -p 'test_*.py' -v
 
 Expected: all current V3 harness and matrix checks pass. No final four-stage assertion is added until its owning implementation task, so the suite does not remain RED between commits.
 
+The Task 1 baseline repair preserves the current evaluator Gate: add `rubric_approved: true` only to the existing `BM_002` task definition. Do not change Evaluator code, assertions, historical reports, or unrelated fixtures.
+
 - [ ] **Step 6: Confirm existing CI consumers still pass**
 
 Run the four historical commands currently listed in `.github/workflows/offline-validation.yml`. Expected: all pass because Task 1 changes no canonical V2 consumer.
@@ -274,6 +277,7 @@ Run the four historical commands currently listed in `.github/workflows/offline-
 ```bash
 git add skills/project-verifier/tests
 git add project_verifier_iteration_workbench/20260710_four_stage_adapter_v3/test_migration_matrix.json
+git add project_verifier_iteration_workbench/20260626_skill_hardening/template_behavior_tests.py
 git diff --cached --name-only
 git commit -m "test: define project verifier v3 contract"
 ```

@@ -21,4 +21,6 @@
 - Corrected the plan to keep V2 consumers live through Task 6, build V3 files beside them, atomically promote canonical files in Task 7, compare the full Git state from the approved base, use an empty test-retirement allowlist, and verify staged file ownership before every commit.
 - Committed the corrected design/plan baseline as `b024201`.
 - Final Task 0 independent re-review returned `APPROVED` with a clean Git state and no remaining blocker.
-- Next: begin Task 1 using `subagent_serial`. No Skill implementation file has been changed yet.
+- Task 1 implemented the standard-library V3 test harness and 69-row migration matrix.
+- A historical CI fixture was inconsistent with the current `rubric_approved` evaluator Gate introduced by `e4e9980`. The only repair was adding `rubric_approved: true` to the existing measured-metrics fixture; no Evaluator behavior or historical report changed.
+- V3 tests and all four historical CI Python commands now pass. Task 1 awaits independent diff review.

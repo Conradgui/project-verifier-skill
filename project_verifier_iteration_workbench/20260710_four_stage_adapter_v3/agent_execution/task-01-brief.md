@@ -11,6 +11,7 @@ Create a standard-library V3 test entrypoint and a machine-checked historical-te
 - `skills/project-verifier/tests/test_contract.py`
 - `project_verifier_iteration_workbench/20260710_four_stage_adapter_v3/test_migration_matrix.json`
 - `project_verifier_iteration_workbench/20260710_four_stage_adapter_v3/agent_execution/task-01-report.md`
+- `project_verifier_iteration_workbench/20260626_skill_hardening/template_behavior_tests.py` only for the `BM_002` fixture repair
 
 ## Required Behavior
 
@@ -21,11 +22,12 @@ Create a standard-library V3 test entrypoint and a machine-checked historical-te
 5. Allowed statuses are `pending`, `ported`, `covered_by`, and `retired_contract`.
 6. `ported/covered_by` must reference an existing V3 test function. `retired_contract` is rejected unless allowlisted. Only `pending` may omit `v3_test` before Task 7.
 7. End with the full current V3 suite GREEN and all four historical CI Python commands passing.
+8. Add `rubric_approved: true` to the existing `BM_002` task definition. Do not alter Evaluator code, assertions, historical reports, or unrelated fixtures.
 
 ## Forbidden Actions
 
 - Do not modify `.github/workflows/offline-validation.yml`.
-- Do not modify `README.md`, `SKILL.md`, workflows, templates, validators, runners, fixtures, or historical workbench test files.
+- Do not modify `README.md`, `SKILL.md`, workflows, templates, validators, runners, fixtures other than the explicit `BM_002` repair, or historical reports.
 - Do not install dependencies, use network access, commit, push, merge, or update the installed Skill.
 - Do not stage files; the controller owns Git state.
 
