@@ -194,6 +194,7 @@ def test_evaluator_reports_complete_raw_evidence():
             task_definition,
             {
                 "task_id": "BM_002",
+                "rubric_approved": True,
                 "metrics": [
                     {
                         "id": "completeness",
