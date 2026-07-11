@@ -17,6 +17,9 @@
 - Never read, print, or persist secret values; record environment-variable names only.
 - Use task-defined raw metrics and thresholds. Do not add universal scores or radar charts.
 - Missing evidence, missing telemetry, empty output, runner failure, negative results, and stale evidence cannot become positive claims.
+- Before Stage 2, Stage 3, or Stage 4 consumes Stage 1 facts, run the V3
+  Profile handoff gate against the current source revision; an unconfirmed,
+  incomplete, mismatched, or stale Profile blocks the dependent stage.
 - Recommend the best-fit tool with trade-offs. If the user rejects it, disclose the fallback and reduced coverage; never silently install or downgrade.
 - The user approves material product, risk, cost, sensitive-data, Baseline, metric, and public-claim decisions. The Agent owns reversible implementation details inside the approved decision envelope.
 - Remove the repository `LICENSE` and README License section only in the documentation migration task.
@@ -305,6 +308,7 @@ The staged list must contain only the Task 1 files. If any pre-existing staged p
 - CLI: `validate_gate_v3.py check --manifest <manifest.json> --receipt <receipt.json> --envelope <decision-envelope.json> --source-revision <fingerprint> --stage <stage-id> --decision-type <type> [--limit key=value] [--project-root <project>]`
 - CLI: `validate_gate_v3.py fingerprint --root <project>` preserves secret-safe fingerprint behavior.
 - CLI: `validate_gate_v3.py paths --manifest <manifest.json> --changed-file <relative-path>` remains fail-closed.
+- CLI: `validate_gate_v3.py profile --manifest <manifest.json> --profile <project_profile.json> --project-root <project>` validates Stage 1 handoff before a later stage consumes Profile facts.
 
 The authorization receipt fields are exactly:
 

@@ -29,3 +29,7 @@
 - Task 3 started with the restored `subagent_serial` backend. It owns the
   user-visible Stage 1 understanding workflow, source-bound diagrams, Profile,
   and fixture descriptors; it does not modify production code or V2 consumers.
+- Task 3 first independent review found three P1 gaps in Profile handoff,
+  Mermaid relationship evidence, and mixed-fixture classification. The
+  controller added a V3 Profile handoff gate and regression tests; Task 3 is
+  awaiting re-review.

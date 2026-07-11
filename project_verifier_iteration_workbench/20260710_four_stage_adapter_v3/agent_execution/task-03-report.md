@@ -2,9 +2,9 @@
 
 ## Status
 
-Complete. Task 3 adds a static, source-backed Stage 1 workflow and fixture
-descriptors. It does not claim exhaustive review, security certification,
-runtime verification, or live capability execution.
+DONE_WITH_CONCERNS pending re-review. Task 3 adds a static, source-backed
+Stage 1 workflow and fixture descriptors. It does not claim exhaustive review,
+security certification, runtime verification, or live capability execution.
 
 ## Changed Files
 
@@ -98,3 +98,14 @@ corrected to real ranges before the final GREEN run.
 - No blockers remain. The Stage 1 workflow is intentionally procedural Markdown;
   its output artifacts are created only when the workflow is invoked for a
   target repository and receives its single user confirmation.
+
+## Independent Review Repair
+
+The first independent review found three P1 gaps: Profile handoff was only
+prose, Mermaid legends were not structurally modeled, and the mixed fixture
+contradicted the existing AI-assisted Eval. The controller added a V3 `profile`
+validator command with confirmed/current/hash/artifact checks, fixed four
+adjacent Mermaid evidence-legend templates, removed descriptor-self-reference
+as classification evidence, and made the feature classification match
+`evals.json`. New and existing V3 tests passed `39/39`; final re-review remains
+required before Task 4 starts.

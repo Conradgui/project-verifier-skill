@@ -43,3 +43,8 @@
 - Started Task 3 using restored serial subagent execution. This is the first
   user-facing V3 delivery: source-backed project understanding, diagrams,
   flow matrix, and stable Profile contract.
+- Task 3 independent review found three P1 gaps. The controller repaired the
+  stale/unconfirmed Profile handoff with a V3 validator command, made Mermaid
+  relationship evidence use fixed adjacent legends, and aligned the mixed
+  fixture with the existing AI-assisted Eval definition. V3 tests reached
+  `39/39`; Task 3 awaits re-review.
