@@ -13,4 +13,6 @@
 - Final Task 0 independent re-review returned `APPROVED`. Task 1 may start.
 - Task 1 started with backend `subagent_serial`; owned files and report contract are recorded in `task-01-brief.md`.
 - Task 1 implementer completed the harness and migration matrix. A historical `BM_002` fixture failed because it omitted the existing rubric approval field; controller repaired only that fixture and restored all V3 and historical test commands to GREEN.
-- Task 1 is awaiting independent diff review.
+- Task 1 independent diff review returned `APPROVED`. The V3 harness maps all
+  69 historical tests with no retirement escape hatch. Two non-blocking P2
+  follow-ups are recorded in `task-01-review.md`; Task 2 may start.

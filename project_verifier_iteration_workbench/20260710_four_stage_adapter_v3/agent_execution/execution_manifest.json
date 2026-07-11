@@ -20,7 +20,7 @@
     "task7",
     "task8"
   ],
-  "active_task": "task1",
+  "active_task": null,
   "baseline": {
     "head_revision": "b024201",
     "staged_diff_sha256": null,
@@ -29,7 +29,7 @@
   },
   "backend_transitions": [],
   "tasks": {
-    "task1": "in_progress",
+    "task1": "completed",
     "task2": "pending",
     "task3": "pending",
     "task4": "pending",

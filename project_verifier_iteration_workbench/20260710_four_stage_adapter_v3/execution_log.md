@@ -23,4 +23,8 @@
 - Final Task 0 independent re-review returned `APPROVED` with a clean Git state and no remaining blocker.
 - Task 1 implemented the standard-library V3 test harness and 69-row migration matrix.
 - A historical CI fixture was inconsistent with the current `rubric_approved` evaluator Gate introduced by `e4e9980`. The only repair was adding `rubric_approved: true` to the existing measured-metrics fixture; no Evaluator behavior or historical report changed.
-- V3 tests and all four historical CI Python commands now pass. Task 1 awaits independent diff review.
+- V3 tests and all four historical CI Python commands now pass.
+- Task 1 independent review returned `APPROVED`. It confirmed complete 69-row
+  historical coverage and no silent retirement route. Two P2 test-infrastructure
+  follow-ups remain recorded in `agent_execution/task-01-review.md`; neither
+  blocks the documented discovery command or Task 2.

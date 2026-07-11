@@ -88,8 +88,9 @@ python3 project_verifier_iteration_workbench/20260630_lean_core_simplification/l
   the status allowlist, validate real AST-discovered V3 targets for `ported`
   and `covered_by`, and reject non-allowlisted `retired_contract` rows.
 - Review independence: `self_review_only`.
-- No CI, canonical V2 consumer, historical suite, evaluator, workflow,
-  template, validator, runner, fixture, README, or Skill file was modified.
+- No CI, canonical V2 consumer, evaluator, workflow, template, validator,
+  runner, README, or Skill file was modified. No historical fixture other than
+  the explicitly approved `BM_002` baseline repair was modified.
 - Controller-owned baseline repair was required because `e4e9980` introduced
   the rubric approval Gate without updating this one measured-metrics fixture.
   The repair preserves the Gate and is explicitly recorded in the updated Task
