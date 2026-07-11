@@ -1,6 +1,6 @@
 # Task 2 Implementer Report
 
-Status: DONE_WITH_CONCERNS
+Status: DONE_WITH_CONCERNS (approved after P0/P1 repair)
 
 ## Files Changed
 
@@ -90,3 +90,10 @@ The empty retirement allowlist remains unchanged.
 - The missing RED transcript is an evidence limitation caused by the subagent
   interruption, not a passing result. Independent review must decide whether
   the implemented tests and controller verification are sufficient to advance.
+
+## Independent Re-Review
+
+`task-02-review.md` records `APPROVED_WITH_LIMITATION` after three additional
+negative regression tests closed the project-root, hidden-index, and omitted
+limit loopholes. The unavailable original RED transcript remains a P2 process
+limitation only.

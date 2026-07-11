@@ -37,3 +37,6 @@
   fail-closed duplicate-limit check, and verified V3 `29/29` plus historical
   `5/5`, `33/33`, `17/17`, and `14/14` suites. The unavailable RED transcript
   is explicitly recorded as a review concern in `task-02-report.md`.
+- Task 2 independent re-review returned `APPROVED_WITH_LIMITATION` after the
+  controller added regressions for required project roots, hidden staged changes,
+  and complete approved-limit submission. No P0/P1 authorization bypass remains.

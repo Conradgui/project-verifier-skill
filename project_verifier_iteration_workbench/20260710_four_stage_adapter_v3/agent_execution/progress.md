@@ -23,3 +23,6 @@
   `inline_serial` fallback, completed a local review and a duplicate-limit
   hardening test, and recorded the missing RED transcript as a review concern.
   Task 2 now awaits independent diff review.
+- Task 2 re-review returned `APPROVED_WITH_LIMITATION`: project-root,
+  hidden-index, and omitted-limit bypasses are closed; the missing original RED
+  transcript remains a non-blocking P2 process limitation. Task 3 may start.
