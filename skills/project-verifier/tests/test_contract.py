@@ -34,6 +34,7 @@ FIXTURE_IDS = {
     "partial_e2e_failure",
     "stale_authorization",
 }
+EVALS_PATH = REPO_ROOT / "skills/project-verifier/evals/evals.json"
 EVIDENCE_REFERENCE = re.compile(r"^(?P<path>[^:]+):(?P<start>\d+)(?:-(?P<end>\d+))?$")
 ALLOWED_STATUSES = {"pending", "ported", "covered_by", "retired_contract"}
 
@@ -124,6 +125,10 @@ class Stage1UnderstandingContractTests(unittest.TestCase):
         self.assertGreaterEqual(self.workflow.count("```mermaid"), 4)
         self.assertIn("Mermaid evidence legend", self.workflow)
         self.assertIn("Every non-`unknown` relationship", self.workflow)
+        self.assertGreaterEqual(
+            self.workflow.count("| Relationship | Evidence | Status | Rationale |"),
+            4,
+        )
 
     def test_stage1_completion_contract_blocks_unconfirmed_or_stale_handoffs(self):
         for phrase in (
@@ -132,7 +137,7 @@ class Stage1UnderstandingContractTests(unittest.TestCase):
             "confirmed",
             "source_identity.revision",
             "Stage 2, Stage 3, and Stage 4 must refuse to consume the Profile",
-            "`stage1.phase_status` is not `completed`",
+            "`stages.stage1.phase_status` is not `completed`",
             "`approved_fields_sha256` is missing",
         ):
             with self.subTest(phrase=phrase):
@@ -205,3 +210,10 @@ class Stage1UnderstandingContractTests(unittest.TestCase):
                         for item in descriptor["feature_classification"]
                     }
                     self.assertEqual(descriptor["features"], classifications)
+
+        mixed = descriptors["ai_assisted_mixed"]
+        self.assertEqual("AI-assisted", mixed["features"]["optional_generation"])
+        self.assertTrue(
+            all(reference.startswith("app.py:") for reference in mixed["feature_classification"][1]["evidence"])
+        )
+        self.assertIn("optional generation path is AI-assisted", read(EVALS_PATH))

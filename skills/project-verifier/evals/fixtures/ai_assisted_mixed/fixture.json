@@ -3,19 +3,19 @@
   "classification": "AI-assisted",
   "features": {
     "local_normalization": "non-AI",
-    "optional_generation": "AI"
+    "optional_generation": "AI-assisted"
   },
   "expected_behavior": "Only the optional generation feature is eligible for L3 evaluation.",
   "feature_classification": [
     {
       "feature_id": "local_normalization",
       "classification": "non-AI",
-      "evidence": ["fixture.json:4-5", "app.py:8-10"]
+      "evidence": ["app.py:8-10"]
     },
     {
       "feature_id": "optional_generation",
-      "classification": "AI",
-      "evidence": ["fixture.json:4-5", "app.py:11-15"]
+      "classification": "AI-assisted",
+      "evidence": ["app.py:11-15"]
     }
   ],
   "entry_points": [

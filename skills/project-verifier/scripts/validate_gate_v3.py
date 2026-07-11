@@ -54,6 +54,11 @@ SOURCE_HISTORY_FIELDS = {
     "affected_artifacts_stale",
     "recorded_at",
 }
+PROFILE_ARTIFACTS = {
+    "project_verification_workbench/project_report.md",
+    "project_verification_workbench/flow_matrix.md",
+    "project_verification_workbench/project_profile.json",
+}
 COMMIT_REVISION = re.compile(r"^git:([0-9a-f]{40})$")
 SHA256 = re.compile(r"^[0-9a-f]{64}$")
 
@@ -452,6 +457,42 @@ def validate_source_policy(envelope, receipt, manifest, current_revision, projec
             )
 
 
+def validate_profile_handoff(manifest, profile, profile_path, project_root):
+    """Reject unconfirmed or stale Stage 1 profiles before a later stage consumes them."""
+    validate_manifest(manifest)
+    current_revision = source_fingerprint(project_root)
+    if manifest["source_revision"]["revision"] != current_revision:
+        raise GateValidationError("Manifest source revision does not match the current source revision")
+
+    stage1 = manifest["stages"]["stage1"]
+    if stage1["phase_status"] != "completed":
+        raise GateValidationError("Stage 1 must be completed before its Profile can be consumed")
+    if not PROFILE_ARTIFACTS <= set(stage1["artifacts"]):
+        raise GateValidationError("Stage 1 artifacts are incomplete for Profile handoff")
+
+    profile_ref = manifest["project_profile"]
+    if profile_ref["status"] != "confirmed":
+        raise GateValidationError("Project Profile must be confirmed before it can be consumed")
+    expected_path = (Path(project_root).resolve() / normalize_relative_path(profile_ref["path"])).resolve()
+    if Path(profile_path).resolve() != expected_path:
+        raise GateValidationError("Project Profile path does not match the manifest reference")
+    if not isinstance(profile, dict) or profile.get("schema_version") != "3.0":
+        raise GateValidationError("Project Profile schema_version must be 3.0")
+    source_identity = profile.get("source_identity")
+    if not isinstance(source_identity, dict) or source_identity.get("revision") != current_revision:
+        raise GateValidationError("Project Profile source revision does not match the current source revision")
+    approved_hash = profile_ref["approved_fields_sha256"]
+    if not approved_hash:
+        raise GateValidationError("Project Profile approved_fields_sha256 is missing")
+    if approved_hash != canonical_object_hash(profile):
+        raise GateValidationError("Project Profile approved_fields_sha256 does not match the Profile")
+    return {
+        "approved": True,
+        "profile_path": profile_ref["path"],
+        "source_revision": current_revision,
+    }
+
+
 def validate_check(args):
     manifest = load_object(args.manifest, "manifest")
     receipt = load_object(args.receipt, "authorization receipt")
@@ -555,6 +596,10 @@ def build_parser():
     paths.add_argument("--changed-file", action="append", required=True)
     fingerprint = subparsers.add_parser("fingerprint", help="Print a secret-safe Git source fingerprint")
     fingerprint.add_argument("--root", default=".")
+    profile = subparsers.add_parser("profile", help="Validate a confirmed Stage 1 Profile handoff")
+    profile.add_argument("--manifest", required=True)
+    profile.add_argument("--profile", required=True)
+    profile.add_argument("--project-root", required=True)
     return parser
 
 
@@ -568,6 +613,10 @@ def main():
         elif args.command == "fingerprint":
             print(source_fingerprint(args.root))
             return
+        elif args.command == "profile":
+            manifest = load_object(args.manifest, "manifest")
+            profile = load_object(args.profile, "project profile")
+            result = validate_profile_handoff(manifest, profile, args.profile, args.project_root)
         else:
             raise GateValidationError(f"Unsupported command: {args.command}")
     except (GateValidationError, OSError) as exc:

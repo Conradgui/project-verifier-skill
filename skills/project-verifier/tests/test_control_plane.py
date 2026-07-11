@@ -136,6 +136,30 @@ def manifest_fixture(current_revision, receipt):
     }
 
 
+def profile_fixture(revision):
+    return {
+        "schema_version": "3.0",
+        "source_identity": {
+            "revision": revision,
+            "captured_at": "2026-07-11T12:01:00+08:00",
+            "repository_type": "git",
+        },
+        "reviewed_scope": {"in_scope": ["src"], "out_of_scope": [], "reviewed_paths": ["src/approved.py"]},
+        "runtimes": ["python3"],
+        "entry_points": [],
+        "priority_paths": {"P0": [], "P1": [], "P2": []},
+        "modules": [],
+        "state_changes": [],
+        "trust_boundaries": [],
+        "sensitive_data_categories": [],
+        "feature_ai_classification": [],
+        "existing_capabilities": [],
+        "evidence_references": [],
+        "inferences": [],
+        "unknowns": [],
+    }
+
+
 def check_command(root, manifest, receipt, envelope, current_revision):
     return [
         "python3",
@@ -219,6 +243,52 @@ class ControlPlaneCliTests(unittest.TestCase):
             self.assertTrue(payload["approved"])
             self.assertEqual(revision, payload["approved_source_revision"])
             self.assertEqual(current, payload["current_source_revision"])
+
+    def test_profile_handoff_accepts_only_confirmed_current_profile(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source, revision = source_fixture(root)
+            envelope = envelope_fixture(revision)
+            receipt = receipt_fixture(envelope)
+            manifest_payload = manifest_fixture(revision, receipt)
+            manifest_payload["stages"]["stage1"]["phase_status"] = "completed"
+            manifest_payload["stages"]["stage1"]["artifacts"] = [
+                "project_verification_workbench/project_report.md",
+                "project_verification_workbench/flow_matrix.md",
+                "project_verification_workbench/project_profile.json",
+            ]
+            profile = profile_fixture(revision)
+            profile_path = source / "project_verification_workbench/project_profile.json"
+            profile_path.parent.mkdir()
+            write_json(profile_path, profile)
+            manifest_payload["project_profile"] = {
+                "path": "project_verification_workbench/project_profile.json",
+                "status": "confirmed",
+                "approved_fields_sha256": canonical_object_hash(profile),
+            }
+            manifest_path = root / "manifest.json"
+            write_json(manifest_path, manifest_payload)
+            command = [
+                "python3", str(VALIDATOR), "profile", "--manifest", str(manifest_path),
+                "--profile", str(profile_path), "--project-root", str(source),
+            ]
+            accepted = run(command, root)
+            self.assertEqual(0, accepted.returncode, accepted.stdout)
+
+            manifest_payload["project_profile"]["status"] = "pending"
+            write_json(manifest_path, manifest_payload)
+            pending = run(command, root)
+            self.assertNotEqual(0, pending.returncode)
+            self.assertIn("confirmed", pending.stdout.lower())
+
+            manifest_payload["project_profile"]["status"] = "confirmed"
+            profile["source_identity"]["revision"] = "git:" + "0" * 40
+            write_json(profile_path, profile)
+            manifest_payload["project_profile"]["approved_fields_sha256"] = canonical_object_hash(profile)
+            write_json(manifest_path, manifest_payload)
+            stale = run(command, root)
+            self.assertNotEqual(0, stale.returncode)
+            self.assertIn("source revision", stale.stdout.lower())
 
     def test_check_requires_project_root_for_live_fingerprint(self):
         with tempfile.TemporaryDirectory() as tmp:

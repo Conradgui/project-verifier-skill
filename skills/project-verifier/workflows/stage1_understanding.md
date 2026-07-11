@@ -75,17 +75,17 @@ unless the user separately requests it after Stage 1.
 
 On completion, update the manifest in the same source snapshot:
 
-- `stage1.artifacts` lists `project_report.md`, `flow_matrix.md`, and
+- `stages.stage1.artifacts` lists `project_report.md`, `flow_matrix.md`, and
   `project_profile.json` under `project_verification_workbench/`.
-- `stage1.phase_status` is `completed`; the remaining state dimensions state
+- `stages.stage1.phase_status` is `completed`; the remaining state dimensions state
   only the evidence actually gathered.
 - `project_profile.status` is `confirmed` and its
   `approved_fields_sha256` equals the hash stored with the finalized Profile.
-- `project_profile.source_identity.revision` equals the manifest source revision
+- `project_profile.json.source_identity.revision` equals `source_revision.revision` in the manifest
   used for the confirmation.
 
 Stage 2, Stage 3, and Stage 4 must refuse to consume the Profile when
-`stage1.phase_status` is not `completed`, `project_profile.status` is not
+`stages.stage1.phase_status` is not `completed`, `project_profile.status` is not
 `confirmed`, `approved_fields_sha256` is missing, or the Profile source revision
 does not equal the current manifest source revision. Mark the dependent stage
 `blocked` or `not_applicable` with a recovery condition; do not infer missing
@@ -125,6 +125,14 @@ flowchart LR
     CoreModule -. evidence required .-> External["External dependency or unknown"]
 ```
 
+**Mermaid evidence legend**
+
+| Relationship | Evidence | Status | Rationale |
+|---|---|---|---|
+| `User -> EntryPoint` | `<source reference required>` | template | Replace before delivery. |
+| `EntryPoint -> CoreModule` | `<source reference required>` | template | Replace before delivery. |
+| `CoreModule -> Output` | `<source reference required>` | template | Replace before delivery. |
+
 ### Module/data flow
 
 ```mermaid
@@ -133,6 +141,14 @@ flowchart LR
     Parser --> State["State change or none observed"]
     State --> Result["Output: source reference"]
 ```
+
+**Mermaid evidence legend**
+
+| Relationship | Evidence | Status | Rationale |
+|---|---|---|---|
+| `Input -> Parser` | `<source reference required>` | template | Replace before delivery. |
+| `Parser -> State` | `<source reference required>` or `unknown` | template | Replace before delivery. |
+| `State -> Result` | `<source reference required>` | template | Replace before delivery. |
 
 ### User flow
 
@@ -143,6 +159,14 @@ flowchart TD
     P0 --> Failure["Observed failure"]
 ```
 
+**Mermaid evidence legend**
+
+| Relationship | Evidence | Status | Rationale |
+|---|---|---|---|
+| `Start -> P0` | `<source reference required>` | template | Replace before delivery. |
+| `P0 -> Success` | `<source reference required>` | template | Replace before delivery. |
+| `P0 -> Failure` | `<source reference required>` or `unknown` | template | Replace before delivery. |
+
 ### Failure recovery
 
 ```mermaid
@@ -151,6 +175,14 @@ flowchart TD
     Recovery --> Retry["Retry only if source shows it"]
     Recovery --> Stop["Stop and report unknown or blocker"]
 ```
+
+**Mermaid evidence legend**
+
+| Relationship | Evidence | Status | Rationale |
+|---|---|---|---|
+| `Failure -> Recovery` | `<source reference required>` or `unknown` | template | Replace before delivery. |
+| `Recovery -> Retry` | `<source reference required>` or `unknown` | template | Replace before delivery. |
+| `Recovery -> Stop` | `<source reference required>` | template | Replace before delivery. |
 
 ## `flow_matrix.md` Draft
 
