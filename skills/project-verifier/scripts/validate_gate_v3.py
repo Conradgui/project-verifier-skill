@@ -309,13 +309,23 @@ def source_fingerprint(root):
             text=True,
             check=True,
         ).stdout.strip()
-        tracked_diff = subprocess.run(
+        cached_diff = subprocess.run(
             [
-                "git", "-C", str(root), "diff", "--binary", "HEAD", "--", ".",
+                "git", "-C", str(root), "diff", "--binary", "--cached", "HEAD", "--", ".",
                 ":(exclude)project_verification_workbench/**",
             ],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
+            check=True,
+        ).stdout
+        working_diff = subprocess.run(
+            [
+                "git", "-C", str(root), "diff", "--binary", "--", ".",
+                ":(exclude)project_verification_workbench/**",
+            ],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
             check=True,
         ).stdout
         untracked = subprocess.run(
@@ -329,10 +339,12 @@ def source_fingerprint(root):
         ).stdout
     except (OSError, subprocess.CalledProcessError) as exc:
         raise GateValidationError(f"Cannot fingerprint source repository: {exc}") from exc
-    if not tracked_diff and not untracked:
+    if not cached_diff and not working_diff and not untracked:
         return f"git:{head}"
 
-    digest = hashlib.sha256(tracked_diff)
+    digest = hashlib.sha256()
+    digest.update(b"cached\0" + cached_diff)
+    digest.update(b"working\0" + working_diff.encode("utf-8", errors="surrogateescape"))
     for raw_path in untracked.split(b"\0"):
         if not raw_path:
             continue
@@ -391,10 +403,20 @@ def validate_source_policy(envelope, receipt, manifest, current_revision, projec
     if ancestor.returncode != 0:
         raise GateValidationError("Approved-fix base commit is not an ancestor of HEAD")
 
-    changed = run_git(
+    committed = run_git(
         project_root,
-        ["diff", "--name-only", "-z", base_commit, "--", "."],
-        "Cannot enumerate committed, staged, and unstaged changes from the approved base",
+        ["diff", "--name-only", "-z", base_commit, "HEAD", "--", "."],
+        "Cannot enumerate committed changes from the approved base",
+    ).split("\0")
+    cached = run_git(
+        project_root,
+        ["diff", "--cached", "--name-only", "-z", "--", "."],
+        "Cannot enumerate staged changes from the approved base",
+    ).split("\0")
+    working = run_git(
+        project_root,
+        ["diff", "--name-only", "-z", "--", "."],
+        "Cannot enumerate working-tree changes from the approved base",
     ).split("\0")
     untracked = run_git(
         project_root,
@@ -402,7 +424,13 @@ def validate_source_policy(envelope, receipt, manifest, current_revision, projec
         "Cannot enumerate untracked changes from the approved base",
     ).split("\0")
     allowed = [normalize_relative_path(path) for path in source_policy["allowed_fix_paths"]]
-    all_paths = sorted({normalize_relative_path(path) for path in changed + untracked if path})
+    all_paths = sorted(
+        {
+            normalize_relative_path(path)
+            for path in committed + cached + working + untracked
+            if path
+        }
+    )
     outside = [
         path
         for path in all_paths
@@ -448,10 +476,9 @@ def validate_check(args):
     current_revision = args.source_revision
     if not isinstance(current_revision, str) or not current_revision:
         raise GateValidationError("Current source revision is invalid")
-    if args.project_root:
-        computed_revision = source_fingerprint(args.project_root)
-        if computed_revision != current_revision:
-            raise GateValidationError("Current source revision does not match the project fingerprint")
+    computed_revision = source_fingerprint(args.project_root)
+    if computed_revision != current_revision:
+        raise GateValidationError("Current source revision does not match the project fingerprint")
     if manifest["source_revision"]["revision"] != current_revision:
         raise GateValidationError("Manifest source revision does not match the current source revision")
 
@@ -476,6 +503,8 @@ def validate_check(args):
         if key in requested_limits:
             raise GateValidationError(f"Authorization limit {key} was specified more than once")
         requested_limits[key] = requested
+    if set(requested_limits) != set(receipt["approved_limits"]):
+        raise GateValidationError("Requested limit keys do not match the approved limits")
     for key, requested in requested_limits.items():
         if key not in receipt["approved_limits"]:
             raise GateValidationError(f"Authorization limit {key} is not approved")
@@ -517,7 +546,7 @@ def build_parser():
     check.add_argument("--receipt", required=True)
     check.add_argument("--envelope", required=True)
     check.add_argument("--source-revision", required=True)
-    check.add_argument("--project-root")
+    check.add_argument("--project-root", required=True)
     check.add_argument("--stage", required=True)
     check.add_argument("--decision-type", required=True)
     check.add_argument("--limit", action="append", default=[])

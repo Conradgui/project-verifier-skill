@@ -220,6 +220,29 @@ class ControlPlaneCliTests(unittest.TestCase):
             self.assertEqual(revision, payload["approved_source_revision"])
             self.assertEqual(current, payload["current_source_revision"])
 
+    def test_check_requires_project_root_for_live_fingerprint(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source, revision = source_fixture(root)
+            _, _, _, envelope, receipt, manifest, current = self.write_gate_files(root, source, revision)
+            command = check_command(source, manifest, receipt, envelope, current)
+            index = command.index("--project-root")
+            del command[index : index + 2]
+            result = run(command, root)
+            self.assertNotEqual(0, result.returncode)
+            self.assertIn("--project-root", result.stdout)
+
+    def test_check_requires_every_approved_limit_to_be_explicit(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source, revision = source_fixture(root)
+            _, _, _, envelope, receipt, manifest, current = self.write_gate_files(root, source, revision)
+            command = check_command(source, manifest, receipt, envelope, current)
+            command = command[: command.index("--limit")]
+            result = run(command, root)
+            self.assertNotEqual(0, result.returncode)
+            self.assertIn("limit keys", result.stdout.lower())
+
     def test_check_rejects_receipt_with_missing_or_extra_fields(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -345,6 +368,26 @@ class ControlPlaneCliTests(unittest.TestCase):
             production.write_text("enabled: true\n", encoding="utf-8")
             git(["add", "config/prod.yml"], source)
             git(["commit", "-m", "out of scope"], source)
+            _, _, _, envelope, receipt, manifest, current = self.write_gate_files(
+                root, source, base_revision, "approved_fix_scope"
+            )
+            result = run(check_command(source, manifest, receipt, envelope, current), root)
+            self.assertNotEqual(0, result.returncode)
+            self.assertIn("outside approved fix scope", result.stdout.lower())
+
+    def test_approved_fix_scope_rejects_hidden_staged_out_of_scope_change(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source, _ = source_fixture(root)
+            production = source / "config" / "prod.yml"
+            production.parent.mkdir()
+            production.write_text("enabled: false\n", encoding="utf-8")
+            git(["add", "config/prod.yml"], source)
+            git(["commit", "-m", "add production config"], source)
+            base_revision = fingerprint(source)
+            production.write_text("enabled: true\n", encoding="utf-8")
+            git(["add", "config/prod.yml"], source)
+            production.write_text("enabled: false\n", encoding="utf-8")
             _, _, _, envelope, receipt, manifest, current = self.write_gate_files(
                 root, source, base_revision, "approved_fix_scope"
             )
