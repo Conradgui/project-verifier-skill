@@ -18,3 +18,8 @@
   follow-ups are recorded in `task-01-review.md`; Task 2 may start.
 - Task 2 started. It owns only the transitional V3 decision-envelope control
   plane and its tests; V2 canonical consumers remain unchanged until Task 7.
+- The Task 2 implementer exhausted its platform quota after writing owned files
+  and before returning a report. The controller activated the approved
+  `inline_serial` fallback, completed a local review and a duplicate-limit
+  hardening test, and recorded the missing RED transcript as a review concern.
+  Task 2 now awaits independent diff review.

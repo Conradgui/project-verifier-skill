@@ -31,3 +31,9 @@
 - Started Task 2 with the serial subagent backend. Its scope is limited to the
   transitional V3 decision-envelope validator, templates, artifact contract,
   and tests; V2 canonical consumers remain unchanged.
+- The Task 2 implementer hit a platform usage limit after creating its owned
+  files and before producing a report. Per the approved fallback contract, the
+  controller switched to `inline_serial`, inspected the draft, added a
+  fail-closed duplicate-limit check, and verified V3 `29/29` plus historical
+  `5/5`, `33/33`, `17/17`, and `14/14` suites. The unavailable RED transcript
+  is explicitly recorded as a review concern in `task-02-report.md`.
