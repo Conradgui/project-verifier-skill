@@ -16,3 +16,5 @@
 - Task 1 independent diff review returned `APPROVED`. The V3 harness maps all
   69 historical tests with no retirement escape hatch. Two non-blocking P2
   follow-ups are recorded in `task-01-review.md`; Task 2 may start.
+- Task 2 started. It owns only the transitional V3 decision-envelope control
+  plane and its tests; V2 canonical consumers remain unchanged until Task 7.

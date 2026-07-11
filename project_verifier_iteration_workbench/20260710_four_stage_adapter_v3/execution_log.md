@@ -28,3 +28,6 @@
   historical coverage and no silent retirement route. Two P2 test-infrastructure
   follow-ups remain recorded in `agent_execution/task-01-review.md`; neither
   blocks the documented discovery command or Task 2.
+- Started Task 2 with the serial subagent backend. Its scope is limited to the
+  transitional V3 decision-envelope validator, templates, artifact contract,
+  and tests; V2 canonical consumers remain unchanged.
