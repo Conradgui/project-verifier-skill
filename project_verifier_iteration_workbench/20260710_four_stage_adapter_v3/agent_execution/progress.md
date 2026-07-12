@@ -42,3 +42,5 @@
 - Task 4 final re-review returned `APPROVED`. Script authorization, project-root
   dispatch, and workbench-only output paths are closed; V3 `55/55` and
   historical `5/5`, `33/33`, `17/17`, `14/14` regressions pass. Task 5 may start.
+- Task 5 started. It owns bounded, project-fit security verification only; no
+  tool installation, network scan, or target scan occurs during implementation.

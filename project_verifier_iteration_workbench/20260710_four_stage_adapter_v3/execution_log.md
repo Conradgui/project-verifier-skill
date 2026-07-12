@@ -57,3 +57,6 @@
 - Task 4 final independent review returned `APPROVED`. It verified envelope
   path-set binding, project-root script execution, and workbench-only output
   normalization before dispatch. Stage 2 is frozen.
+- Started Task 5: V3 project-fit security boundary verification. The task will
+  implement only offline fixtures and no-call preflight/normalization contracts;
+  it will not install tools, access networks, or scan targets.
