@@ -258,6 +258,18 @@ class QualityRunnerTests(unittest.TestCase):
             self.assertIn("workbench", result.stdout.lower())
             self.assertFalse((project / "output-path-executed").exists())
 
+    def test_preflight_rejects_test_directory_outside_project_without_dispatch(self):
+        script = "#!/bin/sh\ntouch outside-test-dir-executed\n"
+        tmp, root, project, _, _, _, env = self.make_project({"quality_P0_marker.sh": script})
+        with tmp:
+            outside = root / "outside-tests"
+            outside.mkdir()
+            (outside / "quality_P0_external.sh").write_text(script, encoding="utf-8")
+            result = self.runner("preflight", project, {**env, "QUALITY_TEST_DIR": str(outside)})
+            self.assertNotEqual(0, result.returncode)
+            self.assertIn("project root", result.stdout.lower())
+            self.assertFalse((project / "outside-test-dir-executed").exists())
+
     def test_run_validates_profile_and_envelope_before_dispatch(self):
         script = "#!/bin/sh\ntouch should-not-execute\n"
         tmp, _, project, _, envelope_path, _, env = self.make_project({"quality_P0_guard.sh": script})
@@ -269,6 +281,43 @@ class QualityRunnerTests(unittest.TestCase):
             self.assertNotEqual(0, result.returncode)
             self.assertIn("envelope", result.stdout.lower())
             self.assertFalse((project / "should-not-execute").exists())
+
+    def test_run_rejects_discovered_path_not_listed_in_envelope_before_dispatch(self):
+        scripts = {
+            "quality_P0_authorized.sh": "#!/bin/sh\ntouch authorized-path-executed\n",
+            "quality_P0_unapproved.sh": "#!/bin/sh\ntouch unapproved-path-executed\n",
+        }
+        tmp, _, project, manifest_path, envelope_path, _, env = self.make_project(scripts)
+        with tmp:
+            envelope = json.loads(envelope_path.read_text(encoding="utf-8"))
+            envelope["scope"]["path_ids"] = ["P0_authorized"]
+            write_json(envelope_path, envelope)
+            receipt_path = Path(env["QUALITY_AUTHORIZATION_FILE"])
+            receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
+            receipt["decision_envelope_sha256"] = GATE.canonical_object_hash(envelope)
+            write_json(receipt_path, receipt)
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            manifest["decisions"] = [receipt]
+            write_json(manifest_path, manifest)
+            result = self.runner("run", project, env)
+            self.assertNotEqual(0, result.returncode)
+            self.assertIn("path ids", result.stdout.lower())
+            self.assertFalse((project / "authorized-path-executed").exists())
+            self.assertFalse((project / "unapproved-path-executed").exists())
+
+    def test_run_uses_project_root_for_script_and_workbench_outputs(self):
+        script = (
+            "#!/bin/sh\n"
+            "mkdir -p project_verification_workbench/quality-e2e-reports\n"
+            "printf '%s' '{\"external_calls_actual\":0,\"retries_actual\":0,\"side_effects\":[]}' "
+            "> project_verification_workbench/quality-e2e-reports/quality_P0_cwd.telemetry.json\n"
+        )
+        tmp, root, project, _, _, results, env = self.make_project({"quality_P0_cwd.sh": script})
+        with tmp:
+            result = self.runner("run", root, env)
+            self.assertEqual(0, result.returncode, result.stdout)
+            self.assertTrue(results.is_file())
+            self.assertFalse((root / "project_verification_workbench").exists())
 
     def test_run_rejects_unconfirmed_profile_before_dispatch(self):
         script = "#!/bin/sh\ntouch profile-should-not-execute\n"

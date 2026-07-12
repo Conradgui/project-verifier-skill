@@ -51,11 +51,11 @@ code, and production source unchanged.
 
 | Command | Exit | Result |
 |---|---:|---|
-| Targeted quality-runner suite | `0` | `12/12` passed after output-scope repair |
+| Targeted quality-runner suite | `0` | `15/15` passed after authorization-path and output-root repair |
 | Targeted contract/migration suite | `0` | `11/11` passed in `0.071s` |
 | `bash -n skills/project-verifier/templates/run_quality_template.sh` | `0` | Syntax valid |
 | `bash skills/project-verifier/templates/run_quality_template.sh` | `0` | Help printed; no path dispatch |
-| Full V3 unittest discovery | `0` | `52/52` passed |
+| Full V3 unittest discovery | `0` | `55/55` passed |
 | `20260626_skill_hardening/template_behavior_tests.py` | `0` | `5/5` passed |
 | `20260628_conditional_eval_gates/workflow_contract_tests.py` | `0` | `33/33` passed |
 | `20260629_stage_gate_quality_v2/stage_gate_v2_tests.py` | `0` | `17/17` passed |
@@ -110,6 +110,13 @@ combined stale-authorization-plus-partial fixture assertion.
   workbench write boundary. The runner now defaults to
   `project_verification_workbench/quality-e2e-reports` and preflight rejects
   any report/result path outside the workbench before dispatch.
+- Independent review found that a valid envelope did not bind the discovered
+  script set and that relative paths could write outside the project when the
+  runner started from another directory. The runner now normalizes the test,
+  report, and result paths against `PROJECT_ROOT`; dispatches scripts with the
+  project root as their working directory; rejects external test directories;
+  and requires a one-to-one match between discovered script path IDs and the
+  envelope's approved `scope.path_ids` before any output directory is created.
 
 ## Limitations and Blockers
 

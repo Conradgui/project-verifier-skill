@@ -97,12 +97,41 @@ check_required_commands() {
     [ "$missing" -eq 0 ]
 }
 
-check_output_paths() {
+normalize_project_directory() {
+    if ! command -v python3 >/dev/null 2>&1; then
+        echo "[Error] Python 3 is required to validate project paths."
+        return 1
+    fi
+    python3 - "$PROJECT_ROOT" "$1" <<'PY'
+import sys
+from pathlib import Path
+
+root = Path(sys.argv[1]).resolve()
+raw_path = sys.argv[2]
+if "\n" in raw_path or "\r" in raw_path:
+    raise SystemExit("[Error] Project path must not contain a newline.")
+candidate = Path(raw_path)
+if not candidate.is_absolute():
+    candidate = root / candidate
+if candidate.is_symlink():
+    raise SystemExit(f"[Error] Project path must not be a symlink: {raw_path}")
+candidate = candidate.resolve()
+try:
+    candidate.relative_to(root)
+except ValueError:
+    raise SystemExit(f"[Error] Project path must stay inside the project root: {raw_path}")
+if not candidate.is_dir():
+    raise SystemExit(f"[Error] Project directory is missing: {raw_path}")
+print(candidate)
+PY
+}
+
+normalize_workbench_output_path() {
     if ! command -v python3 >/dev/null 2>&1; then
         echo "[Error] Python 3 is required to validate workbench output paths."
         return 1
     fi
-    python3 - "$PROJECT_ROOT" "$REPORTS_DIR" "$RESULTS_JSON" <<'PY'
+    python3 - "$PROJECT_ROOT" "$1" <<'PY'
 import sys
 from pathlib import Path
 
@@ -111,17 +140,26 @@ workbench = root / "project_verification_workbench"
 if workbench.is_symlink():
     raise SystemExit("[Error] The project workbench must not be a symlink.")
 workbench = workbench.resolve()
-
-for raw_path in sys.argv[2:]:
-    candidate = Path(raw_path)
-    if not candidate.is_absolute():
-        candidate = root / candidate
-    candidate = candidate.resolve()
-    try:
-        candidate.relative_to(workbench)
-    except ValueError:
-        raise SystemExit(f"[Error] Output path must stay inside project_verification_workbench: {raw_path}")
+raw_path = sys.argv[2]
+if "\n" in raw_path or "\r" in raw_path:
+    raise SystemExit("[Error] Output path must not contain a newline.")
+candidate = Path(raw_path)
+if not candidate.is_absolute():
+    candidate = root / candidate
+if candidate.is_symlink():
+    raise SystemExit(f"[Error] Output path must not be a symlink: {raw_path}")
+candidate = candidate.resolve()
+try:
+    candidate.relative_to(workbench)
+except ValueError:
+    raise SystemExit(f"[Error] Output path must stay inside project_verification_workbench: {raw_path}")
+print(candidate)
 PY
+}
+
+check_output_paths() {
+    REPORTS_DIR=$(normalize_workbench_output_path "$REPORTS_DIR") || return 1
+    RESULTS_JSON=$(normalize_workbench_output_path "$RESULTS_JSON") || return 1
 }
 
 nonnegative_int() {
@@ -218,7 +256,42 @@ check_execution_authorization() {
             echo "[Error] Execution authorization validation failed."
             return 1
         }
+    check_authorized_scripts || return 1
     return 0
+}
+
+check_authorized_scripts() {
+    python3 - "$PROJECT_ROOT" "$TEST_DIR" "$ENVELOPE_FILE" "${SCRIPTS[@]}" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+root = Path(sys.argv[1]).resolve()
+test_dir = Path(sys.argv[2]).resolve()
+envelope = json.loads(Path(sys.argv[3]).read_text(encoding="utf-8"))
+allowed = envelope.get("scope", {}).get("path_ids")
+if not isinstance(allowed, list) or not all(isinstance(item, str) and item for item in allowed):
+    raise SystemExit("[Error] Authorization envelope path_ids are invalid.")
+
+actual = []
+for raw_path in sys.argv[4:]:
+    path = Path(raw_path)
+    if path.is_symlink():
+        raise SystemExit(f"[Error] Quality script must not be a symlink: {raw_path}")
+    resolved = path.resolve()
+    try:
+        resolved.relative_to(root)
+        resolved.relative_to(test_dir)
+    except ValueError:
+        raise SystemExit(f"[Error] Quality script is outside the approved project test directory: {raw_path}")
+    script_id = resolved.stem.removeprefix("quality_")
+    if not script_id or script_id in actual:
+        raise SystemExit(f"[Error] Quality script path ID is invalid or duplicated: {raw_path}")
+    actual.append(script_id)
+
+if set(actual) != set(allowed) or len(actual) != len(allowed):
+    raise SystemExit("[Error] Authorized path IDs do not exactly match discovered quality scripts.")
+PY
 }
 
 check_runtime() {
@@ -243,6 +316,8 @@ check_runtime() {
     esac
     return 0
 }
+
+TEST_DIR=$(normalize_project_directory "$TEST_DIR") || exit 1
 
 if [ ! -d "$TEST_DIR" ]; then
     echo "[Error] No quality E2E test directory found at $TEST_DIR."
@@ -307,16 +382,24 @@ run_script() {
         *) echo "Unsupported quality script type: $script"; return 2 ;;
     esac
     if [ "$runtime" = "deno" ]; then set -- deno run "$script"; else set -- "$runtime" "$script"; fi
-    python3 - "$timeout_seconds" "$log_file" "$@" <<'PY'
+    python3 - "$timeout_seconds" "$log_file" "$PROJECT_ROOT" "$@" <<'PY'
 import subprocess
 import sys
 
 timeout = int(sys.argv[1])
 log_path = sys.argv[2]
-command = sys.argv[3:]
+project_root = sys.argv[3]
+command = sys.argv[4:]
 with open(log_path, "w", encoding="utf-8") as log:
     try:
-        completed = subprocess.run(command, stdout=log, stderr=subprocess.STDOUT, timeout=timeout, check=False)
+        completed = subprocess.run(
+            command,
+            cwd=project_root,
+            stdout=log,
+            stderr=subprocess.STDOUT,
+            timeout=timeout,
+            check=False,
+        )
     except subprocess.TimeoutExpired:
         log.write(f"Execution timed out after {timeout} seconds.\n")
         raise SystemExit(124)
