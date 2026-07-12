@@ -22,9 +22,9 @@
     },
     {
       "legacy_id": "project_verifier_iteration_workbench/20260626_skill_hardening/template_behavior_tests.py::test_usability_runner_dispatches_python_and_shell_scripts",
-      "status": "pending",
-      "v3_test": null,
-      "reason": "Scheduled for V3 Stage 2 or Stage 4 coverage in Tasks 3-6."
+      "status": "ported",
+      "v3_test": "skills/project-verifier/tests/test_quality_runner.py::test_run_dispatches_python_shell_and_typescript_with_telemetry",
+      "reason": "Task 4 retains Python and shell dispatch and additionally verifies TypeScript dispatch with fixture telemetry."
     },
     {
       "legacy_id": "project_verifier_iteration_workbench/20260626_skill_hardening/template_behavior_tests.py::test_usability_runner_reports_missing_typescript_runtime",
@@ -172,9 +172,9 @@
     },
     {
       "legacy_id": "project_verifier_iteration_workbench/20260628_conditional_eval_gates/workflow_contract_tests.py::test_usability_preflight_enforces_max_paths",
-      "status": "pending",
-      "v3_test": null,
-      "reason": "Scheduled for V3 workflow, quality, or benchmark coverage in Tasks 3-6."
+      "status": "ported",
+      "v3_test": "skills/project-verifier/tests/test_quality_runner.py::test_preflight_enforces_max_paths_without_executing_scripts",
+      "reason": "Task 4 rejects a selected Smoke/live script count above the approved Stage 2 max_paths limit without dispatch."
     },
     {
       "legacy_id": "project_verifier_iteration_workbench/20260628_conditional_eval_gates/workflow_contract_tests.py::test_usability_preflight_fails_when_no_scripts_exist",
@@ -184,21 +184,21 @@
     },
     {
       "legacy_id": "project_verifier_iteration_workbench/20260628_conditional_eval_gates/workflow_contract_tests.py::test_usability_preflight_never_executes_live_scripts",
-      "status": "pending",
-      "v3_test": null,
-      "reason": "Scheduled for V3 workflow, quality, or benchmark coverage in Tasks 3-6."
+      "status": "ported",
+      "v3_test": "skills/project-verifier/tests/test_quality_runner.py::test_preflight_uses_confirmed_profile_without_executing_scripts",
+      "reason": "Task 4 validates the V3 Profile handoff during preflight while a fixture script marker remains absent."
     },
     {
       "legacy_id": "project_verifier_iteration_workbench/20260628_conditional_eval_gates/workflow_contract_tests.py::test_usability_preflight_rejects_invalid_environment_names_cleanly",
-      "status": "pending",
-      "v3_test": null,
-      "reason": "Scheduled for V3 workflow, quality, or benchmark coverage in Tasks 3-6."
+      "status": "ported",
+      "v3_test": "skills/project-verifier/tests/test_quality_runner.py::test_preflight_rejects_invalid_names_and_bounds_without_executing_scripts",
+      "reason": "Task 4 rejects invalid required environment-variable names before dispatch."
     },
     {
       "legacy_id": "project_verifier_iteration_workbench/20260628_conditional_eval_gates/workflow_contract_tests.py::test_usability_preflight_rejects_invalid_execution_bounds",
-      "status": "pending",
-      "v3_test": null,
-      "reason": "Scheduled for V3 workflow, quality, or benchmark coverage in Tasks 3-6."
+      "status": "ported",
+      "v3_test": "skills/project-verifier/tests/test_quality_runner.py::test_preflight_rejects_invalid_names_and_bounds_without_executing_scripts",
+      "reason": "Task 4 rejects an invalid Stage 2 timeout bound before dispatch."
     },
     {
       "legacy_id": "project_verifier_iteration_workbench/20260628_conditional_eval_gates/workflow_contract_tests.py::test_usability_preflight_reports_names_without_secret_values",
@@ -208,15 +208,15 @@
     },
     {
       "legacy_id": "project_verifier_iteration_workbench/20260628_conditional_eval_gates/workflow_contract_tests.py::test_usability_results_preserve_script_exit_code",
-      "status": "pending",
-      "v3_test": null,
-      "reason": "Scheduled for V3 workflow, quality, or benchmark coverage in Tasks 3-6."
+      "status": "ported",
+      "v3_test": "skills/project-verifier/tests/test_quality_runner.py::test_partial_and_missing_telemetry_preserve_non_pass_outcomes",
+      "reason": "Task 4 preserves a fixture script exit code of 7 in the per-path Stage 2 result."
     },
     {
       "legacy_id": "project_verifier_iteration_workbench/20260628_conditional_eval_gates/workflow_contract_tests.py::test_usability_run_writes_machine_readable_results",
-      "status": "pending",
-      "v3_test": null,
-      "reason": "Scheduled for V3 workflow, quality, or benchmark coverage in Tasks 3-6."
+      "status": "ported",
+      "v3_test": "skills/project-verifier/tests/test_quality_runner.py::test_run_dispatches_python_shell_and_typescript_with_telemetry",
+      "reason": "Task 4 verifies the V3 machine-readable Stage 2 result with three dispatched fixture paths."
     },
     {
       "legacy_id": "project_verifier_iteration_workbench/20260628_conditional_eval_gates/workflow_contract_tests.py::test_usability_runner_does_not_grant_blanket_deno_permissions",
@@ -226,9 +226,9 @@
     },
     {
       "legacy_id": "project_verifier_iteration_workbench/20260628_conditional_eval_gates/workflow_contract_tests.py::test_usability_runner_requires_explicit_mode",
-      "status": "pending",
-      "v3_test": null,
-      "reason": "Scheduled for V3 workflow, quality, or benchmark coverage in Tasks 3-6."
+      "status": "ported",
+      "v3_test": "skills/project-verifier/tests/test_quality_runner.py::test_no_argument_prints_help_without_finding_or_executing_paths",
+      "reason": "Task 4 treats no argument as help-only and does not discover or execute a path."
     },
     {
       "legacy_id": "project_verifier_iteration_workbench/20260629_stage_gate_quality_v2/stage_gate_v2_tests.py::test_benchmark_runner_preflight_is_no_call_and_full_requires_authorization",
@@ -310,21 +310,21 @@
     },
     {
       "legacy_id": "project_verifier_iteration_workbench/20260629_stage_gate_quality_v2/stage_gate_v2_tests.py::test_usability_missing_telemetry_is_inconclusive",
-      "status": "pending",
-      "v3_test": null,
-      "reason": "Scheduled for V3 control-plane or stage coverage in Tasks 2-6."
+      "status": "ported",
+      "v3_test": "skills/project-verifier/tests/test_quality_runner.py::test_partial_and_missing_telemetry_preserve_non_pass_outcomes",
+      "reason": "Task 4 records missing fixture telemetry as inconclusive with no claim eligibility."
     },
     {
       "legacy_id": "project_verifier_iteration_workbench/20260629_stage_gate_quality_v2/stage_gate_v2_tests.py::test_usability_result_records_decision_state_and_actual_telemetry",
-      "status": "pending",
-      "v3_test": null,
-      "reason": "Scheduled for V3 control-plane or stage coverage in Tasks 2-6."
+      "status": "ported",
+      "v3_test": "skills/project-verifier/tests/test_quality_runner.py::test_run_dispatches_python_shell_and_typescript_with_telemetry",
+      "reason": "Task 4 records the V3 decision ID, actual call count, and telemetry provenance for each fixture path."
     },
     {
       "legacy_id": "project_verifier_iteration_workbench/20260629_stage_gate_quality_v2/stage_gate_v2_tests.py::test_usability_run_requires_machine_valid_authorization",
-      "status": "pending",
-      "v3_test": null,
-      "reason": "Scheduled for V3 control-plane or stage coverage in Tasks 2-6."
+      "status": "ported",
+      "v3_test": "skills/project-verifier/tests/test_quality_runner.py::test_run_validates_profile_and_envelope_before_dispatch",
+      "reason": "Task 4 rejects a material decision-envelope change before the fixture script can dispatch."
     },
     {
       "legacy_id": "project_verifier_iteration_workbench/20260629_stage_gate_quality_v2/stage_gate_v2_tests.py::test_write_scope_validator_rejects_unapproved_production_paths",
@@ -412,9 +412,9 @@
     },
     {
       "legacy_id": "project_verifier_iteration_workbench/20260630_lean_core_simplification/lean_core_contract_tests.py::test_usability_runner_marks_script_telemetry_as_self_reported",
-      "status": "pending",
-      "v3_test": null,
-      "reason": "Scheduled for V3 contract and credibility coverage in Tasks 2-7."
+      "status": "ported",
+      "v3_test": "skills/project-verifier/tests/test_quality_runner.py::test_run_dispatches_python_shell_and_typescript_with_telemetry",
+      "reason": "Task 4 distinguishes wrapper-observed fields from script_self_reported call telemetry."
     }
   ]
 }

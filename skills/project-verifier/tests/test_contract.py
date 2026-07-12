@@ -25,6 +25,7 @@ MATRIX_PATH = (
 )
 V3_TEST_ROOT = REPO_ROOT / "skills/project-verifier/tests"
 STAGE1_WORKFLOW = REPO_ROOT / "skills/project-verifier/workflows/stage1_understanding.md"
+STAGE2_WORKFLOW = REPO_ROOT / "skills/project-verifier/workflows/stage2_quality.md"
 FIXTURE_ROOT = REPO_ROOT / "skills/project-verifier/evals/fixtures"
 FIXTURE_IDS = {
     "ai_assisted_mixed",
@@ -217,3 +218,22 @@ class Stage1UnderstandingContractTests(unittest.TestCase):
             all(reference.startswith("app.py:") for reference in mixed["feature_classification"][1]["evidence"])
         )
         self.assertIn("optional generation path is AI-assisted", read(EVALS_PATH))
+
+
+class Stage2QualityContractTests(unittest.TestCase):
+    def test_stage2_separates_offline_quality_from_authorized_smoke_and_live_e2e(self):
+        workflow = read(STAGE2_WORKFLOW)
+        normalized_workflow = re.sub(r"\s+", " ", workflow)
+        for phrase in (
+            "project-native lint, build, unit, and integration commands",
+            "fixture/mock oracles",
+            "does not execute offline unit tests itself",
+            "stage2 / live_e2e",
+            "confirmed Stage 1 Profile",
+            "decision-envelope authorization",
+            "exactly one concise selected-quality-scope user gate",
+            "production fixes, dependency installations, live calls, sensitive data, or changed side effects",
+            "Pass rate is not code coverage",
+        ):
+            with self.subTest(phrase=phrase):
+                self.assertIn(phrase, normalized_workflow)

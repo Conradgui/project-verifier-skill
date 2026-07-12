@@ -1,0 +1,16 @@
+{
+  "decision_id": "DEC-STALE-S2-001",
+  "stage": "stage2",
+  "decision_type": "live_e2e",
+  "decision_envelope_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "source_revision": "fixture-rev",
+  "user_choice": "approved",
+  "approved_limits": {
+    "max_paths": 1,
+    "max_calls_per_path": 2,
+    "max_retries": 1,
+    "timeout_seconds": 10
+  },
+  "approved_at": "2026-07-12T09:00:00+08:00",
+  "invalidated_at": null
+}
