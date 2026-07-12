@@ -285,6 +285,16 @@ class ControlPlaneCliTests(unittest.TestCase):
             self.assertIn("artifact", missing_artifact.stdout.lower())
             report_path.write_text("# Report\n", encoding="utf-8")
 
+            external_report = root / "external-report.md"
+            external_report.write_text("# External\n", encoding="utf-8")
+            report_path.unlink()
+            report_path.symlink_to(external_report)
+            linked_artifact = run(command, root)
+            self.assertNotEqual(0, linked_artifact.returncode)
+            self.assertIn("symlink", linked_artifact.stdout.lower())
+            report_path.unlink()
+            report_path.write_text("# Report\n", encoding="utf-8")
+
             manifest_payload["project_profile"]["status"] = "pending"
             write_json(manifest_path, manifest_payload)
             pending = run(command, root)
@@ -308,6 +318,15 @@ class ControlPlaneCliTests(unittest.TestCase):
             incomplete = run(command, root)
             self.assertNotEqual(0, incomplete.returncode)
             self.assertIn("profile fields", incomplete.stdout.lower())
+
+            profile = profile_fixture(revision)
+            profile["priority_paths"]["P0"] = [None]
+            write_json(profile_path, profile)
+            manifest_payload["project_profile"]["approved_fields_sha256"] = canonical_object_hash(profile)
+            write_json(manifest_path, manifest_payload)
+            malformed_priority = run(command, root)
+            self.assertNotEqual(0, malformed_priority.returncode)
+            self.assertIn("priority_paths", malformed_priority.stdout.lower())
 
     def test_check_requires_project_root_for_live_fingerprint(self):
         with tempfile.TemporaryDirectory() as tmp:

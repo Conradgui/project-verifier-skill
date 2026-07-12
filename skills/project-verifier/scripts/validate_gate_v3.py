@@ -143,6 +143,19 @@ def normalize_relative_path(value):
     return normalized
 
 
+def regular_project_file(project_root, relative_path, label):
+    """Return a project-local regular file without following symlink components."""
+    root = Path(project_root).resolve()
+    candidate = root
+    for component in Path(normalize_relative_path(relative_path)).parts:
+        candidate = candidate / component
+        if candidate.is_symlink():
+            raise GateValidationError(f"{label} must not be a symlink: {relative_path}")
+    if not candidate.is_file():
+        raise GateValidationError(f"{label} is missing or not a regular file: {relative_path}")
+    return candidate
+
+
 def validate_decision_envelope(envelope):
     """Validate the complete material authorization surface before hashing it."""
     if not isinstance(envelope, dict):
@@ -489,15 +502,14 @@ def validate_profile_handoff(manifest, profile, profile_path, project_root):
     if not PROFILE_ARTIFACTS <= set(stage1["artifacts"]):
         raise GateValidationError("Stage 1 artifacts are incomplete for Profile handoff")
     for artifact in PROFILE_ARTIFACTS:
-        artifact_path = (Path(project_root).resolve() / normalize_relative_path(artifact)).resolve()
-        if not artifact_path.is_file() or artifact_path.is_symlink():
-            raise GateValidationError(f"Stage 1 artifact is missing or not a regular file: {artifact}")
+        regular_project_file(project_root, artifact, "Stage 1 artifact")
 
     profile_ref = manifest["project_profile"]
     if profile_ref["status"] != "confirmed":
         raise GateValidationError("Project Profile must be confirmed before it can be consumed")
-    expected_path = (Path(project_root).resolve() / normalize_relative_path(profile_ref["path"])).resolve()
-    if Path(profile_path).resolve() != expected_path:
+    expected_path = regular_project_file(project_root, profile_ref["path"], "Project Profile")
+    provided_path = Path(profile_path)
+    if provided_path.is_symlink() or provided_path.resolve() != expected_path.resolve():
         raise GateValidationError("Project Profile path does not match the manifest reference")
     if not isinstance(profile, dict):
         raise GateValidationError("Project Profile must be an object")
@@ -526,6 +538,12 @@ def validate_profile_handoff(manifest, profile, profile_path, project_root):
     for field in priority_paths:
         if not isinstance(priority_paths[field], list):
             raise GateValidationError("Project Profile priority_paths entries must be lists")
+        for item in priority_paths[field]:
+            if not isinstance(item, dict):
+                raise GateValidationError("Project Profile priority_paths entries must be objects")
+            if not isinstance(item.get("id"), str) or not item["id"]:
+                raise GateValidationError("Project Profile priority_paths entries require an id")
+            require_string_list(item.get("evidence"), "Project Profile priority_paths evidence")
     for field in PROFILE_FIELDS - {"schema_version", "source_identity", "reviewed_scope", "priority_paths"}:
         if not isinstance(profile[field], list):
             raise GateValidationError(f"Project Profile {field} must be a list")
