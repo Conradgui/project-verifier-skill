@@ -51,3 +51,6 @@
 - Task 3 final independent review returned `APPROVED`. It verified regular-file
   artifact checks and complete priority-path validation. Stage 1 is frozen;
   later stages must consume its Profile through the V3 handoff gate.
+- Started Task 4: the unified V3 Stage 2 quality and authorized live E2E
+  workflow. It will reuse mature V2 dispatch behavior without modifying V2
+  consumers or executing real paths during implementation.

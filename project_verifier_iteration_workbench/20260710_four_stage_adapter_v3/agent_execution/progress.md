@@ -37,3 +37,5 @@
   handoff, Mermaid relationship legends, and feature classification are closed;
   V3 `39/39` and historical `5/5`, `33/33`, `17/17`, `14/14` regressions pass.
   Task 4 may start.
+- Task 4 started. It owns the user-visible Stage 2 quality workflow and its
+  authorized live runner; V2 consumers remain unchanged until Task 7.
