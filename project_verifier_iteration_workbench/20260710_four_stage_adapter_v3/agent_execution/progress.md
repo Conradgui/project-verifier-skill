@@ -33,3 +33,7 @@
   Mermaid relationship evidence, and mixed-fixture classification. The
   controller added a V3 Profile handoff gate and regression tests; Task 3 is
   awaiting re-review.
+- Task 3 final re-review returned `APPROVED`. Stage 1 artifacts, Profile
+  handoff, Mermaid relationship legends, and feature classification are closed;
+  V3 `39/39` and historical `5/5`, `33/33`, `17/17`, `14/14` regressions pass.
+  Task 4 may start.

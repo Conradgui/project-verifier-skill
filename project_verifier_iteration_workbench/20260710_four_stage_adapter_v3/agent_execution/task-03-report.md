@@ -2,9 +2,9 @@
 
 ## Status
 
-DONE_WITH_CONCERNS pending re-review. Task 3 adds a static, source-backed
-Stage 1 workflow and fixture descriptors. It does not claim exhaustive review,
-security certification, runtime verification, or live capability execution.
+DONE. Task 3 adds a static, source-backed Stage 1 workflow and fixture
+descriptors. It does not claim exhaustive review, security certification,
+runtime verification, or live capability execution.
 
 ## Changed Files
 
@@ -109,3 +109,10 @@ adjacent Mermaid evidence-legend templates, removed descriptor-self-reference
 as classification evidence, and made the feature classification match
 `evals.json`. New and existing V3 tests passed `39/39`; final re-review remains
 required before Task 4 starts.
+
+## Final Approval
+
+The final independent review is recorded in `task-03-review.md`. It confirmed
+the remaining regular-file and priority-path schema checks, then approved Task
+3. No further Stage 1 contract expansion is planned; later stages consume the
+confirmed Profile through the V3 profile handoff gate.
