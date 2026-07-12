@@ -2,7 +2,7 @@
 
 ## Status
 
-DONE. Task 4 adds the transitional V3 Stage 2 quality runner and workflow while
+DONE (independently approved). Task 4 adds the transitional V3 Stage 2 quality runner and workflow while
 leaving the V2 usability runner, V2 workflows, README, CI, validator production
 code, and production source unchanged.
 
@@ -126,3 +126,9 @@ not prove a future target project's telemetry honesty, runtime availability, or
 real service behavior. The stale fixture proves hash mismatch structurally; the
 dynamic current-source runner test proves pre-dispatch material-envelope
 rejection. Neither is a real live E2E execution claim.
+
+## Final Approval
+
+`task-04-review.md` records final independent approval after the authorization
+path-set and cross-working-directory repairs. Stage 2 is frozen; the next stage
+is bounded security verification, not more generic quality testing.

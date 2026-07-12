@@ -39,3 +39,6 @@
   Task 4 may start.
 - Task 4 started. It owns the user-visible Stage 2 quality workflow and its
   authorized live runner; V2 consumers remain unchanged until Task 7.
+- Task 4 final re-review returned `APPROVED`. Script authorization, project-root
+  dispatch, and workbench-only output paths are closed; V3 `55/55` and
+  historical `5/5`, `33/33`, `17/17`, `14/14` regressions pass. Task 5 may start.

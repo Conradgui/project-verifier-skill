@@ -54,3 +54,6 @@
 - Started Task 4: the unified V3 Stage 2 quality and authorized live E2E
   workflow. It will reuse mature V2 dispatch behavior without modifying V2
   consumers or executing real paths during implementation.
+- Task 4 final independent review returned `APPROVED`. It verified envelope
+  path-set binding, project-root script execution, and workbench-only output
+  normalization before dispatch. Stage 2 is frozen.
