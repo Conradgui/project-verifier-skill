@@ -60,3 +60,55 @@
 - Started Task 5: V3 project-fit security boundary verification. The task will
   implement only offline fixtures and no-call preflight/normalization contracts;
   it will not install tools, access networks, or scan targets.
+- The Task 5 implementer exhausted its platform quota after creating its owned
+  draft. The controller applied the approved `inline_serial` fallback, then
+  found and repaired three credibility issues before review: preflight metadata
+  briefly wrote into the target workbench, only one capability-denial case was
+  tested, and a legacy Benchmark evaluator row was inaccurately marked as
+  migrated to the security normalizer. Metadata now lives in the system
+  temporary directory, all six capabilities are individually rejected when
+  absent, and the non-equivalent migration row remains pending.
+- Full local verification after the repair passed: V3 `66/66`; historical
+  suites `5/5`, `33/33`, `17/17`, and `14/14`; shell syntax/help, Python
+  compilation, and whitespace checks. No scanner, network, target, tool
+  installation, database update, secret read, commit, push, or merge occurred.
+- Task 5 first independent review returned `CHANGES_REQUIRED`. It correctly
+  distinguished plan authorization from OS-level enforcement, found unpaired
+  task/target matching, and found missing common secret-field redaction. The
+  controller added an explicit `trusted_custom_bridge_execution` marker to the
+  existing one-decision envelope; it prevents dispatch when the user has not
+  explicitly accepted the trusted, unsandboxed bridge risk. The runner now
+  records `none_trusted_custom_bridge`, compares exact task-target pairs, and
+  redacts the reviewed common key variants. The repair has targeted GREEN
+  evidence and awaits a fresh independent re-review.
+- Task 5 second independent review returned `CHANGES_REQUIRED` without a P0.
+  The controller reproduced all five P1 and two P2 conditions with new local
+  tests, then rejected target-internal temporary directories and workbench
+  bridges, bound task side effects to the decision, rejected stale/colliding raw
+  evidence, extended conservative redaction, retained supported source-location
+  precision, and made CLI executed scope mandatory. Targeted security tests are
+  `19/19`; final full regression and fresh independent review remain pending.
+- Task 5 third independent review returned `CHANGES_REQUIRED` without a P0.
+  The controller reproduced its five P1 findings with local tests, then rejected
+  Git metadata and ignored bridges, enforced manifest-plus-envelope write scope,
+  rejected duplicate raw paths, derived normalizer scope from completed results,
+  and added provider/access/service key redaction. Full V3 now passes `80/80`;
+  all historical suites remain GREEN. One final independent review remains.
+- A mid-course necessity review found that repeated historical regression runs
+  would not address the dominant risk: V3 is still not the public entry
+  contract. Task 5 is therefore limited to its current authorization, evidence,
+  and redaction boundaries; Task 7 will perform the release-wide compatibility
+  run when it replaces the legacy five-phase entry points.
+- The final local Task 5 repair added exact per-task decision-ID provenance and
+  cookie/session-like evidence redaction. The focused security suite passes
+  `31/31`; the Stage 3 document contract passes `12/12`; shell help/syntax,
+  Python compilation, and whitespace checks pass. A fresh read-only independent
+  review is in progress. No real scan, network, installation, secret read,
+  commit, push, or merge occurred.
+- Task 5 final closure: independent review returned `APPROVED` after the
+  controller bound normalizer writes to the current receipt/envelope scopes,
+  removed all raw tool values from normalized output, replaced reversible hashes
+  with run-local CSPRNG refs, and made runner-owned artifacts exclusive new
+  files. Focused security tests are `35/35`; the V3 document contract is
+  `12/12`; shell syntax/help, Python compilation, and whitespace checks pass.
+  No real scanner, network, installation, target, or secret read occurred.

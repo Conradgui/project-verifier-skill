@@ -44,3 +44,33 @@
   historical `5/5`, `33/33`, `17/17`, `14/14` regressions pass. Task 5 may start.
 - Task 5 started. It owns bounded, project-fit security verification only; no
   tool installation, network scan, or target scan occurs during implementation.
+- The Task 5 implementer exhausted its platform quota after creating the owned
+  draft. The controller activated `inline_serial`, corrected a preflight
+  target-workbench temporary-write violation, expanded separate-capability
+  denial coverage to all six capabilities, and restored an overclaimed legacy
+  evaluator migration row to `pending`. V3 `66/66` plus historical `5/5`,
+  `33/33`, `17/17`, and `14/14` regressions pass. Task 5 awaits independent
+  review.
+- Task 5 first independent review returned `CHANGES_REQUIRED`: custom bridges
+  were not sandboxed, task/target comparison was not paired, and common secret
+  keys were not redacted. The controller repaired all three without introducing
+  a dependency or pretending to add a sandbox. An unsandboxed bridge now needs
+  the same envelope's explicit trusted-bridge acknowledgement, task-target
+  pairs are exact, and common key variants are recursively redacted. Fresh
+  re-review is pending.
+- Task 5 second independent review found no P0 but reported five P1 and two P2
+  defects: target-controlled temporary output, workbench-resident bridges,
+  unbound declared side effects, stale/colliding raw evidence, incomplete secret
+  redaction, imprecise location de-duplication, and a scope-less normalizer CLI.
+  The controller added focused RED-to-GREEN coverage and repairs for all seven.
+  Task 5 awaits final independent re-review.
+- Task 5 third independent review found no P0 but reported five P1 defects:
+  Git metadata/ignored bridge paths, unbound envelope write scope, duplicate raw
+  outputs, caller-supplied normalization scope, and provider-key redaction.
+  The controller added the corresponding source, output, result-provenance, and
+  redaction gates. Task 5 awaits one final independent re-review.
+- Task 5 final independent review returned `APPROVED`. The bounded Stage 3
+  security adapter is frozen after focused `35/35` security and `12/12`
+  document-contract tests, shell syntax/help, Python compilation, and diff
+  checks. Normalized findings are one-way CSPRNG references and controlled
+  fields; raw tool text remains outside user-facing artifacts. Task 6 may start.

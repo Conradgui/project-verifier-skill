@@ -26,6 +26,8 @@ MATRIX_PATH = (
 V3_TEST_ROOT = REPO_ROOT / "skills/project-verifier/tests"
 STAGE1_WORKFLOW = REPO_ROOT / "skills/project-verifier/workflows/stage1_understanding.md"
 STAGE2_WORKFLOW = REPO_ROOT / "skills/project-verifier/workflows/stage2_quality.md"
+STAGE3_WORKFLOW = REPO_ROOT / "skills/project-verifier/workflows/stage3_security.md"
+TOOL_ADAPTERS = REPO_ROOT / "skills/project-verifier/references/tool_adapters.md"
 FIXTURE_ROOT = REPO_ROOT / "skills/project-verifier/evals/fixtures"
 FIXTURE_IDS = {
     "ai_assisted_mixed",
@@ -237,3 +239,53 @@ class Stage2QualityContractTests(unittest.TestCase):
         ):
             with self.subTest(phrase=phrase):
                 self.assertIn(phrase, normalized_workflow)
+
+
+class Stage3SecurityContractTests(unittest.TestCase):
+    def test_stage3_requires_project_fit_and_separate_security_capabilities(self):
+        workflow = read(STAGE3_WORKFLOW)
+        normalized_workflow = re.sub(r"\s+", " ", workflow)
+        adapters = read(TOOL_ADAPTERS)
+        for phrase in (
+            "confirmed Stage 1 Profile",
+            "fit, coverage, offline capability, maintenance, version",
+            "fallback and its reduced coverage",
+            "stage3 / security_execution",
+            "offline_read_only",
+            "tool_download",
+            "vulnerability_database_update",
+            "network",
+            "passive_dynamic_scan",
+            "active_scan",
+            "trusted_custom_bridge_execution",
+            "not a sandboxed capability",
+            "exact `task_id -> target` bindings",
+            "source-bound project directory",
+            "verified temporary directory outside the target project",
+            "pre-existing raw-output file",
+            "Git-ignored path",
+            "distinct raw-output path",
+            "both the manifest and current envelope write scopes",
+            "authorization validator must come from the installed Skill",
+            "accepts only the raw-input path recorded for that",
+            "overrides are accepted only when they resolve to the exact bundled validator",
+            "runner log/result leaf paths must not be symlinks",
+            "local or isolated target",
+            "must not execute a scanner",
+            "must not execute a target",
+            "must not infer exploitability",
+            "security score",
+        ):
+            with self.subTest(phrase=phrase):
+                self.assertIn(phrase, normalized_workflow)
+        for phrase in (
+            "Detection and recommendation never install",
+            "Semgrep",
+            "OSV-Scanner or Trivy",
+            "Gitleaks",
+            "ZAP",
+            "A permission does not imply another permission",
+            "exact category, rule identity, and source-location",
+        ):
+            with self.subTest(phrase=phrase):
+                self.assertIn(phrase, adapters)
