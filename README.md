@@ -54,6 +54,19 @@ README 优化副本和面试/答辩材料是可选导出，不是验证阶段。
 
 Stage 4 的必经前置是当前有效的 Stage 1 Profile 与用户确认的比较方案；Stage 2 和 Stage 3 的完成证据会在可用且相关时输入 Benchmark，但不是所有 AI 项目都必须先执行的机械前置。
 
+## 可选面试、答辩与作品集证据包
+
+用户明确提出需要面试、答辩或作品集讲解时，Skill 才会启用这个导出。它不属于默认四阶段，不创建新的原始证据，也不会预先生成简历话术。
+
+导出前，Agent 会先基于当前 revision 的 workbench 和用户的实际贡献，提交一张“候选主张”表供确认；每项主张都包含证据路径、适用范围、限制与不应声称的更强结论。确认后生成：
+
+```text
+project_verification_workbench/interview_evidence_source_map.md
+interview_evidence_pack.md
+```
+
+`interview_evidence_pack.md` 汇总项目叙事、产品/技术决策、已验证结果、限制、可能问题及可追溯回答。没有 Git 历史或其他带日期证据时，它只描述当前架构与后续选项，不会编造“架构演进史”。
+
 ## 可信度边界
 
 - script-first：优先复用现有测试和脚本；不自动安装工具。
@@ -80,7 +93,7 @@ python3 /Users/conrad/.codex/skills/.system/skill-installer/scripts/install-skil
 ```
 
 ```text
-使用 $project-verifier 理解并验证当前项目。先确认目标和只读范围；真实调用、安装、生产代码修改和可选导出都向我确认。
+使用 $project-verifier 理解并验证当前项目。先确认目标和只读范围；真实调用、安装、生产代码修改和可选导出都向我确认。需要时，在验证完成后再生成可追溯的面试/答辩证据包。
 ```
 
 ## 开发验证
