@@ -132,3 +132,4 @@
 - 文档合同同步：README 修正 Benchmark 前置关系，明确 Stage 2/3 是按相关性输入的证据而非机械必经阶段；Stage 4 workflow 补齐 `stage4_benchmark_results.json` 与 `benchmark_report.md` 的固定落盘要求。现有 Benchmark 合同测试 `14/14` 通过。
 - README 可见性修正：保留并明确可选面试、答辩与作品集证据包。它仅在用户明确请求且确认候选主张后生成 `interview_evidence_pack.md` 与来源映射；不属于默认四阶段，也不编造架构演进或无证据成果。
 - README 求职可读性重构：将内部操作说明调整为“问题、目标用户、设计差异、四阶段、产物、可信度边界、快速开始”的阅读顺序。所有差异化表述均对应现有工作流和 Gate，不作市场排名、安全认证或自动质量保证主张；Stage 4 文档合同测试 `14/14` 通过。
+- 主分支发布前检查：修正 README 中触发旧五阶段合同词的表述后，当前完整离线套件 `105/105` 通过；四个 Shell runner 语法、Skill validator 和 `git diff --check` 均通过。未执行真实 API、扫描、安装或目标项目 E2E。

@@ -35,6 +35,8 @@ python3 /Users/conrad/.codex/skills/.system/skill-creator/scripts/quick_validate
 
 后收尾精简移除了 3 个仅校验历史迁移矩阵的测试；当前合同测试已定向复跑 `11/11`。因此当前完整套件预计为 105 项，但没有为这项非功能性删除重复执行整套验证。
 
+发布前最终检查随后完成：当前完整套件实际执行 105 项且全部通过；四个 Shell runner 的语法、Skill validator 与差异检查也全部通过。
+
 ## 已实现的收束
 
 - 公开入口已统一为四个阶段：项目理解、质量与授权 E2E、安全边界验证、条件式 AI Benchmark。
