@@ -86,3 +86,4 @@
 - Task 6 修复已完成，等待新的独立审阅：共享任务合同已绑定最终方案、数据集、阈值和 runner 收据；`pilot/full` 均要求明确任务 ID；盲化 Judge 仅用于非安全类别，且无法单独证明安全、隐私或泄漏。定向检查为 `11/11`，未运行模型/API 或完整历史回归。
 - Task 6 最终独立审阅仍为 `CHANGES_REQUIRED`。当前仅剩两项 P1：Evaluator 必须从 workbench 实物重新校验收据/输出/授权，而不能接受任意输入 JSON；项目 executor 必须显式作为未隔离的受信任 bridge 获得同一 envelope 确认。Task 7/8 继续等待，Task 6 不得标记完成。
 - Task 6 最终复核已 `APPROVED`。公开 evaluator CLI 重新读取 workbench 实物并复验当前 Gate；项目 executor 的未隔离性质已被显式授权和如实披露。定向 Benchmark 套件为 `14/14`，Shell 语法、Python 编译和 diff 检查通过。Task 7 可开始。
+- Task 7 已开始：先完成公开合同盘点和删除清单，随后原子迁移 README、SKILL、元数据、CI 与 canonical V3 文件；不在本任务执行真实调用或完整发布验证。
