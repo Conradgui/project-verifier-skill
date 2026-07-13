@@ -74,3 +74,15 @@
   document-contract tests, shell syntax/help, Python compilation, and diff
   checks. Normalized findings are one-way CSPRNG references and controlled
   fields; raw tool text remains outside user-facing artifacts. Task 6 may start.
+- Task 6 started with a narrowed V3 Benchmark brief. It will reuse mature
+  raw-metric evaluator safeguards, add evidence-plus-user-direction planning,
+  and keep V2 consumers untouched until Task 7.
+- Task 6 first independent review returned `CHANGES_REQUIRED`. The draft is not
+  counted as complete: final-plan approval must be receipt-bound, samples must
+  be tied to unique approved dataset evidence, thresholds must influence the
+  claim, and only a runner-created receipt for a matching full run may support
+  a positive claim. Repair is the active task; Task 7 public migration and Task
+  8 release-wide validation remain pending.
+- Task 6 修复已完成，等待新的独立审阅：共享任务合同已绑定最终方案、数据集、阈值和 runner 收据；`pilot/full` 均要求明确任务 ID；盲化 Judge 仅用于非安全类别，且无法单独证明安全、隐私或泄漏。定向检查为 `11/11`，未运行模型/API 或完整历史回归。
+- Task 6 最终独立审阅仍为 `CHANGES_REQUIRED`。当前仅剩两项 P1：Evaluator 必须从 workbench 实物重新校验收据/输出/授权，而不能接受任意输入 JSON；项目 executor 必须显式作为未隔离的受信任 bridge 获得同一 envelope 确认。Task 7/8 继续等待，Task 6 不得标记完成。
+- Task 6 最终复核已 `APPROVED`。公开 evaluator CLI 重新读取 workbench 实物并复验当前 Gate；项目 executor 的未隔离性质已被显式授权和如实披露。定向 Benchmark 套件为 `14/14`，Shell 语法、Python 编译和 diff 检查通过。Task 7 可开始。

@@ -8,6 +8,50 @@
 
 **Tech Stack:** Markdown Skill workflows, Python 3 standard library, Bash 3.2-compatible shell templates, JSON artifacts, `unittest`, GitHub Actions.
 
+## 执行状态（2026-07-13）
+
+本状态账本是进度的唯一事实来源。下方未勾选的步骤保留原始实施配方，不能覆盖已完成任务，更不能把未经审阅的草稿视为完成。
+
+| Task | Actual state | Evidence / next boundary |
+| --- | --- | --- |
+| Task 1 | completed | V3 harness and 69-row migration matrix were independently reviewed. |
+| Task 2 | completed | Decision-envelope control plane was independently reviewed, with its recorded non-blocking process limitation. |
+| Task 3 | completed | Stage 1 Profile handoff and source-bound understanding artifacts were independently approved. |
+| Task 4 | completed | Stage 2 quality/live-E2E runner was independently approved. |
+| Task 5 | completed and frozen | Stage 3 security boundary adapter was independently approved and committed as `f38cd18`; focused security tests were `35/35` and document-contract tests `12/12`. |
+| Task 6 | completed and independently approved | Stage 4 now binds final-plan approval, unique sample evidence, thresholds, current Gate validation, workbench receipts, and explicit trusted-executor acknowledgement. The final reviewer found no P0/P1. |
+| Task 7 | pending | Promote the reviewed V3 contract and update all public documentation atomically only after Task 6 closes. |
+| Task 8 | pending | Perform the single release-wide offline verification and write the truthful closeout report after the public-contract migration. |
+
+No real model/API call, security scan, dependency installation, local Skill
+installation, GitHub push, or merge has occurred in this iteration.
+
+## 修订后的交付顺序
+
+1. Repair Task 6 before adding a backend or a metric: one strict task-contract
+   validator must bind the approved final plan, dataset sample evidence,
+   thresholds, and runner-produced execution receipt.
+2. Obtain a fresh independent review of the repaired Task 6 implementation.
+   A Benchmark draft does not become a completed stage merely because focused
+   unit tests pass.
+3. Complete Task 7 as one public-contract migration: canonical files, four
+   stages, `SKILL.md`, README, metadata, optional exports, CI, and removal of
+   obsolete five-phase files must agree in the same reviewed change.
+4. Complete Task 8 once: run the release-wide offline checks against the
+   promoted contract and write the evidence closeout. Do not rerun the full
+   historical suite after every local Task 6 repair unless a shared contract is
+   intentionally changed.
+
+## 验证节奏
+
+- During Task 6 repair, run only the affected Benchmark tests plus shell
+  syntax/help, Python compilation, JSON parsing, and `git diff --check`.
+- Task 7 is the first required full V3 and historical-compatibility validation
+  point because it replaces the public entry contract.
+- Task 8 is the final release-wide validation point. This avoids spending time
+  repeatedly proving unchanged Stage 1-3 behavior while the dominant risk is
+  still the incomplete Stage 4/public-contract integration.
+
 ## Global Constraints
 
 - Work only in `.worktrees/codex-stage-gate-quality-v2` on `codex/project-verifier-release-closeout`.
@@ -124,7 +168,7 @@ project_verification_workbench/agent_execution/
 
 ---
 
-### Task 1: Add the V3 Contract Test Harness
+### Task 1: Add the V3 Contract Test Harness (Completed)
 
 **Why:** Establish a current standard-library test entrypoint and a machine-checked migration ledger without rewriting historical workbench evidence or committing a long-lived RED suite.
 
@@ -289,7 +333,7 @@ The staged list must contain only the Task 1 files. If any pre-existing staged p
 
 ---
 
-### Task 2: Replace Full-Plan Hashing With Decision Envelopes
+### Task 2: Replace Full-Plan Hashing With Decision Envelopes (Completed)
 
 **Why:** This is the P0 control-plane change. Formatting or log-path edits must not revoke approval, while risk, interpretation, source, and upper-limit changes must still fail closed.
 
@@ -487,7 +531,7 @@ git commit -m "feat: add decision-envelope control plane"
 
 ---
 
-### Task 3: Build Stage 1 Understanding and the Project Profile Gate
+### Task 3: Build Stage 1 Understanding and the Project Profile Gate (Completed)
 
 **Files:**
 - Create: `skills/project-verifier/workflows/stage1_understanding.md`
@@ -562,7 +606,7 @@ git commit -m "feat: add project understanding profile stage"
 
 ---
 
-### Task 4: Merge Quality, Runnability, Smoke, and Live E2E Into Stage 2
+### Task 4: Merge Quality, Runnability, Smoke, and Live E2E Into Stage 2 (Completed)
 
 **Files:**
 - Create: `skills/project-verifier/templates/run_quality_template.sh` while retaining `run_usability_template.sh` for V2 CI until Task 7
@@ -651,7 +695,7 @@ git commit -m "feat: combine quality and live verification"
 
 ---
 
-### Task 5: Add the Project-Fit Security Boundary Adapter
+### Task 5: Add the Project-Fit Security Boundary Adapter (Completed and Frozen)
 
 **Why:** Security must be a real, bounded verification stage, not a generic instruction to download one scanner.
 
@@ -760,7 +804,7 @@ git commit -m "feat: add security boundary verification adapter"
 
 ---
 
-### Task 6: Rebuild Stage 4 as a Dual-Input, Backend-Neutral AI Benchmark
+### Task 6: Rebuild Stage 4 as a Dual-Input, Backend-Neutral AI Benchmark (Repair in Progress)
 
 **Files:**
 - Create: `skills/project-verifier/workflows/stage4_benchmark.md`
@@ -773,9 +817,16 @@ git commit -m "feat: add security boundary verification adapter"
 
 **Interfaces:**
 - Gate: `stage4 / benchmark_execution`
-- Runner modes: `preflight`, `pilot <task_id>`, `full`
+- Runner modes: `preflight`, `pilot <task_id>`, `full <task_id>`; requiring a task ID for full execution prevents an ambiguous receipt from being shared across tasks.
 - Backends: `built_in`, `promptfoo`, `deepeval`, `ragas`, `inspect`, or an explicitly named project-native adapter.
 - Final claim status: `supported`, `partially_supported`, `not_supported`, or `inconclusive`.
+
+**Accepted repair gate:** The initial implementation is rejected pending repair.
+It must not produce any positive claim status from task-local booleans,
+self-reported samples, pilot output, or a caller-supplied result object. A
+runner receipt is an integrity link between approved inputs and produced
+artifacts, not a claim of cryptographic protection against a user who manually
+edits local files; the report must state that boundary.
 
 - [ ] **Step 1: Port raw-evaluator regressions and add V3 Benchmark tests**
 
@@ -792,6 +843,18 @@ Add tests that require:
 - equivalent Tool/Baseline inputs and resources or an explicit deviation;
 - negative and inconclusive outcomes preserved;
 - full plan review before pilot/full authorization.
+- a final-plan approval receipt reference whose `decision_id`, proposal hash,
+  source revision, selected directions, and execution limits match the task;
+- unique approved dataset sample IDs, dataset hash, and per-sample evidence
+  references; duplicate IDs or missing evidence cannot satisfy minimum samples;
+- complete, finite success thresholds and comparison mappings for every
+  claim-bearing metric, with thresholds included in the reported decision;
+- a runner-created execution receipt that records the actual mode, task and
+  dataset identity, Tool/Baseline backend identity, actual calls/retries/time,
+  output hashes, and result paths;
+- no `supported` or `partially_supported` claim unless a receipt-bound **full**
+  run matches the approved task. Pilot output remains `inconclusive` and may
+  only support a pilot-scoped observation.
 
 - [ ] **Step 2: Run Benchmark tests RED**
 
@@ -818,15 +881,29 @@ The template contains:
   "backend": {"name": "built_in", "version": "unknown", "fallback_reason": null},
   "baseline": {"type": "unknown", "identity": "unknown", "equivalence_deviations": []},
   "dataset": {"dataset_id": "unknown", "sha256": "unknown", "samples": []},
+  "final_plan_approval": {
+    "decision_id": "unknown",
+    "proposal_sha256": "unknown",
+    "source_revision": "unknown"
+  },
   "rubric_approved": false,
   "metrics": [],
   "execution": {"mode": "plan_only", "minimum_samples": 1, "max_calls": 0, "max_retries": 0, "timeout_seconds": 0}
 }
 ```
 
-- [ ] **Step 4: Strengthen runner preflight and migrate Stage 4 paths**
+- [ ] **Step 4: Add one strict task-contract validator and receipt-bound runner**
 
-Validate task identity, backend metadata, comparison claim, dataset sample provenance, metric contracts, execution bounds, and executor presence without invoking any backend. Replace Phase 5 paths and gate identifiers with Stage 4 and `--envelope`.
+Use one strict validator from both `preflight` and the evaluator. It validates
+task identity, the final approval receipt, backend/Baseline identity,
+comparison claim, dataset provenance and unique sample IDs, complete metric
+contracts, execution bounds, and executor presence without invoking a backend.
+`preflight` remains no-call. `pilot` and `full` must create a new runner-owned
+receipt only after dispatch, with actual telemetry and content identities; the
+evaluator rejects missing, stale, mismatched, pilot-only, or caller-invented
+receipt data as `inconclusive` / `not_measured`.
+
+Replace Phase 5 paths and gate identifiers with Stage 4 and `--envelope`.
 
 Build the V3 files beside the canonical V2 runner/evaluator and point the V3 runner to `validate_gate_v3.py`. Do not modify the V2 canonical files until Task 7.
 
@@ -848,7 +925,11 @@ def claim_status(metric_results):
     return "not_supported"
 ```
 
-Individual success thresholds remain visible but do not by themselves prove Tool superiority. Report claim status as a summary of approved metric comparisons, not a universal score.
+Individual success thresholds remain visible and participate in each metric's
+decision, but do not by themselves prove Tool superiority. Report claim status
+as a summary of approved metric comparisons from a receipt-bound full run, not
+a universal score. Missing evidence reports raw values only when safely
+available and otherwise `not_measured` / `inconclusive`.
 
 - [ ] **Step 6: Write the guided Stage 4 workflow**
 
@@ -866,7 +947,7 @@ PYTHONPYCACHEPREFIX=/tmp/project-verifier-v3-pycache \
 python3 -m py_compile skills/project-verifier/templates/benchmark_evaluator_v3_template.py
 ```
 
-The no-argument runner must print help and exit with its documented usage status without executing a backend. Then run the complete current V3 suite and four historical CI commands; all must pass.
+The no-argument runner must print help and exit with its documented usage status without executing a backend. During this repair, run only these affected checks, JSON parsing, and `git diff --check`; the complete V3 suite and historical compatibility commands are release gates in Tasks 7-8.
 
 - [ ] **Step 8: Commit Stage 4**
 
@@ -885,7 +966,7 @@ git commit -m "feat: add dual-input ai benchmark stage"
 
 ---
 
-### Task 7: Switch the Public Contract to Four Stages and Remove Obsolete Files
+### Task 7: Switch the Public Contract to Four Stages and Remove Obsolete Files (Pending)
 
 **Files:**
 - Modify: `skills/project-verifier/SKILL.md`
@@ -925,6 +1006,10 @@ Assert:
 - no LICENSE section/link/file remains;
 - no current claim promises complete audit, penetration-test coverage, compliance, vulnerability absence, stable Agent gate compliance, or guaranteed Benchmark advantage;
 - no recording/replay, production-browser, multi-host guard platform, default score, or radar contract returns.
+- current security reports describe a scoped, adapter-normalized boundary check
+  rather than a security certification, and current Benchmark reports explain
+  receipt provenance, plan-only/pilot limits, and the absence of universal
+  scores.
 - orchestration defaults to serial subagents, has an inline fallback, persists task handoffs, and discloses review independence without adding a framework dependency.
 - `test_migration_matrix.json` contains no `pending` row, every historical test is mapped exactly once, and every `ported/covered_by` target exists in the V3 suite.
 - no current Skill, runner, test, fixture, or CI file references a runtime `*_v3*` path after canonical promotion.
@@ -1020,7 +1105,7 @@ Stage `bootstrap.sh`, `AGENTS.md`, or `CONTRIBUTING.md` only when the reviewed d
 
 ---
 
-### Task 8: Full Offline Verification and Evidence Closeout
+### Task 8: Full Offline Verification and Evidence Closeout (Pending)
 
 **Files:**
 - Create: `project_verifier_iteration_workbench/20260710_four_stage_adapter_v3/verification_report.md`

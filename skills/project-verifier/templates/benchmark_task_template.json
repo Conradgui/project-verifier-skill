@@ -1,0 +1,44 @@
+{
+  "schema_version": "3.0",
+  "task_id": "BM_001",
+  "feature_id": "unknown",
+  "characteristic_source": {
+    "evidence_refs": [],
+    "candidate_characteristic": "unknown"
+  },
+  "user_selected_direction": "unknown",
+  "comparison_claim": "unknown",
+  "decision_use": "unknown",
+  "user_path_ids": [],
+  "backend": {
+    "name": "built_in",
+    "version": "unknown",
+    "fallback_reason": null
+  },
+  "baseline": {
+    "type": "unknown",
+    "identity": "unknown",
+    "equivalence_deviations": []
+  },
+  "dataset": {
+    "dataset_id": "unknown",
+    "sha256": "unknown",
+    "samples": []
+  },
+  "final_plan_approval": {
+    "decision_id": "unknown",
+    "proposal_sha256": "unknown",
+    "source_revision": "unknown",
+    "receipt_path": "project_verification_workbench/authorizations/unknown_plan.json",
+    "envelope_path": "project_verification_workbench/authorizations/unknown_plan_envelope.json"
+  },
+  "rubric_approved": false,
+  "metrics": [],
+  "execution": {
+    "mode": "plan_only",
+    "minimum_samples": 1,
+    "max_calls": 0,
+    "max_retries": 0,
+    "timeout_seconds": 0
+  }
+}

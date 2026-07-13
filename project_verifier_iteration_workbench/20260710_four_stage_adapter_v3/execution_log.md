@@ -112,3 +112,17 @@
   files. Focused security tests are `35/35`; the V3 document contract is
   `12/12`; shell syntax/help, Python compilation, and whitespace checks pass.
   No real scanner, network, installation, target, or secret read occurred.
+- Started Task 6 with a bounded Stage 4 Benchmark contract. It reuses tested
+  raw-metric safeguards and adds V3 dual-input planning; it will not install or
+  execute a backend, call a model/API, or modify V2 public consumers.
+- Task 6 first independent review returned `CHANGES_REQUIRED`. The controller
+  accepted all five P1 findings: task-local approval, shallow preflight,
+  self-reported samples, unused thresholds, and unbound result objects cannot
+  support a Benchmark claim. The revised plan requires one shared strict
+  contract validator, receipt-bound plan/dataset/metric identities, and a
+  runner-created full-run receipt before any positive claim. This is a local
+  provenance boundary, not a cryptographic anti-tamper assertion. No real
+  model/API call, installation, network access, staging, commit, push, or merge
+  occurred while updating the recovery plan.
+- Task 6 修复实现完成，现进入独立审阅前冻结点。新增共享 Benchmark 合同校验器；preflight 先检查任务与最终方案授权；执行路径要求明确 `TASK_ID`、当前执行授权和新的 workbench 输出；runner 写入收据、日志及输出哈希。Evaluator 将正向结论限制为匹配的 full 收据，并校验逐样本证据、阈值、比较合同和盲化 Judge 记录。独立审阅提出的路径越界、未批准 rubric dispatch、聚合样本伪充分、过期源码收据和 Judge 类别绕过均已进入修复；定向测试 `12/12`、Shell 语法、Python 编译和 diff 检查通过。没有真实模型/API、网络、安装、提交、推送或合并。
+- Task 6 最终复核 `APPROVED`。最后一轮修复让公共 evaluator CLI 只读取当前项目 workbench 中的收据和结果实物，重新计算源码指纹，并复验 plan/execution Gate；执行收据记录实际授权收据和 envelope。项目 executor 需要同一 envelope 的 `trusted_project_executor_execution` 明确认可，且文档明确其不是 sandbox。定向 Benchmark 测试 `14/14`、Shell 语法、Python 编译和 diff 检查通过；没有真实模型/API、网络、安装、推送或合并。
