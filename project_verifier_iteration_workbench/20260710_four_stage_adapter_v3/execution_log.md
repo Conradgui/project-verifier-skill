@@ -128,3 +128,4 @@
 - Task 6 最终复核 `APPROVED`。最后一轮修复让公共 evaluator CLI 只读取当前项目 workbench 中的收据和结果实物，重新计算源码指纹，并复验 plan/execution Gate；执行收据记录实际授权收据和 envelope。项目 executor 需要同一 envelope 的 `trusted_project_executor_execution` 明确认可，且文档明确其不是 sandbox。定向 Benchmark 测试 `14/14`、Shell 语法、Python 编译和 diff 检查通过；没有真实模型/API、网络、安装、推送或合并。
 - Task 7 完成四阶段公开合同迁移：README、SKILL、默认提示、CI、canonical 文件名、fixture 与 workflow 同步切换；旧 phase workflow、过渡文件、usability runner 与 LICENSE 已移出提交集。独立审阅促成了三项窄修复：默认 Gate 路径、stale fixture 的双重源码证据失效、以及 Stage 2 runner 在临时 Git 源码变更后于脚本派发前拒绝。最终仅保留 Task 8 的一次性发布前离线验证；没有执行真实调用、扫描、安装、推送或合并。
 - Task 8 完成一次性离线收尾：当前测试发现并执行 108 项，零失败、零错误；Shell、编译、JSON、Skill validator、dry-run 和合同残留检查均通过。报告如实记录迁移矩阵为 19/69 已映射、50/69 pending，未主张完整历史等价。用户要求的功能分支备份已推送至 GitHub；没有真实 API、模型、扫描、依赖安装、目标项目 E2E 或 main 合并。
+- 后收尾精简：移除临时历史迁移矩阵及其 3 个专属测试。它曾帮助重构过程盘点旧测试，但 50 条 pending 映射对当前私用 Skill 的运行安全没有额外保护；保留报告的“未主张历史逐项等价”边界与全部历史实施记录。

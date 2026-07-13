@@ -21,10 +21,16 @@
 | Task 5 | completed and frozen | Stage 3 security boundary adapter was independently approved and committed as `f38cd18`; focused security tests were `35/35` and document-contract tests `12/12`. |
 | Task 6 | completed and independently approved | Stage 4 now binds final-plan approval, unique sample evidence, thresholds, current Gate validation, workbench receipts, and explicit trusted-executor acknowledgement. The final reviewer found no P0/P1. |
 | Task 7 | completed | Four-stage public contract, canonical names, CI, fixtures and user documentation were migrated together. Focused contract/quality/security/Benchmark regressions passed; final review repairs closed the stale-source path before dispatch. |
-| Task 8 | completed with limitation | One release-wide offline verification passed and a truthful closeout report was written. The historical migration matrix still has 50 pending mappings, so this does not claim full historical test equivalence. |
+| Task 8 | completed | One release-wide offline verification passed and a truthful closeout report was written. The temporary historical migration matrix was retired after closeout; the current suite makes no claim of full historical test equivalence. |
 
 No real model/API call, security scan, dependency installation, local Skill
-installation, GitHub push, or merge has occurred in this iteration.
+installation, or merge has occurred in this iteration. The user-approved
+feature branch backup was pushed to GitHub during Task 8.
+
+> Post-closeout note: `test_migration_matrix.json` was a temporary migration
+> scaffold. It was removed after Task 8 because maintaining pending historical
+> mappings adds no protection to the current private Skill contract. Historical
+> records below remain as implementation evidence, not live requirements.
 
 ## 修订后的交付顺序
 
