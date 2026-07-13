@@ -88,3 +88,4 @@
 - Task 6 最终复核已 `APPROVED`。公开 evaluator CLI 重新读取 workbench 实物并复验当前 Gate；项目 executor 的未隔离性质已被显式授权和如实披露。定向 Benchmark 套件为 `14/14`，Shell 语法、Python 编译和 diff 检查通过。Task 7 可开始。
 - Task 7 已开始：先完成公开合同盘点和删除清单，随后原子迁移 README、SKILL、元数据、CI 与 canonical V3 文件；不在本任务执行真实调用或完整发布验证。
 - Task 7 已完成：公开入口、CI、fixture 与 canonical 名称均已迁移至四阶段。最终收束补齐了“源码变化使旧 Profile 与旧授权一起失效”的 fixture，并以临时 Git 项目证明 Stage 2 runner 在派发前拒绝该状态；旧文件删除已进入暂存提交集。Task 8 仍未开始，仍负责一次性的最终离线验证报告与发布前证据收尾。
+- Task 8 已完成并保留限制：完整离线套件发现 108 项且全部通过，Shell、编译、JSON、Skill validator、安装 dry-run 与合同残留检查通过。历史迁移矩阵仍有 50/69 行为 `pending`，因此报告明确不主张完整历史测试等价；不为这项私用 Skill 进行低收益的大规模历史追溯。
