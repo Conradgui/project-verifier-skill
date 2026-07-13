@@ -1,0 +1,17 @@
+{
+  "schema_version": "3.0",
+  "source_identity": {"revision": "fixture-rev", "captured_at": "2026-06-29T11:00:00+08:00", "repository_type": "fixture"},
+  "reviewed_scope": {"in_scope": ["fixture.json"], "out_of_scope": [], "reviewed_paths": ["fixture.json"]},
+  "runtimes": [],
+  "entry_points": [],
+  "priority_paths": {"P0": [{"id": "P0_stale_source_evidence_rejection", "evidence": ["fixture.json:4"]}], "P1": [], "P2": []},
+  "modules": [],
+  "state_changes": [],
+  "trust_boundaries": [],
+  "sensitive_data_categories": [],
+  "feature_ai_classification": [],
+  "existing_capabilities": [],
+  "evidence_references": [],
+  "inferences": [],
+  "unknowns": []
+}

@@ -38,6 +38,8 @@ FIXTURE_IDS = {
     "stale_authorization",
 }
 EVALS_PATH = REPO_ROOT / "skills/project-verifier/evals/evals.json"
+SKILL_ENTRY = REPO_ROOT / "skills/project-verifier/SKILL.md"
+README = REPO_ROOT / "README.md"
 EVIDENCE_REFERENCE = re.compile(r"^(?P<path>[^:]+):(?P<start>\d+)(?:-(?P<end>\d+))?$")
 ALLOWED_STATUSES = {"pending", "ported", "covered_by", "retired_contract"}
 
@@ -289,3 +291,36 @@ class Stage3SecurityContractTests(unittest.TestCase):
         ):
             with self.subTest(phrase=phrase):
                 self.assertIn(phrase, adapters)
+
+
+class PublicFourStageContractTests(unittest.TestCase):
+    def test_public_entrypoints_use_only_current_four_stage_contract(self):
+        skill = read(SKILL_ENTRY)
+        readme = read(README)
+        workflows = REPO_ROOT / "skills/project-verifier/workflows"
+        self.assertTrue((workflows / "stage1_understanding.md").is_file())
+        self.assertTrue((workflows / "stage2_quality.md").is_file())
+        self.assertTrue((workflows / "stage3_security.md").is_file())
+        self.assertTrue((workflows / "stage4_benchmark.md").is_file())
+        self.assertFalse(any(workflows.glob("phase*.md")))
+        for text in (skill, readme):
+            self.assertIn("Stage 1", text)
+            self.assertIn("Stage 4", text)
+            self.assertNotIn("五阶段", text)
+            self.assertNotIn("MIT License", text)
+        self.assertFalse((REPO_ROOT / "LICENSE").exists())
+        self.assertFalse((REPO_ROOT / "skills/project-verifier/templates/run_usability_template.sh").exists())
+
+    def test_current_canonical_templates_replace_transitional_names(self):
+        templates = REPO_ROOT / "skills/project-verifier/templates"
+        scripts = REPO_ROOT / "skills/project-verifier/scripts"
+        for path in (
+            scripts / "validate_gate.py",
+            templates / "verification_manifest_template.json",
+            templates / "run_benchmark_template.sh",
+            templates / "benchmark_evaluator_template.py",
+            templates / "run_quality_template.sh",
+        ):
+            self.assertTrue(path.is_file(), path)
+        self.assertFalse(any((scripts).glob("*_v3.py")))
+        self.assertFalse(any((templates).glob("*_v3_template.*")))

@@ -10,7 +10,7 @@ from helpers import SKILL_ROOT, load_module, run, write_json
 
 RUNNER = SKILL_ROOT / "templates/run_security_template.sh"
 NORMALIZER = SKILL_ROOT / "templates/security_normalizer_template.py"
-VALIDATOR = SKILL_ROOT / "scripts/validate_gate_v3.py"
+VALIDATOR = SKILL_ROOT / "scripts/validate_gate.py"
 GATE = load_module(VALIDATOR, "security_runner_v3_gate")
 
 
@@ -252,7 +252,7 @@ class SecurityRunnerTests(unittest.TestCase):
         write_json(receipt_path, receipt)
         write_json(envelope_path, envelope)
         reports = workbench / "security-reports"
-        results = workbench / "phase3_security_results.json"
+        results = workbench / "stage3_security_results.json"
         env = {
             **os.environ,
             "SECURITY_TASK_DIR": str(task_dir),
@@ -299,7 +299,7 @@ class SecurityRunnerTests(unittest.TestCase):
 
     def test_preflight_rejects_a_validator_inside_the_target_workbench(self):
         tmp, _, project, _, _, _, env = self.make_project()
-        untrusted_validator = project / "project_verification_workbench/tools/validate_gate_v3.py"
+        untrusted_validator = project / "project_verification_workbench/tools/validate_gate.py"
         untrusted_validator.parent.mkdir(parents=True)
         untrusted_validator.write_text(VALIDATOR.read_text(encoding="utf-8"), encoding="utf-8")
         with tmp:
@@ -507,7 +507,7 @@ class SecurityRunnerTests(unittest.TestCase):
 
     def test_preflight_rejects_raw_output_that_collides_with_results(self):
         tmp, _, project, _, _, _, env = self.make_project(
-            raw_output_path="project_verification_workbench/phase3_security_results.json"
+            raw_output_path="project_verification_workbench/stage3_security_results.json"
         )
         with tmp:
             result = self.runner("preflight", project, env)

@@ -37,7 +37,7 @@ bridge action.
 3. **Preflight:** validate task metadata, installed tool names, scripts,
    targets, output paths, limits, and confirmed Profile without executing a
    scanner against a target.
-4. **Run:** a project task bridge may execute only after its current V3
+4. **Run:** a project task bridge may execute only after its current
    `stage3 / security_execution` envelope authorizes every requested capability
    and explicitly acknowledges `trusted_custom_bridge_execution`.
 5. **Normalize:** convert bridge output to redacted evidence records. Tool

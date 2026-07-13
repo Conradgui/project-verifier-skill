@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate and bind V3 Benchmark task, approval, and execution evidence."""
+"""Validate and bind Benchmark task, approval, and execution evidence."""
 
 from __future__ import annotations
 
@@ -125,7 +125,7 @@ def validate_metric(metric, dataset_sample_count, execution_minimum):
     if not isinstance(metric["label"], str) or not metric["label"]:
         raise BenchmarkContractError("Metric label is invalid")
     if metric["measurement_method"] not in {"numeric_value", "llm_judge_score"}:
-        raise BenchmarkContractError("Metric measurement_method is unsupported by the V3 template")
+        raise BenchmarkContractError("Metric measurement_method is unsupported by the template")
     if not isinstance(metric["source_field"], str) or not metric["source_field"]:
         raise BenchmarkContractError("Metric source_field is invalid")
     if not isinstance(metric["per_sample_field"], str) or not metric["per_sample_field"]:
@@ -574,7 +574,7 @@ def write_execution_receipt(args):
 
 
 def build_parser():
-    parser = argparse.ArgumentParser(description="Validate Project Verifier V3 Benchmark contracts")
+    parser = argparse.ArgumentParser(description="Validate Project Verifier Benchmark contracts")
     commands = parser.add_subparsers(dest="command", required=True)
     validate = commands.add_parser("validate", help="Validate one task JSON without execution")
     validate.add_argument("--task", required=True)

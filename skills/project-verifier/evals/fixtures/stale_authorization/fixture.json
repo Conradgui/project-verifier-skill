@@ -1,38 +1,44 @@
 {
   "id": "stale_authorization",
   "classification": "AI-assisted",
-  "expected_behavior": "The live runner rejects a receipt whose proposal hash no longer matches.",
+  "expected_behavior": "The live runner blocks before any path because a source change invalidates both the confirmed Profile and the Stage 2 authorization evidence.",
+  "current_source_revision": "fixture-rev-after-change",
   "feature_classification": [
     {
       "feature_id": "live_execution_authorization",
       "classification": "AI-assisted",
-      "evidence": ["fixture.json:3-4", "phase4_live_execution.json:1-16"]
+      "evidence": ["fixture.json:3-4", "stage2_live_execution.json:1-16"]
     }
   ],
   "entry_points": [
     {
+      "id": "confirmed_project_profile",
+      "kind": "source-bound Stage 1 Profile",
+      "evidence": ["project_verification_workbench/project_profile.json:1-14", "verification_manifest.json:10-15"]
+    },
+    {
       "id": "live_execution_receipt",
-      "kind": "authorization receipt",
-      "evidence": ["phase4_live_execution.json:1-16"]
+      "kind": "source-bound Stage 2 authorization",
+      "evidence": ["stage2_live_execution.json:1-16", "verification_manifest.json:15"]
     }
   ],
   "path_ids": [
     {
-      "id": "P0_stale_receipt_rejection",
+      "id": "P0_stale_source_evidence_rejection",
       "priority": "P0",
-      "evidence": ["fixture.json:4", "phase4_live_execution.json:4-5"]
+      "evidence": ["fixture.json:4-5", "project_verification_workbench/project_profile.json:3", "stage2_live_execution.json:5"]
     }
   ],
   "trust_boundaries": [
     {
-      "id": "approval_receipt_hash",
-      "evidence": ["phase4_live_execution.json:4-7", "verification_manifest.json:38-51"]
+      "id": "profile_and_authorization_source_binding",
+      "evidence": ["fixture.json:5", "project_verification_workbench/project_profile.json:3", "stage2_live_execution.json:5", "verification_manifest.json:10-15"]
     }
   ],
   "expected_capabilities": [
     {
-      "id": "identify_stale_authorization_input",
-      "evidence": ["fixture.json:4", "phase4_live_execution.json:4-5"]
+      "id": "identify_stale_profile_and_authorization",
+      "evidence": ["fixture.json:4-5", "project_verification_workbench/project_profile.json:3", "stage2_live_execution.json:5"]
     }
   ]
 }

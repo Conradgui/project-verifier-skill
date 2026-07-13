@@ -1,8 +1,8 @@
-# V3 Artifact Contracts
+# Artifact Contracts
 
 ## State Model
 
-Each V3 stage (`stage1` through `stage4`) records four independent dimensions:
+Each stage (`stage1` through `stage4`) records four independent dimensions:
 
 - `phase_status`: progress through the stage.
 - `result_outcome`: evidence result, including negative and inconclusive results.
@@ -37,9 +37,9 @@ The receipt and the matching manifest decision must be identical. The receipt's 
 
 `approved_fix_scope` requires a clean `git:<commit>` base that is an ancestor of `HEAD`. The validator enumerates the Git difference from that base, including committed, staged, and unstaged changes, and separately enumerates untracked files. Every changed path must be within `allowed_fix_paths`. When the current fingerprint differs from the base, `source_history` must record both fingerprints and set `affected_artifacts_stale` to `true`; the receipt keeps the approved base as the authority for the unchanged objective.
 
-## V3 Manifest
+## Manifest
 
-The V3 manifest has only `stages.stage1` through `stages.stage4`; it has no duplicate `phases` tree. It also records `source_history` and a `project_profile` reference. `paths` checks the manifest's approved write scope and rejects unsafe or out-of-scope relative paths.
+The manifest has only `stages.stage1` through `stages.stage4`; it has no duplicate `phases` tree. It also records `source_history` and a `project_profile` reference. `paths` checks the manifest's approved write scope and rejects unsafe or out-of-scope relative paths.
 
 ## Project Profile
 

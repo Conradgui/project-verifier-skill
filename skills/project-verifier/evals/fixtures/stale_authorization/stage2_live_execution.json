@@ -1,8 +1,8 @@
 {
-  "decision_id": "DEC-STALE-S2-001",
+  "decision_id": "DEC-STALE-001",
   "stage": "stage2",
   "decision_type": "live_e2e",
-  "decision_envelope_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "decision_envelope_sha256": "b66eb44e57bf49a3ae8a8f93ccafa3b0f5e81dae334797929384b18d32817c76",
   "source_revision": "fixture-rev",
   "user_choice": "approved",
   "approved_limits": {
@@ -11,6 +11,6 @@
     "max_retries": 1,
     "timeout_seconds": 10
   },
-  "approved_at": "2026-07-12T09:00:00+08:00",
+  "approved_at": "2026-06-29T12:00:00+08:00",
   "invalidated_at": null
 }

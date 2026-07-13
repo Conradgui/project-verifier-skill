@@ -196,7 +196,7 @@ source does not establish an item.
 
 ## `project_profile.json` Draft
 
-Use the V3 Profile structure for stable facts only. Keep commands, tool choices,
+Use the Profile structure for stable facts only. Keep commands, tool choices,
 transient logs, and speculative risk ratings out of the Profile.
 
 Separate epistemic layers as follows:

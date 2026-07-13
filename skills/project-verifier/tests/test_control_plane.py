@@ -8,14 +8,14 @@ from pathlib import Path
 from helpers import SKILL_ROOT, load_module, read, run, write_json
 
 
-VALIDATOR = SKILL_ROOT / "scripts/validate_gate_v3.py"
+VALIDATOR = SKILL_ROOT / "scripts/validate_gate.py"
 VALIDATOR_MODULE = load_module(VALIDATOR, "v3_gate")
 canonical_object_hash = VALIDATOR_MODULE.canonical_object_hash
 requested_limit_is_within = VALIDATOR_MODULE.requested_limit_is_within
 
 DECISION_TEMPLATE = SKILL_ROOT / "templates/decision_envelope_template.json"
 PROFILE_TEMPLATE = SKILL_ROOT / "templates/project_profile_template.json"
-MANIFEST_TEMPLATE = SKILL_ROOT / "templates/verification_manifest_v3_template.json"
+MANIFEST_TEMPLATE = SKILL_ROOT / "templates/verification_manifest_template.json"
 
 
 def git(command, cwd):

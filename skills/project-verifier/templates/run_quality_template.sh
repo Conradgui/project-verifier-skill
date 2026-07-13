@@ -3,18 +3,19 @@
 
 set -u
 
+RUNNER_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 TEST_DIR="${QUALITY_TEST_DIR:-tests/quality-e2e}"
 REPORTS_DIR="${QUALITY_REPORTS_DIR:-project_verification_workbench/quality-e2e-reports}"
 REQUIRED_ENV_FILE="${QUALITY_REQUIRED_ENV_FILE:-$TEST_DIR/required_env.txt}"
 REQUIRED_FILES_FILE="${QUALITY_REQUIRED_FILES_FILE:-$TEST_DIR/required_files.txt}"
 REQUIRED_COMMANDS_FILE="${QUALITY_REQUIRED_COMMANDS_FILE:-$TEST_DIR/required_commands.txt}"
-RESULTS_JSON="${QUALITY_RESULTS_JSON:-project_verification_workbench/phase2_quality_results.json}"
-MANIFEST_FILE="${QUALITY_MANIFEST_FILE:-project_verification_workbench/verification_manifest_v3.json}"
+RESULTS_JSON="${QUALITY_RESULTS_JSON:-project_verification_workbench/stage2_quality_results.json}"
+MANIFEST_FILE="${QUALITY_MANIFEST_FILE:-project_verification_workbench/verification_manifest.json}"
 AUTHORIZATION_FILE="${QUALITY_AUTHORIZATION_FILE:-}"
 ENVELOPE_FILE="${QUALITY_ENVELOPE_FILE:-}"
 PROFILE_FILE="${QUALITY_PROFILE_FILE:-project_verification_workbench/project_profile.json}"
 SOURCE_REVISION="${QUALITY_SOURCE_REVISION:-}"
-GATE_VALIDATOR="${PROJECT_VERIFIER_GATE_VALIDATOR:-project_verification_workbench/tools/validate_gate_v3.py}"
+GATE_VALIDATOR="${PROJECT_VERIFIER_GATE_VALIDATOR:-$RUNNER_DIR/../scripts/validate_gate.py}"
 PROJECT_ROOT="${PROJECT_VERIFIER_PROJECT_ROOT:-.}"
 MODE="${1:-}"
 

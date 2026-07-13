@@ -87,3 +87,4 @@
 - Task 6 最终独立审阅仍为 `CHANGES_REQUIRED`。当前仅剩两项 P1：Evaluator 必须从 workbench 实物重新校验收据/输出/授权，而不能接受任意输入 JSON；项目 executor 必须显式作为未隔离的受信任 bridge 获得同一 envelope 确认。Task 7/8 继续等待，Task 6 不得标记完成。
 - Task 6 最终复核已 `APPROVED`。公开 evaluator CLI 重新读取 workbench 实物并复验当前 Gate；项目 executor 的未隔离性质已被显式授权和如实披露。定向 Benchmark 套件为 `14/14`，Shell 语法、Python 编译和 diff 检查通过。Task 7 可开始。
 - Task 7 已开始：先完成公开合同盘点和删除清单，随后原子迁移 README、SKILL、元数据、CI 与 canonical V3 文件；不在本任务执行真实调用或完整发布验证。
+- Task 7 已完成：公开入口、CI、fixture 与 canonical 名称均已迁移至四阶段。最终收束补齐了“源码变化使旧 Profile 与旧授权一起失效”的 fixture，并以临时 Git 项目证明 Stage 2 runner 在派发前拒绝该状态；旧文件删除已进入暂存提交集。Task 8 仍未开始，仍负责一次性的最终离线验证报告与发布前证据收尾。

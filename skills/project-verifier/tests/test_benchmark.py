@@ -7,12 +7,12 @@ from helpers import REPO_ROOT, SKILL_ROOT, load_module, run, write_json
 
 
 TASK_TEMPLATE = SKILL_ROOT / "templates/benchmark_task_template.json"
-CONTRACT = SKILL_ROOT / "scripts/validate_benchmark_task_v3.py"
-EVALUATOR = SKILL_ROOT / "templates/benchmark_evaluator_v3_template.py"
-RUNNER = SKILL_ROOT / "templates/run_benchmark_v3_template.sh"
+CONTRACT = SKILL_ROOT / "scripts/validate_benchmark_task.py"
+EVALUATOR = SKILL_ROOT / "templates/benchmark_evaluator_template.py"
+RUNNER = SKILL_ROOT / "templates/run_benchmark_template.sh"
 WORKFLOW = SKILL_ROOT / "workflows/stage4_benchmark.md"
 
-CONTRACT_MODULE = load_module(CONTRACT, "benchmark_contract_v3")
+CONTRACT_MODULE = load_module(CONTRACT, "benchmark_contract")
 
 
 def task_definition(rubric_approved=True, minimum_samples=3):

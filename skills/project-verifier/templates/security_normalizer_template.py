@@ -170,16 +170,16 @@ def canonical_object_hash(payload):
 
 
 def current_source_revision(project_root):
-    validator = Path(__file__).resolve().parent.parent / "scripts" / "validate_gate_v3.py"
+    validator = Path(__file__).resolve().parent.parent / "scripts" / "validate_gate.py"
     if validator.is_symlink() or not validator.is_file():
-        raise ValueError("bundled V3 gate validator is unavailable")
+        raise ValueError("bundled gate validator is unavailable")
     root = Path(project_root).resolve()
     try:
         validator.resolve().relative_to(root)
     except ValueError:
         pass
     else:
-        raise ValueError("bundled V3 gate validator must stay outside the target project")
+        raise ValueError("bundled gate validator must stay outside the target project")
     completed = subprocess.run(
         ["python3", str(validator), "fingerprint", "--root", str(root)],
         text=True,
@@ -294,7 +294,7 @@ def execution_scope_from_results(payload, requested_task_id, raw_input_path, sou
     if not isinstance(payload, dict):
         raise ValueError("stage3 results must be an object")
     if payload.get("schema_version") != "3.0" or payload.get("phase_status") != "completed":
-        raise ValueError("stage3 results are not a completed V3 result")
+        raise ValueError("stage3 results are not a completed result")
     if payload.get("result_outcome") != "pass":
         raise ValueError("stage3 results are not complete enough for normalization")
     if required_string(payload.get("source_revision"), "stage3 results source_revision") != source_revision:

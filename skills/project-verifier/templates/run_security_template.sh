@@ -4,11 +4,11 @@
 set -u
 
 RUNNER_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
-BUNDLED_GATE_VALIDATOR="$RUNNER_DIR/../scripts/validate_gate_v3.py"
+BUNDLED_GATE_VALIDATOR="$RUNNER_DIR/../scripts/validate_gate.py"
 TASK_DIR="${SECURITY_TASK_DIR:-security/tasks}"
 REPORTS_DIR="${SECURITY_REPORTS_DIR:-project_verification_workbench/security-reports}"
-RESULTS_JSON="${SECURITY_RESULTS_JSON:-project_verification_workbench/phase3_security_results.json}"
-MANIFEST_FILE="${SECURITY_MANIFEST_FILE:-project_verification_workbench/verification_manifest_v3.json}"
+RESULTS_JSON="${SECURITY_RESULTS_JSON:-project_verification_workbench/stage3_security_results.json}"
+MANIFEST_FILE="${SECURITY_MANIFEST_FILE:-project_verification_workbench/verification_manifest.json}"
 AUTHORIZATION_FILE="${SECURITY_AUTHORIZATION_FILE:-}"
 ENVELOPE_FILE="${SECURITY_ENVELOPE_FILE:-}"
 PROFILE_FILE="${SECURITY_PROFILE_FILE:-project_verification_workbench/project_profile.json}"

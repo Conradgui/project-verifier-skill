@@ -26,7 +26,7 @@
 
 ## Preflight、执行与收据
 
-`run_benchmark_v3_template.sh preflight` 会校验完整任务、最终方案授权、数据集唯一性、指标合同、执行上限、executor 和已确认的 Stage 1 Profile，且不会调用模型、API、工具、Baseline 或 executor。
+`run_benchmark_template.sh preflight` 会校验完整任务、最终方案授权、数据集唯一性、指标合同、执行上限、executor 和已确认的 Stage 1 Profile，且不会调用模型、API、工具、Baseline 或 executor。
 
 执行命令为 `pilot TASK_ID` 或 `full TASK_ID`。两者都需要当前有效的 `stage4 / benchmark_execution` 授权；实际请求上限不得超过任务和授权 envelope 的上限。runner 只接受 `project_verification_workbench/` 内尚不存在且非符号链接的输出路径，并在执行后写入新的执行收据、日志、工具结果、Baseline 结果和遥测结果。
 

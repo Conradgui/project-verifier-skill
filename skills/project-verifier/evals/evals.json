@@ -4,7 +4,7 @@
     {
       "id": 1,
       "prompt": "Use $project-verifier in Full Suite mode on this Python CLI. It reformats local CSV files, has no model calls or external services, and I do not need interview materials.",
-      "expected_output": "Classify the project as non-AI, complete the offline core, treat Phase 5 as not_applicable, and do not create optional interview artifacts.",
+      "expected_output": "Classify the project as non-AI, complete the offline core, treat Stage 4 as not_applicable, and do not create optional interview artifacts.",
       "files": [
         "evals/fixtures/non_ai_cli/fixture.json",
         "evals/fixtures/non_ai_cli/app.py",
@@ -12,7 +12,7 @@
       ],
       "expectations": [
         "The manifest classifies the project as non-AI with repository evidence.",
-        "Phase 5 writes not_applicable artifacts without proposing an LLM comparison.",
+        "Stage 4 writes not_applicable artifacts without proposing an LLM comparison.",
         "The agent offers the optional interview export and does not create interview_evidence_pack.md when declined."
       ]
     },
@@ -32,7 +32,7 @@
     },
     {
       "id": 3,
-      "prompt": "This fixture has a deterministic local AI backend. Design L2 and L3 tests, but treat preflight as different from execution and ask before any full run.",
+      "prompt": "This fixture has a deterministic local AI backend. Design Stage 2 and conditional Stage 4 tests, but treat preflight as different from execution and ask before any full run.",
       "expected_output": "Classify the feature as AI, define raw metrics and a fair local baseline, run only no-call preflight automatically, and wait for revision-bound execution authorization.",
       "files": [
         "evals/fixtures/ai_local_backend/fixture.json",
@@ -47,7 +47,7 @@
     {
       "id": 4,
       "prompt": "Review this mixed product. The local normalization path is non-AI and the optional generation path is AI-assisted. Do not apply an AI benchmark to the whole project.",
-      "expected_output": "Classify features separately, keep L3 limited to the optional AI path, and preserve the non-AI path as ordinary L1/L2 verification.",
+      "expected_output": "Classify features separately, keep Stage 4 limited to the optional AI path, and preserve the non-AI path as Stage 1/2 verification.",
       "files": [
         "evals/fixtures/ai_assisted_mixed/fixture.json",
         "evals/fixtures/ai_assisted_mixed/app.py"
@@ -60,18 +60,18 @@
     },
     {
       "id": 5,
-      "prompt": "The project changed after I approved Phase 4. Use the attached manifest and authorization receipt, but do not ask me again unless the old approval is actually stale.",
-      "expected_output": "Detect the proposal hash mismatch, refuse execution before any live path, invalidate the stale decision, and request renewed approval.",
+      "prompt": "The project changed after I approved Stage 2. Use the attached manifest and authorization receipt; treat both the stale confirmed Profile and stale Stage 2 authorization evidence as blockers before any live path.",
+      "expected_output": "Detect that the source change invalidates both source-bound artifacts, refuse execution before any live path, record the recovery condition, and request fresh Stage 1 confirmation followed by renewed Stage 2 approval.",
       "files": [
         "evals/fixtures/stale_authorization/fixture.json",
-        "evals/fixtures/stale_authorization/phase4_usability_plan.md",
+        "evals/fixtures/stale_authorization/stage2_quality_plan.md",
         "evals/fixtures/stale_authorization/verification_manifest.json",
-        "evals/fixtures/stale_authorization/phase4_live_execution.json"
+        "evals/fixtures/stale_authorization/stage2_live_execution.json"
       ],
       "expectations": [
         "No path runs with the stale receipt.",
-        "The mismatch is tied to proposal_sha256 or source_revision.",
-        "A new user decision is required; silence is not treated as approval."
+        "The stale condition identifies both the confirmed Profile source binding and the Stage 2 authorization source binding.",
+        "Recovery requires fresh Stage 1 confirmation and a new Stage 2 user decision; silence is not treated as approval."
       ]
     },
     {

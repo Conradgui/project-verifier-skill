@@ -28,8 +28,8 @@ reduced coverage; do not install a tool or silently switch one.
 Before execution, present one concise tool/scope/permission decision with the
 selected tasks, local or isolated targets, expected side effects, output paths,
 limits, tool versions, raw-output locations, and known blind spots. Write the
-machine plan to `project_verification_workbench/phase3_security_plan.json` and
-a human summary to `project_verification_workbench/phase3_security_plan.md`.
+machine plan to `project_verification_workbench/stage3_security_plan.json` and
+a human summary to `project_verification_workbench/stage3_security_plan.md`.
 
 The decision envelope is `stage3 / security_execution` and has a complete
 capability matrix for `offline_read_only`, `tool_download`,
@@ -83,7 +83,7 @@ Preflight must not execute a target or infer any security result from tool
 availability.
 
 `bash run_security_template.sh run` re-runs preflight, then requires a current
-V3 envelope, receipt, exact source fingerprint, complete limits, exact
+current envelope, receipt, exact source fingerprint, complete limits, exact
 `task_id -> target` bindings, and each task's requested capability before
 dispatch. Runner-owned artifacts stay in the workbench and it records command
 identity, the task descriptor's declared tool version, exit code, duration,
@@ -135,7 +135,7 @@ The normalizer must not infer exploitability from tool severity or evidence.
 ## Output And Limitations
 
 Write `project_verification_workbench/security_report.md` and
-`project_verification_workbench/phase3_security_results.json`. Keep safe
+`project_verification_workbench/stage3_security_results.json`. Keep safe
 finding and provenance references, non-executed surfaces, fallback coverage,
 and limitations visible. Keep raw paths, decision IDs, task IDs, and tool text
 only in the bounded runner results; do not copy them into the normalized or

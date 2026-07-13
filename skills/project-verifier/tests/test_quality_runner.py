@@ -8,7 +8,7 @@ from helpers import SKILL_ROOT, load_module, run, write_json
 
 
 RUNNER = SKILL_ROOT / "templates/run_quality_template.sh"
-VALIDATOR = SKILL_ROOT / "scripts/validate_gate_v3.py"
+VALIDATOR = SKILL_ROOT / "scripts/validate_gate.py"
 STALE_FIXTURE_ROOT = SKILL_ROOT / "evals/fixtures/stale_authorization"
 GATE = load_module(VALIDATOR, "quality_runner_v3_gate")
 
@@ -178,7 +178,7 @@ class QualityRunnerTests(unittest.TestCase):
         write_json(receipt_path, receipt)
         write_json(envelope_path, envelope)
         reports = workbench / "quality-e2e-reports"
-        results = workbench / "phase2_quality_results.json"
+        results = workbench / "stage2_quality_results.json"
         env = {
             **os.environ,
             "QUALITY_TEST_DIR": str(test_dir),
@@ -331,6 +331,16 @@ class QualityRunnerTests(unittest.TestCase):
             self.assertIn("profile", result.stdout.lower())
             self.assertFalse((project / "profile-should-not-execute").exists())
 
+    def test_run_rejects_stale_profile_after_source_change_before_dispatch(self):
+        script = "#!/bin/sh\ntouch stale-profile-should-not-execute\n"
+        tmp, _, project, _, _, _, env = self.make_project({"quality_P0_guard.sh": script})
+        with tmp:
+            (project / "app.py").write_text("VALUE = 2\n", encoding="utf-8")
+            result = self.runner("run", project, env)
+            self.assertNotEqual(0, result.returncode)
+            self.assertIn("source revision", result.stdout.lower())
+            self.assertFalse((project / "stale-profile-should-not-execute").exists())
+
     def test_run_rejects_missing_and_over_limit_authorization_before_dispatch(self):
         script = "#!/bin/sh\ntouch authorization-should-not-execute\n"
         tmp, _, project, _, _, _, env = self.make_project({"quality_P0_guard.sh": script})
@@ -435,16 +445,23 @@ class QualityRunnerTests(unittest.TestCase):
             self.assertEqual("inconclusive", missing_payload["result_outcome"])
             self.assertEqual("none", missing_payload["claim_eligibility"])
 
-    def test_stale_authorization_fixture_uses_v3_stage2_envelope_identity(self):
+    def test_stale_source_fixture_binds_profile_and_authorization_to_old_revision(self):
+        descriptor = json.loads((STALE_FIXTURE_ROOT / "fixture.json").read_text(encoding="utf-8"))
         receipt = json.loads((STALE_FIXTURE_ROOT / "stage2_live_execution.json").read_text(encoding="utf-8"))
-        manifest = json.loads((STALE_FIXTURE_ROOT / "verification_manifest_v3.json").read_text(encoding="utf-8"))
+        manifest = json.loads((STALE_FIXTURE_ROOT / "verification_manifest.json").read_text(encoding="utf-8"))
+        profile = json.loads(
+            (STALE_FIXTURE_ROOT / "project_verification_workbench/project_profile.json").read_text(encoding="utf-8")
+        )
         plan = (STALE_FIXTURE_ROOT / "stage2_quality_plan.md").read_text(encoding="utf-8")
         GATE.validate_receipt(receipt)
         GATE.validate_manifest(manifest)
         self.assertEqual("stage2", receipt["stage"])
         self.assertEqual("live_e2e", receipt["decision_type"])
         self.assertEqual(receipt, manifest["decisions"][0])
-        self.assertIn("must not match", plan)
+        self.assertEqual(receipt["source_revision"], manifest["source_revision"]["revision"])
+        self.assertEqual(receipt["source_revision"], profile["source_identity"]["revision"])
+        self.assertNotEqual(receipt["source_revision"], descriptor["current_source_revision"])
+        self.assertIn("matches the approved receipt", plan)
         envelope = json.loads(plan.split("```json\n", 1)[1].split("\n```", 1)[0])
         GATE.validate_decision_envelope(envelope)
-        self.assertNotEqual(receipt["decision_envelope_sha256"], GATE.canonical_object_hash(envelope))
+        self.assertEqual(receipt["decision_envelope_sha256"], GATE.canonical_object_hash(envelope))

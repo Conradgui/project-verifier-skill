@@ -25,18 +25,16 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Run offline behavior and contract tests
+      - name: Run V3 offline tests
         run: |
           export PYTHONPYCACHEPREFIX=/tmp/project-verifier-pycache
-          python3 project_verifier_iteration_workbench/20260626_skill_hardening/template_behavior_tests.py
-          python3 project_verifier_iteration_workbench/20260628_conditional_eval_gates/workflow_contract_tests.py
-          python3 project_verifier_iteration_workbench/20260629_stage_gate_quality_v2/stage_gate_v2_tests.py
-          python3 project_verifier_iteration_workbench/20260630_lean_core_simplification/lean_core_contract_tests.py
+          python3 -m unittest discover -s skills/project-verifier/tests -p 'test_*.py' -v
 
       - name: Check shell syntax
         run: |
           bash -n bootstrap.sh
-          bash -n skills/project-verifier/templates/run_usability_template.sh
+          bash -n skills/project-verifier/templates/run_quality_template.sh
+          bash -n skills/project-verifier/templates/run_security_template.sh
           bash -n skills/project-verifier/templates/run_benchmark_template.sh
 
       - name: Compile Python files
@@ -46,10 +44,15 @@ jobs:
             skills/project-verifier/scripts/validate_gate.py \
             skills/project-verifier/templates/benchmark_evaluator_template.py \
             optional/codex-hook/pre_tool_guard.py \
-            project_verifier_iteration_workbench/20260626_skill_hardening/template_behavior_tests.py \
-            project_verifier_iteration_workbench/20260628_conditional_eval_gates/workflow_contract_tests.py \
-            project_verifier_iteration_workbench/20260629_stage_gate_quality_v2/stage_gate_v2_tests.py \
-            project_verifier_iteration_workbench/20260630_lean_core_simplification/lean_core_contract_tests.py
+            skills/project-verifier/scripts/validate_benchmark_task.py \
+            skills/project-verifier/templates/security_normalizer_template.py \
+            skills/project-verifier/templates/benchmark_evaluator_template.py \
+            skills/project-verifier/tests/helpers.py \
+            skills/project-verifier/tests/test_control_plane.py \
+            skills/project-verifier/tests/test_contract.py \
+            skills/project-verifier/tests/test_quality_runner.py \
+            skills/project-verifier/tests/test_security.py \
+            skills/project-verifier/tests/test_benchmark.py
 
       - name: Parse JSON files
         run: |

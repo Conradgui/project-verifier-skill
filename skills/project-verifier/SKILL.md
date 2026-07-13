@@ -1,120 +1,50 @@
 ---
 name: project-verifier
 description: >-
-  Use when a user needs to understand, map, audit, test, or evidence a software
-  project; asks for architecture or user-flow documentation, scoped security or
-  quality review, offline tests, gated live E2E, AI evaluation, or evidence-backed
-  README, interview, defense, or portfolio material.
+  Use when a user needs evidence-backed project understanding, architecture or
+  flow mapping, scoped quality or security verification, conditional live E2E,
+  or a guided AI Benchmark with reproducible workbench artifacts.
 ---
 
 # Project Verifier
 
-## Overview
+使用四阶段、证据优先的项目理解与验证流程。优先使用已有确定性脚本；缺失证据、失败、空输出和未知项都必须保留，不能转化为正向主张。
 
-Run a five-phase project understanding and verification workflow. Prefer existing deterministic scripts, preserve negative results, and bind high-risk execution to current evidence. Never turn missing measurements into positive claims.
+## 核心规则
 
-## Identity
+1. **脚本优先**：优先复用项目现有测试、lint、构建和 E2E 脚本。
+2. **先理解，后执行**：Stage 1 只读分析并生成来源可追溯的项目理解材料。
+3. **少而关键的用户决策**：用户决定目标、P0 路径、生产代码修改、安装、真实调用、成本、敏感数据、Baseline、指标与公开主张；其余可逆实现细节由 Agent 处理。
+4. **高风险动作必须 Gate**：计划、源码 revision、授权 envelope 和执行上限不一致时拒绝执行；未回复不是批准。
+5. **证据先于叙事**：面试或 README 主张必须引用当前 revision 的 workbench 证据。
 
-- Repository: `https://github.com/Conradgui/project-verifier-skill.git`
-- Skill path: `skills/project-verifier`
-- Skill name and invocation: `project-verifier` / `$project-verifier`
+始终提供：继续、修订、跳过可选项、停止并保留证据。
 
-Install the skill directory, not the repository root.
+## 四阶段
 
-## Core Rules
+1. [Stage 1：项目理解与 Profile Gate](workflows/stage1_understanding.md)
+2. [Stage 2：质量、可运行性与授权 Live E2E](workflows/stage2_quality.md)
+3. [Stage 3：项目适配的安全边界验证](workflows/stage3_security.md)
+4. [Stage 4：条件式、证据优先的 AI Benchmark](workflows/stage4_benchmark.md)
 
-1. **Script-first:** reuse existing tests and deterministic scripts before generating new ones.
-2. **Read before writing:** Phase 1 is read-only except for workbench evidence.
-3. **Ask at consequential gates:** production code, dependencies, live calls, costs, sensitive data, baselines, metrics, public claims, and optional exports belong to the user.
-4. **No inferred evidence:** record interpretation-changing unknowns as `unknown` and ask.
-5. **Evidence before claims:** preserve failures, empty outputs, limitations, raw logs, and current source identity.
+Stage 1 是后续阶段的前置条件。Stage 2、3、4 均须拒绝未确认或过期的 Profile。Stage 4 仅用于存在可评测 AI / AI-assisted 功能且有明确比较决策的项目；非 AI 项目应标为 `not_applicable`。
 
-At every boundary offer: continue, revise, skip an optional action, or stop and retain evidence.
+## 控制面与产物
 
-## Control Plane
+在 `project_verification_workbench/` 中维护 `verification_manifest.json`、`authorizations/*.json`、原始日志和各阶段结果。状态始终分开记录：`phase_status`、`result_outcome`、`execution_scope`、`claim_eligibility`。
 
-Create `project_verification_workbench/verification_manifest.json` from `templates/verification_manifest_template.json`. It is the canonical state file. Capture the source with:
+默认人类阅读路径：`project_report.md`、`flow_matrix.md`、`quality_report.md`、`security_report.md`，以及条件生成的 `benchmark_report.md`。详细 schema 与证据边界见 [artifact contracts](references/artifact_contracts.md)；工具选择、替代方案和受信任 bridge 边界见 [tool adapters](references/tool_adapters.md)。
 
-```bash
-python3 scripts/validate_gate.py fingerprint --root <project>
-```
+## 可选导出
 
-Keep these state dimensions separate:
+README 优化副本需要单独确认。只有用户明确要求面试、答辩或作品集材料时，才加载 [可选证据导出](workflows/optional_interview_export.md)。它不生成新的原始证据，所有主张都需用户确认并引用当前 workbench。
 
-| Field | Meaning |
-|---|---|
-| `phase_status` | Whether workflow work ran |
-| `result_outcome` | What verification observed |
-| `execution_scope` | `none`, `plan_only`, `pilot`, or `full` |
-| `claim_eligibility` | Maximum evidence scope that may be described |
+## 不能证明什么
 
-A completed test run may have `result_outcome: fail`. A pilot is completed but remains `result_outcome: inconclusive` and `claim_eligibility: pilot`.
-
-## Authorization Contract
-
-Before a high-risk action, create an authorization receipt and record the same object once in the manifest. It must include `decision_id`, `phase`, `decision_type`, `proposal_sha256`, `source_revision`, `user_choice`, `approved_limits`, `approved_at`, and `invalidated_at`.
-
-Use `scripts/validate_gate.py check` before execution. Reject missing, changed, duplicated, expired, invalidated, or non-approved receipts. A proposal, source revision, action, or limit change requires a new decision. No response is not approval.
-
-Do not read secret values. Record only required variable names and missing conditions.
-
-## Evidence Contract
-
-Create durable artifacts before moving to the next phase:
-
-| Stage | Required artifacts |
-|---|---|
-| Control | `verification_manifest.json`, `authorizations/*.json` |
-| Phase 1–2 | `project_report.md`, `flow_matrix.md`, `phase2_flow_matrix.md` |
-| Phase 3 | `phase3_test_plan.md`, `phase3_test_results.md` |
-| Phase 4 | `phase4_usability_plan.md`, `phase4_usability_results.json` |
-| Phase 5 | `phase5_benchmark_plan.md`, `phase5_benchmark_results.json` |
-
-`flow_matrix.md` is the human-readable source. Keep `phase2_flow_matrix.md` synchronized as the compatibility path consumed by later phases.
-
-The default user reading path is `project_report.md`, `flow_matrix.md`, and the current phase results. Keep raw logs and runner outputs even when results are negative.
-
-## Workflows
-
-Load only the workflow needed for the current phase:
-
-1. [Phase 1: scoped exploration and static risk review](workflows/phase1_explore.md)
-2. [Phase 2: project mapping and diagrams](workflows/phase2_diagrams.md)
-3. [Phase 3: offline behavior tests](workflows/phase3_quality.md)
-4. [Phase 4: authorized live E2E](workflows/phase4_usability.md)
-5. [Phase 5: evidence-first AI comparative evaluation](workflows/phase5_benchmark.md)
-
-Phase 1–3 form the universal core. Phase 4 depends on the project environment. Phase 5 applies only to AI or AI-assisted features with a defensible comparison question.
-
-## Optional Exports
-
-Optional exports are not phases:
-
-- Phase 2 may create `README_updated_[Date]_[RandomID].md` after separate approval.
-- When the user explicitly requests interview, defense, or portfolio material, load [optional interview export](workflows/optional_interview_export.md).
-
-The interview export creates only `interview_evidence_pack.md` plus `project_verification_workbench/interview_evidence_source_map.md`. Every strong claim must cite a current-revision workbench artifact and receive claim approval.
-
-## Credibility Boundaries
-
-- Static review is not penetration testing, compliance certification, or complete coverage.
-- `preflight` performs no target execution.
-- Missing telemetry produces `inconclusive`, not success.
-- Phase 4 call counts, retries, and side effects are script self-reported unless
-  independent instrumentation is present.
-- Test pass rate is not code coverage.
-- Empty or missing output and nonzero runner exits cannot win a comparison.
-- A single run cannot prove stability. Respect every metric's `minimum_samples`.
-- Phase 5 metrics require `rubric_approved: true` after user approval.
-- Report raw values, thresholds, sample adequacy, evidence, and limitations. Do not produce a universal project score.
-- LLM Judge must be blinded and versioned and cannot alone prove safety, security, privacy, or leakage.
-- Do not claim stable Agent gate compliance until a separately authorized Agent behavior evaluation supports it.
-
-## Common Mistakes
-
-- Treating README statements as code evidence.
-- Modifying production code to make Phase 3 tests pass without a new decision.
-- Reusing approval after source or plan changes.
-- Calling a pilot a completed benchmark.
-- Dropping failed or inconvenient runs.
-- Generating public claims from conversation context instead of workbench evidence.
+- 静态理解不是完整代码审计、渗透测试、合规认证或漏洞不存在证明。
+- `preflight` 不执行目标、模型、API 或扫描。
+- 测试通过率不是代码覆盖率；单次成功不是稳定性证明。
+- 缺少遥测、空输出、非零退出或 pilot 不能形成完整 Benchmark 主张。
+- LLM Judge 只能用于允许的质量类指标，不能单独证明安全、隐私或泄漏。
+- 项目 executor 是显式授权的未隔离 bridge，不是 sandbox。
+- 在授权的真实 Agent 行为 Eval 完成前，不声称模型会稳定遵守所有 Gate。

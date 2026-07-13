@@ -20,7 +20,7 @@
 | Task 4 | completed | Stage 2 quality/live-E2E runner was independently approved. |
 | Task 5 | completed and frozen | Stage 3 security boundary adapter was independently approved and committed as `f38cd18`; focused security tests were `35/35` and document-contract tests `12/12`. |
 | Task 6 | completed and independently approved | Stage 4 now binds final-plan approval, unique sample evidence, thresholds, current Gate validation, workbench receipts, and explicit trusted-executor acknowledgement. The final reviewer found no P0/P1. |
-| Task 7 | pending | Promote the reviewed V3 contract and update all public documentation atomically only after Task 6 closes. |
+| Task 7 | completed | Four-stage public contract, canonical names, CI, fixtures and user documentation were migrated together. Focused contract/quality/security/Benchmark regressions passed; final review repairs closed the stale-source path before dispatch. |
 | Task 8 | pending | Perform the single release-wide offline verification and write the truthful closeout report after the public-contract migration. |
 
 No real model/API call, security scan, dependency installation, local Skill
