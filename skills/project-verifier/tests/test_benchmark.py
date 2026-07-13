@@ -172,6 +172,8 @@ class Stage4BenchmarkContractTests(unittest.TestCase):
             "not_supported",
             "inconclusive",
             "不生成通用评分",
+            "stage4_benchmark_results.json",
+            "benchmark_report.md",
         ):
             with self.subTest(phrase=phrase):
                 self.assertIn(phrase, workflow)

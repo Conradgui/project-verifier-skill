@@ -83,7 +83,7 @@ Preflight must not execute a target or infer any security result from tool
 availability.
 
 `bash run_security_template.sh run` re-runs preflight, then requires a current
-current envelope, receipt, exact source fingerprint, complete limits, exact
+envelope, receipt, exact source fingerprint, complete limits, exact
 `task_id -> target` bindings, and each task's requested capability before
 dispatch. Runner-owned artifacts stay in the workbench and it records command
 identity, the task descriptor's declared tool version, exit code, duration,

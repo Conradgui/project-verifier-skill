@@ -41,6 +41,7 @@ python3 /Users/conrad/.codex/skills/.system/skill-creator/scripts/quick_validate
 - `preflight` 不执行真实路径；源码变化会使 Stage 1 Profile 与后续授权失效。Stage 2 runner 的临时 Git 集成测试已证明其在派发脚本前拒绝旧 Profile。
 - Benchmark 保留原始指标、阈值、样本充分性、收据绑定和负面结果；不提供默认综合分或雷达图。
 - 可选面试导出不在默认主流程内。旧 phase workflow、过渡文件、录制/回放设计、旧 usability runner 与 `LICENSE` 已移除。
+- 收尾后的 README/Stage 4 文档同步明确：Benchmark 只强制要求当前 Stage 1 Profile 与用户确认方案；Stage 2/3 证据按相关性输入。适用时必须落盘 `stage4_benchmark_results.json` 和 `benchmark_report.md`。
 
 ## 限制
 

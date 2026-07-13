@@ -13,12 +13,13 @@ flowchart LR
 质量与授权 E2E]
   S1 --> S3[Stage 3
 安全边界验证]
-  S1 --> S4{存在可评测 AI 功能?}
-  S2 --> S4
-  S3 --> S4
-  S4 -->|是且用户确认方案| B[Stage 4
+  S1 --> G{存在可评测 AI 功能
+且有明确比较决策?}
+  S2 -. 可用质量证据 .-> B
+  S3 -. 适用时的安全证据 .-> B
+  G -->|是且用户确认方案| B[Stage 4
 证据优先 Benchmark]
-  S4 -->|否或条件缺失| P[记录 plan_only / not_applicable]
+  G -->|否或条件缺失| P[记录 plan_only / not_applicable]
 ```
 
 | 阶段 | Agent 负责 | 用户只需决定 | 退出证据 |
@@ -26,7 +27,7 @@ flowchart LR
 | Stage 1 | 只读遍历、架构/模块/用户流程图、Profile | 目标、P0 路径、事实纠正 | `project_report.md`、`flow_matrix.md`、`project_profile.json` |
 | Stage 2 | 离线质量检查、可运行性、授权 Smoke/Live E2E | 选定路径、真实调用与成本 | `quality_report.md`、结果 JSON、日志 |
 | Stage 3 | 项目适配的安全工具建议、预检、归一化 | 工具、能力、范围与副作用 | `security_report.md`、受控发现结果 |
-| Stage 4 | 从前序证据提出 3-5 个方向并形成比较方案 | 突出方向、最终方案、Baseline/预算 | 条件生成的 `benchmark_report.md` 与收据 |
+| Stage 4 | 从 Profile、已有验证证据和用户方向形成比较方案 | 突出方向、最终方案、Baseline/预算 | `stage4_benchmark_plan.md`；条件生成的结果、报告与收据 |
 
 真实调用、依赖安装、生产代码修改、敏感数据、成本和公开主张都需要当前计划、源码 revision 与授权 envelope 一致；未回复不等于批准。
 
@@ -39,13 +40,19 @@ project_verification_workbench/
 ├── project_report.md
 ├── flow_matrix.md
 ├── quality_report.md
+├── stage2_quality_results.json
 ├── security_report.md
+├── stage3_security_results.json
 ├── verification_manifest.json
 ├── authorizations/
-└── benchmark_report.md            # 仅 AI Benchmark 适用且执行后生成
+├── stage4_benchmark_plan.md        # 仅 AI Benchmark 适用
+├── stage4_benchmark_results.json  # 仅 AI Benchmark 适用
+└── benchmark_report.md             # 仅 AI Benchmark 适用；面向人阅读
 ```
 
 README 优化副本和面试/答辩材料是可选导出，不是验证阶段。它们必须引用当前 workbench，不能凭对话内容生成成果主张。
+
+Stage 4 的必经前置是当前有效的 Stage 1 Profile 与用户确认的比较方案；Stage 2 和 Stage 3 的完成证据会在可用且相关时输入 Benchmark，但不是所有 AI 项目都必须先执行的机械前置。
 
 ## 可信度边界
 

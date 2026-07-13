@@ -39,3 +39,16 @@
 收据提供本地文件之间的可追溯关联，不是对手工编辑本地文件的密码学防篡改证明。报告必须保留这一限制，以及负面结果和无显著差异结果。
 
 pilot 仅是小范围验证：`phase_status: completed`、`result_outcome: inconclusive`、`execution_scope: pilot`、`claim_eligibility: pilot`。它不能替代完整 Benchmark，也不能生成完整优势主张。
+
+## 落盘与报告
+
+无论最终是 `not_applicable`、`plan_only`、`pilot` 还是 `full`，都在
+`project_verification_workbench/stage4_benchmark_results.json` 记录状态、
+证据路径、限制和恢复条件。只要阶段适用，就保留
+`project_verification_workbench/stage4_benchmark_plan.md`。
+
+阶段结束时写入面向人阅读的
+`project_verification_workbench/benchmark_report.md`：说明比较问题、用户
+选择方向、Baseline、原始指标、阈值、样本量、收据引用、负面或无显著差异
+结果和限制。`plan_only`、`pilot` 或缺少匹配 `full` 收据时，报告只能描述
+计划或初步结果，不能写成完整优势主张。
